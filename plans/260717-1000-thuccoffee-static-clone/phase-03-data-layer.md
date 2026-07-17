@@ -10,7 +10,7 @@ effort: "3h"
 ## Context Links
 - Product catalog (42): `research/crawl-report.md` §"Product Catalog"
 - Blog (5): `research/crawl-report.md` §"Blog Posts"
-- Stores (7): `research/crawl-report.md` §"Store List"
+- Stores (7): `research/crawl-report.md` §"Store List" (abbreviated addresses) — **full street addresses, phone numbers, store→image mapping, and the contact email (`info.thuccoffee247@gmail.com`) are sourced from `research/homepage.html`** (raw crawled homepage HTML, committed post-review after a code-reviewer finding that this provenance was only in an uncommitted scratchpad — grep for `contact-link email`, `left-item`, `class="address"` in that file to trace).
 - Categories (10): `research/crawl-report.md` §"Routes Summary" (menu tabs)
 
 ## Overview

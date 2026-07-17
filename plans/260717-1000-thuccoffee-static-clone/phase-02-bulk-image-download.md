@@ -1,8 +1,8 @@
 ---
 phase: 2
-title: "bulk-image-download"
-status: pending
-effort: "2h"
+title: bulk-image-download
+status: completed
+effort: 2h
 ---
 
 # Phase 2: Bulk Image Download
