@@ -37,7 +37,7 @@ Design tokens: primary `#0c5278`, secondary `#40260a`, accent `#79a3b1`; contain
 |-------|------|--------|
 | 1 | [project-scaffolding](./phase-01-project-scaffolding.md) | Completed |
 | 2 | [bulk-image-download](./phase-02-bulk-image-download.md) | Completed |
-| 3 | [data-layer](./phase-03-data-layer.md) | Pending |
+| 3 | [data-layer](./phase-03-data-layer.md) | Completed |
 | 4 | [shared-layout-components](./phase-04-shared-layout-components.md) | Pending |
 | 5 | [home-page](./phase-05-home-page.md) | Pending |
 | 6 | [menu-pages](./phase-06-menu-pages.md) | Pending |
@@ -73,7 +73,7 @@ Design tokens: primary `#0c5278`, secondary `#40260a`, accent `#79a3b1`; contain
 |---|---------|----------|-------------|------------|
 | 1 | Cited source data (`scratchpad/crawl-report.md` etc.) doesn't exist in repo — reported independently by all 4 reviewers | Critical | Accept | Completed |
 | 2 | `Breadcrumb`/`ProductCard`/`SectionTitle` file-ownership race between "parallel-safe" Phases 5/6 and their consumers (Failure Mode + Scope Critic, independently) | High | Accept | Completed |
-| 3 | Phase 10 QA duplicates per-phase "Responsive" checks with no stated authority split | High | Accept | Phase 5, 6, 7, 8, 9, 10 (clarified: per-phase = quick mobile check; Phase 10 = sole 4-breakpoint sweep) |
+| 3 | Phase 10 QA duplicates per-phase "Responsive" checks with no stated authority split | High | Accept | Completed |
 | 4 | Login page indistinguishable from real auth (code comment only, no visible disclosure) | High | Accept | Phase 9 |
 | 5 | Bulk download has no hard fail-gate; partial/corrupt (HTML-as-image) files can silently proceed to Phase 3+ | High | Accept | Phase 2 |
 | 6 | Fabricating a specific contact address/phone for a real operating company | Medium | Accept | Phase 3 |

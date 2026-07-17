@@ -1,8 +1,8 @@
 ---
 phase: 3
-title: "data-layer"
-status: pending
-effort: "3h"
+title: data-layer
+status: completed
+effort: 3h
 ---
 
 # Phase 3: Data Layer
