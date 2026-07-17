@@ -1,0 +1,16 @@
+@import "tailwindcss";
+@import "@fontsource/roboto/400.css";
+@import "@fontsource/roboto/500.css";
+@import "@fontsource/roboto/700.css";
+
+@theme {
+  --color-primary: #0c5278;
+  --color-secondary: #40260a;
+  --color-accent: #79a3b1;
+  --font-sans: Roboto, system-ui, sans-serif;
+  --container-max: 1170px;
+}
+
+html {
+  font-family: var(--font-sans);
+}

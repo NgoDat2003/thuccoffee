@@ -1,15 +1,21 @@
 ---
-title: "Thức Coffee Static Clone"
-description: "Static React frontend clone of thuccoffee.com.vn with hardcoded data and real downloaded images, no backend."
+title: Thức Coffee Static Clone
+description: >-
+  Static React frontend clone of thuccoffee.com.vn with hardcoded data and real
+  downloaded images, no backend.
 status: pending
 priority: P2
 effort: 26h
-branch: "main"
-tags: [frontend, feature, react, static-clone]
+branch: main
+tags:
+  - frontend
+  - feature
+  - react
+  - static-clone
 blockedBy: []
 blocks: []
-created: "2026-07-17"
-createdBy: "ck:plan"
+created: '2026-07-17'
+createdBy: 'ck:plan'
 source: skill
 ---
 
@@ -29,7 +35,7 @@ Design tokens: primary `#0c5278`, secondary `#40260a`, accent `#79a3b1`; contain
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 1 | [project-scaffolding](./phase-01-project-scaffolding.md) | Pending |
+| 1 | [project-scaffolding](./phase-01-project-scaffolding.md) | Completed |
 | 2 | [bulk-image-download](./phase-02-bulk-image-download.md) | Pending |
 | 3 | [data-layer](./phase-03-data-layer.md) | Pending |
 | 4 | [shared-layout-components](./phase-04-shared-layout-components.md) | Pending |
@@ -65,7 +71,7 @@ Design tokens: primary `#0c5278`, secondary `#40260a`, accent `#79a3b1`; contain
 
 | # | Finding | Severity | Disposition | Applied To |
 |---|---------|----------|-------------|------------|
-| 1 | Cited source data (`scratchpad/crawl-report.md` etc.) doesn't exist in repo — reported independently by all 4 reviewers | Critical | Accept | Materialized into `plans/.../research/`; all phase `Context Links` repointed |
+| 1 | Cited source data (`scratchpad/crawl-report.md` etc.) doesn't exist in repo — reported independently by all 4 reviewers | Critical | Accept | Completed |
 | 2 | `Breadcrumb`/`ProductCard`/`SectionTitle` file-ownership race between "parallel-safe" Phases 5/6 and their consumers (Failure Mode + Scope Critic, independently) | High | Accept | Phase 4 (owns creation now), Phase 5, Phase 6 |
 | 3 | Phase 10 QA duplicates per-phase "Responsive" checks with no stated authority split | High | Accept | Phase 5, 6, 7, 8, 9, 10 (clarified: per-phase = quick mobile check; Phase 10 = sole 4-breakpoint sweep) |
 | 4 | Login page indistinguishable from real auth (code comment only, no visible disclosure) | High | Accept | Phase 9 |

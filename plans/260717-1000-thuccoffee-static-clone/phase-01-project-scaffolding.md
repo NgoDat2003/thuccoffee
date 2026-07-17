@@ -1,8 +1,8 @@
 ---
 phase: 1
-title: "project-scaffolding"
-status: pending
-effort: "3h"
+title: project-scaffolding
+status: completed
+effort: 3h
 ---
 
 # Phase 1: Project Scaffolding
