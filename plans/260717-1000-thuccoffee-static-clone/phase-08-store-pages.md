@@ -1,8 +1,8 @@
 ---
 phase: 8
-title: "store-pages"
-status: pending
-effort: "1.5h"
+title: store-pages
+status: completed
+effort: 1.5h
 ---
 
 # Phase 8: Store Pages
