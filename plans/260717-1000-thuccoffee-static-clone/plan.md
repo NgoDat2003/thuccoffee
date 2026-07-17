@@ -41,7 +41,7 @@ Design tokens: primary `#0c5278`, secondary `#40260a`, accent `#79a3b1`; contain
 | 4 | [shared-layout-components](./phase-04-shared-layout-components.md) | Completed |
 | 5 | [home-page](./phase-05-home-page.md) | Completed |
 | 6 | [menu-pages](./phase-06-menu-pages.md) | Completed |
-| 7 | [blog-pages](./phase-07-blog-pages.md) | Pending |
+| 7 | [blog-pages](./phase-07-blog-pages.md) | Completed |
 | 8 | [store-pages](./phase-08-store-pages.md) | Pending |
 | 9 | [static-pages](./phase-09-static-pages.md) | Pending |
 | 10 | [polish-pass](./phase-10-polish-pass.md) | Pending |
@@ -77,7 +77,7 @@ Design tokens: primary `#0c5278`, secondary `#40260a`, accent `#79a3b1`; contain
 | 4 | Login page indistinguishable from real auth (code comment only, no visible disclosure) | High | Accept | Completed |
 | 5 | Bulk download has no hard fail-gate; partial/corrupt (HTML-as-image) files can silently proceed to Phase 3+ | High | Accept | Completed |
 | 6 | Fabricating a specific contact address/phone for a real operating company | Medium | Accept | Completed |
-| 7 | `console.warn` on missing image conflicts with Phase 10's "no console warnings" criterion | Medium | Accept | Phase 3, Phase 10 (dev-only guard) |
+| 7 | `console.warn` on missing image conflicts with Phase 10's "no console warnings" criterion | Medium | Accept | Completed |
 | 8 | Download script not idempotent/resume-safe (no tmp+atomic-rename) | Medium | Accept | Phase 2 |
 | 9 | ~20 ambiguous image subfolder assignments left to implementer memory, not recorded | Medium | Accept | Phase 2 (mandatory annotation) |
 | 10 | Unpinned npm deps + no `npm audit` gate (supply chain) | Medium | Accept | Phase 1 |

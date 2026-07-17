@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { stores } from '../../data';
 import { getImageUrl } from '../../lib/image-url';
+import { toTelHref } from '../../lib/format';
 
 export default function StoreLocator() {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -20,7 +21,7 @@ export default function StoreLocator() {
           <p className="mt-1 text-sm">{selected.address}</p>
           <p className="mt-1 text-sm">
             Liên hệ:{' '}
-            <a href={`tel:${selected.phone.replace(/\s|\(|\)/g, '')}`} className="underline">
+            <a href={toTelHref(selected.phone)} className="underline">
               {selected.phone}
             </a>
           </p>

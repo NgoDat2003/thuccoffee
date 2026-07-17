@@ -1,8 +1,8 @@
 ---
 phase: 7
-title: "blog-pages"
-status: pending
-effort: "1.5h"
+title: blog-pages
+status: completed
+effort: 1.5h
 ---
 
 # Phase 7: Blog Pages
