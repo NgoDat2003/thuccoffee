@@ -1,8 +1,8 @@
 ---
 phase: 5
-title: "home-page"
-status: pending
-effort: "3h"
+title: home-page
+status: completed
+effort: 3h
 ---
 
 # Phase 5: Home Page

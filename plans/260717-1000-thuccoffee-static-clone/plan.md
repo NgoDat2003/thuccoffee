@@ -39,7 +39,7 @@ Design tokens: primary `#0c5278`, secondary `#40260a`, accent `#79a3b1`; contain
 | 2 | [bulk-image-download](./phase-02-bulk-image-download.md) | Completed |
 | 3 | [data-layer](./phase-03-data-layer.md) | Completed |
 | 4 | [shared-layout-components](./phase-04-shared-layout-components.md) | Completed |
-| 5 | [home-page](./phase-05-home-page.md) | Pending |
+| 5 | [home-page](./phase-05-home-page.md) | Completed |
 | 6 | [menu-pages](./phase-06-menu-pages.md) | Pending |
 | 7 | [blog-pages](./phase-07-blog-pages.md) | Pending |
 | 8 | [store-pages](./phase-08-store-pages.md) | Pending |
@@ -75,7 +75,7 @@ Design tokens: primary `#0c5278`, secondary `#40260a`, accent `#79a3b1`; contain
 | 2 | `Breadcrumb`/`ProductCard`/`SectionTitle` file-ownership race between "parallel-safe" Phases 5/6 and their consumers (Failure Mode + Scope Critic, independently) | High | Accept | Completed |
 | 3 | Phase 10 QA duplicates per-phase "Responsive" checks with no stated authority split | High | Accept | Completed |
 | 4 | Login page indistinguishable from real auth (code comment only, no visible disclosure) | High | Accept | Completed |
-| 5 | Bulk download has no hard fail-gate; partial/corrupt (HTML-as-image) files can silently proceed to Phase 3+ | High | Accept | Phase 2 |
+| 5 | Bulk download has no hard fail-gate; partial/corrupt (HTML-as-image) files can silently proceed to Phase 3+ | High | Accept | Completed |
 | 6 | Fabricating a specific contact address/phone for a real operating company | Medium | Accept | Phase 3 |
 | 7 | `console.warn` on missing image conflicts with Phase 10's "no console warnings" criterion | Medium | Accept | Phase 3, Phase 10 (dev-only guard) |
 | 8 | Download script not idempotent/resume-safe (no tmp+atomic-rename) | Medium | Accept | Phase 2 |
