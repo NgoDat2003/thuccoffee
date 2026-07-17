@@ -7,8 +7,10 @@ import BlogCarousel from '../components/home/BlogCarousel';
 import StoreLocator from '../components/home/StoreLocator';
 import GalleryLightbox from '../components/home/GalleryLightbox';
 import { getFeaturedProducts } from '../data';
+import { usePageMeta } from '../lib/use-page-meta';
 
 export default function HomePage() {
+  usePageMeta('', 'Thương hiệu cà phê tự hào tiên phong trong lĩnh vực hoạt động 24H tại TP.HCM');
   const featured = getFeaturedProducts(8);
 
   return (

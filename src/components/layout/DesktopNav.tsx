@@ -4,7 +4,7 @@ import { categories } from '../../data';
 
 export default function DesktopNav() {
   return (
-    <nav className="hidden items-center gap-6 md:flex">
+    <nav className="hidden items-center gap-5 lg:flex">
       {NAV_LINKS.map((link) =>
         link.to === '/menu' ? (
           <div key={link.to} className="group relative">

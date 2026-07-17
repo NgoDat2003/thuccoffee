@@ -1,8 +1,11 @@
 import Container from '../components/ui/Container';
 import ContactForm from '../components/ui/ContactForm';
 import { pages } from '../data';
+import { usePageMeta } from '../lib/use-page-meta';
 
 export default function ContactPage() {
+  usePageMeta('Liên hệ', 'Thông tin liên hệ Thức Coffee.');
+
   return (
     <Container className="py-10">
       <h1 className="mb-6 text-2xl font-bold uppercase text-primary">{pages.contact.heading}</h1>

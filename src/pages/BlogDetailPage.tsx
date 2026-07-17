@@ -5,12 +5,15 @@ import SectionTitle from '../components/ui/SectionTitle';
 import BlogCard from '../components/blog/BlogCard';
 import { blogPosts, getBlogBySlug } from '../data';
 import { getImageUrl } from '../lib/image-url';
+import { usePageMeta } from '../lib/use-page-meta';
 
 export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
   const post = slug ? getBlogBySlug(slug) : undefined;
+
+  usePageMeta(post?.title ?? 'Chuyện của Thức', post?.summary);
 
   if (!post) {
     return <Navigate to="/chuyen-cua-thuc" replace />;

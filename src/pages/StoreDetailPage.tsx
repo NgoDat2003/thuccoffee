@@ -5,12 +5,15 @@ import MapEmbed from '../components/store/MapEmbed';
 import { getStoreBySlug } from '../data';
 import { getImageUrl } from '../lib/image-url';
 import { toTelHref } from '../lib/format';
+import { usePageMeta } from '../lib/use-page-meta';
 
 export default function StoreDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
   const store = slug ? getStoreBySlug(slug) : undefined;
+
+  usePageMeta(store?.name ?? 'Cửa hàng', store ? `${store.address} - ${store.hours}` : undefined);
 
   if (!store) {
     return <Navigate to="/cua-hang" replace />;

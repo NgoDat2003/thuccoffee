@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import Container from '../components/ui/Container';
 import Toast from '../components/ui/Toast';
+import { usePageMeta } from '../lib/use-page-meta';
 
 export default function LoginPage() {
+  usePageMeta('Đăng nhập');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showToast, setShowToast] = useState(false);

@@ -1,7 +1,10 @@
 import Container from '../components/ui/Container';
 import { pages } from '../data';
+import { usePageMeta } from '../lib/use-page-meta';
 
 export default function CookiePolicyPage() {
+  usePageMeta('Chính sách Cookie', 'Chính sách sử dụng cookie của Thức Coffee.');
+
   return (
     <Container className="py-10">
       <h1 className="mb-6 text-2xl font-bold uppercase text-primary">{pages.cookiePolicy.heading}</h1>

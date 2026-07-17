@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import Container from '../components/ui/Container';
 import { pages } from '../data';
+import { usePageMeta } from '../lib/use-page-meta';
 
 export default function DeliveryPage() {
+  usePageMeta('Đặt hàng online', 'Đặt món từ Thức Coffee và nhận hàng tận nơi 24/7.');
+
   return (
     <Container className="py-10">
       <h1 className="mb-6 text-2xl font-bold uppercase text-primary">{pages.delivery.heading}</h1>

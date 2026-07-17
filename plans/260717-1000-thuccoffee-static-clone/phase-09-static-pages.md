@@ -1,8 +1,8 @@
 ---
 phase: 9
-title: "static-pages"
-status: pending
-effort: "3h"
+title: static-pages
+status: completed
+effort: 3h
 ---
 
 # Phase 9: Static Pages

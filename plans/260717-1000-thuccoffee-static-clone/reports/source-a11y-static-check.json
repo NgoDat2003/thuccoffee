@@ -1,0 +1,122 @@
+﻿[
+    {
+        "path":  "/",
+        "lang":  "vi-VN",
+        "h1":  0,
+        "images":  57,
+        "missing_alt_or_title":  14,
+        "empty_alt":  0,
+        "form_controls":  6,
+        "labels":  2
+    },
+    {
+        "path":  "/menu/",
+        "lang":  "vi-VN",
+        "h1":  0,
+        "images":  37,
+        "missing_alt_or_title":  20,
+        "empty_alt":  0,
+        "form_controls":  7,
+        "labels":  2
+    },
+    {
+        "path":  "/chuyen-cua-thuc/",
+        "lang":  "vi-VN",
+        "h1":  1,
+        "images":  14,
+        "missing_alt_or_title":  4,
+        "empty_alt":  0,
+        "form_controls":  6,
+        "labels":  2
+    },
+    {
+        "path":  "/gioi-thieu/",
+        "lang":  "vi-VN",
+        "h1":  1,
+        "images":  5,
+        "missing_alt_or_title":  4,
+        "empty_alt":  0,
+        "form_controls":  6,
+        "labels":  2
+    },
+    {
+        "path":  "/cua-hang/",
+        "lang":  "vi-VN",
+        "h1":  1,
+        "images":  9,
+        "missing_alt_or_title":  4,
+        "empty_alt":  0,
+        "form_controls":  6,
+        "labels":  2
+    },
+    {
+        "path":  "/chuong-trinh-thanh-vien/",
+        "lang":  "vi-VN",
+        "h1":  2,
+        "images":  7,
+        "missing_alt_or_title":  4,
+        "empty_alt":  0,
+        "form_controls":  6,
+        "labels":  2
+    },
+    {
+        "path":  "/tuyen-dung/",
+        "lang":  "vi-VN",
+        "h1":  1,
+        "images":  5,
+        "missing_alt_or_title":  4,
+        "empty_alt":  0,
+        "form_controls":  6,
+        "labels":  2
+    },
+    {
+        "path":  "/lien-he/",
+        "lang":  "vi-VN",
+        "h1":  1,
+        "images":  4,
+        "missing_alt_or_title":  4,
+        "empty_alt":  0,
+        "form_controls":  10,
+        "labels":  6
+    },
+    {
+        "path":  "/delivery/",
+        "lang":  "vi-VN",
+        "h1":  1,
+        "images":  6,
+        "missing_alt_or_title":  4,
+        "empty_alt":  0,
+        "form_controls":  6,
+        "labels":  2
+    },
+    {
+        "path":  "/chinh-sach/",
+        "lang":  "vi-VN",
+        "h1":  1,
+        "images":  4,
+        "missing_alt_or_title":  4,
+        "empty_alt":  0,
+        "form_controls":  6,
+        "labels":  2
+    },
+    {
+        "path":  "/account/login/",
+        "lang":  "vi-VN",
+        "h1":  1,
+        "images":  4,
+        "missing_alt_or_title":  4,
+        "empty_alt":  0,
+        "form_controls":  12,
+        "labels":  4
+    },
+    {
+        "path":  "/account/forgot-password/",
+        "lang":  "vi-VN",
+        "h1":  1,
+        "images":  4,
+        "missing_alt_or_title":  4,
+        "empty_alt":  0,
+        "form_controls":  9,
+        "labels":  2
+    }
+]

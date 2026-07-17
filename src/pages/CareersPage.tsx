@@ -1,7 +1,10 @@
 import Container from '../components/ui/Container';
 import { pages } from '../data';
+import { usePageMeta } from '../lib/use-page-meta';
 
 export default function CareersPage() {
+  usePageMeta('Tuyển dụng', 'Cơ hội việc làm tại Thức Coffee.');
+
   return (
     <Container className="py-10">
       <h1 className="mb-6 text-2xl font-bold uppercase text-primary">Tuyển dụng</h1>

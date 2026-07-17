@@ -1,8 +1,11 @@
 import Container from '../components/ui/Container';
 import FaqAccordion from '../components/ui/FaqAccordion';
 import { pages } from '../data';
+import { usePageMeta } from '../lib/use-page-meta';
 
 export default function MembershipPage() {
+  usePageMeta('Chính sách thành viên', 'Tích điểm và nhận ưu đãi dành riêng cho thành viên Thức Coffee.');
+
   return (
     <Container className="py-10">
       <h1 className="mb-6 text-2xl font-bold uppercase text-primary">Chính sách thành viên</h1>

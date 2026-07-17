@@ -8,6 +8,7 @@ import RelatedProducts from '../components/menu/RelatedProducts';
 import { getProductBySlug, getRelatedProducts } from '../data';
 import { getImageUrl } from '../lib/image-url';
 import { formatPrice } from '../lib/format';
+import { usePageMeta } from '../lib/use-page-meta';
 
 export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -15,6 +16,8 @@ export default function ProductDetailPage() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const product = slug ? getProductBySlug(slug) : undefined;
+
+  usePageMeta(product?.name ?? 'Menu', product?.description);
 
   if (!product) {
     return <Navigate to="/menu" replace />;

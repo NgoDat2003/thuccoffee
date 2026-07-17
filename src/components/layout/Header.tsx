@@ -25,14 +25,14 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <a
             href="tel:18006230"
-            className="hidden items-center gap-2 text-sm font-medium text-gray-700 md:flex"
+            className="hidden items-center gap-2 text-sm font-medium text-gray-700 lg:flex"
           >
             <PhoneIcon /> 1800 6230
           </a>
-          <SearchIcon className="hidden h-5 w-5 text-gray-400 md:block" />
+          <SearchIcon className="hidden h-5 w-5 text-gray-400 lg:block" />
           <button
             aria-label="Mở menu"
-            className="md:hidden"
+            className="lg:hidden"
             onClick={() => setDrawerOpen(true)}
           >
             <HamburgerIcon />

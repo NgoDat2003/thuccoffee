@@ -5,8 +5,10 @@ import ProductCard from '../components/ui/ProductCard';
 import CategorySidebar from '../components/menu/CategorySidebar';
 import CategoryDropdown from '../components/menu/CategoryDropdown';
 import { getProductsByCategory } from '../data';
+import { usePageMeta } from '../lib/use-page-meta';
 
 export default function MenuPage() {
+  usePageMeta('Menu', 'Thực đơn thức uống Thức Coffee - cà phê, trà, milk tea, đá xay và bánh.');
   const [activeCat, setActiveCat] = useState('san-pham-moi');
   const products = getProductsByCategory(activeCat);
 
