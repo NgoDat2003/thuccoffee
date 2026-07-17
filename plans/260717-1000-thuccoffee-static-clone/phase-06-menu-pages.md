@@ -1,8 +1,8 @@
 ---
 phase: 6
-title: "menu-pages"
-status: pending
-effort: "3h"
+title: menu-pages
+status: completed
+effort: 3h
 ---
 
 # Phase 6: Menu Pages
