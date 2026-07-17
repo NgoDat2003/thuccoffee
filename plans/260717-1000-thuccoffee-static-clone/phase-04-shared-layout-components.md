@@ -1,8 +1,8 @@
 ---
 phase: 4
-title: "shared-layout-components"
-status: pending
-effort: "3h"
+title: shared-layout-components
+status: completed
+effort: 3h
 ---
 
 # Phase 4: Shared Layout Components
