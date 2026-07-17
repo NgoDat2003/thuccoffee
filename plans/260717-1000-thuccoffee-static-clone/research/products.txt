@@ -1,0 +1,42 @@
+americano-s153t2	AMERICANO	45.000đ	coffee	/s-media/thumbs-e600e38f_americano.jpg
+berry-mango-s1473t2	BERRY MANGO	59.000đ	san-pham-moi,mango-breeze	/s-media/thumbs-847b9f4d_berry-mango.jpg
+biscuit-sticks-with-creamfoam-s1001t2	BISCUIT STICKS WITH CREAMFOAM	N/A	san-pham-moi,yeu-thich-nhat,cake	/s-media/thumbs-243b0721_untitled-design-4-.png
+black-coffee-s145t2	BLACK COFFEE	35.000đ	coffee	/s-media/thumbs-302411f4_black-coffee.jpg
+black-cold-brew-coffee-s1378t2	BLACK COLD BREW COFFEE	N/A	san-pham-moi,yeu-thich-nhat,coffee	/s-media/thumbs-e8ac352a_black-cold-brew.jpg
+cappuccino-s155t2	CAPPUCCINO	50.000đ	coffee	/s-media/thumbs-a84ab08_cappuccino-1.jpg
+caramel-coffee-jelly-ib-s259t2	CARAMEL COFFEE JELLY IB	55.000đ	blended	/s-media/thumbs-4c9bafc_caramel-coffee-jelly.jpg
+chocolate-ib-s263t2	CHOCOLATE IB	55.000đ	blended	/s-media/thumbs-366d6f6b_chocolate-ib.jpg
+chocolate-s167t2	CHOCOLATE	55.000đ	non-coffee	/s-media/thumbs-b0f6ab89_chocolate-latte.jpg
+cinnamon-orange-cold-brew-s1435t2	CINNAMON ORANGE COLD BREW	N/A	san-pham-moi,yeu-thich-nhat,cold-brew	/s-media/thumbs-fb1f9a06_cinnamon-orange-cold-brew.jpg
+cinnamon-tea-s181t2	CINNAMON TEA	45.000đ	tea	/s-media/thumbs-8db1f84b_cinnamon-tea.jpg
+coco-coffee-iceblend-s1138t2	COCO COFFEE ICEBLEND	N/A	yeu-thich-nhat,coffee	/s-media/thumbs-1b2b2c7d_coco-coffee-iceblend.jpg
+coco-cold-brew-s1434t2	COCO COLD BREW	55.000đ	san-pham-moi,yeu-thich-nhat,cold-brew	/s-media/thumbs-f97f625a_coco-cold-brew.jpg
+coco-latte-s1400t2	COCO LATTE	60.000đ	san-pham-moi,coffee	/s-media/thumbs-366cf1eb_coco-latte.jpg
+coco-mango-s1472t2	COCO MANGO	59.000đ	san-pham-moi,mango-breeze	/s-media/thumbs-df382150_coco-mango.jpg
+coco-matcha-s1403t2	COCO MATCHA	65.000đ	san-pham-moi,yeu-thich-nhat,non-coffee	/s-media/thumbs-aa590f31_coco-matcha.jpg
+cookie-matcha-land-s201t2	COOKIE MATCHA LAND	65.000đ	blended	/s-media/thumbs-4013cfe4_cookie-matcha-land.jpg
+egg-coffee-s1243t2	EGG COFFEE	55.000đ	san-pham-moi,yeu-thich-nhat,coffee	/s-media/thumbs-67b9de1e_egg-coffee.jpg
+espresso-s152t2	ESPRESSO	39.000đ	coffee	/s-media/thumbs-f90391dd_espresso.jpg
+flan-gato-s1016t2	FLAN GATO	39.000đ	cake	/s-media/thumbs-c95be405_dfa.jpg
+golden-berry-passion-tea-s1406t2	GOLDEN BERRY PASSION TEA	N/A	san-pham-moi,yeu-thich-nhat,tea	/s-media/thumbs-8971210b_golden-berry-passion-tea.jpg
+honey-lemon-cold-brew-s1436t2	HONEY LEMON COLD BREW	N/A	san-pham-moi,yeu-thich-nhat,cold-brew	/s-media/thumbs-57306aa5_honey-lemon-cold-brew.jpg
+kumquat-cooler-s235t2	KUMQUAT COOLER	N/A	yeu-thich-nhat,blended	/s-media/thumbs-f0621ca5_kumquat-cooler-.jpg
+latte-coffee-s157t2	LATTE COFFEE	50.000đ	coffee	/s-media/thumbs-ae566bec_latte-coffee.jpg
+lemon-black-tea-s177t2	LEMON BLACK TEA	45.000đ	tea	/s-media/thumbs-9410ff44_lemon-black-tea.jpg
+longan-tea-s1405t2	LONGAN TEA	59.000đ	san-pham-moi,tea	/s-media/thumbs-eea4bb17_longan-tea.jpg
+lychee-mango-s1471t2	LYCHEE MANGO	59.000đ	san-pham-moi,mango-breeze	/s-media/thumbs-cd2fb98e_lychee-mango.jpg
+lychee-tea-s1404t2	LYCHEE TEA	N/A	yeu-thich-nhat,tea	/s-media/thumbs-2fe1c35b_lychee-tea.jpg
+matcha-ib-s258t2	MATCHA IB	55.000đ	blended	/s-media/thumbs-a54d2069_matcha-ib.jpg
+matcha-tea-latte-s169t2	MATCHA TEA LATTE	55.000đ	non-coffee	/s-media/thumbs-2b383bd1_matcha-tea-latte-1.jpg
+oolong-bubble-milk-tea-s184t2	OOLONG BUBBLE MILK TEA	N/A	yeu-thich-nhat,milk-tea	/s-media/thumbs-34551208_oolong-bubble-milk-tea.jpg
+orange-juice-s212t2	ORANGE JUICE	50.000đ	tea	/s-media/thumbs-c76bcd3b_orange-juice.jpg
+paloma-ice-tea-s743t2	PALOMA ICE TEA	N/A	yeu-thich-nhat,tea	/s-media/thumbs-146249b3_paloma-iced-tea.jpg
+passion-mango-cheese-s1018t2	PASSION MANGO CHEESE	39.000đ	cake	/s-media/thumbs-5ff9576_passion-mango-cheese.jpg
+rice-milk-tea-s1231t2	RICE MILK TEA	55.000đ	san-pham-moi,yeu-thich-nhat,milk-tea	/s-media/thumbs-bb571d19_rice-milk-tea.jpg
+salted-creamfoam-choco-s1401t2	SALTED CREAMFOAM CHOCO	N/A	san-pham-moi,yeu-thich-nhat,non-coffee	/s-media/thumbs-1a69f86_salted-creamfoam-choco.jpg
+salted-milkfoam-coffee-s1000t2	SALTED MILKFOAM COFFEE	N/A	yeu-thich-nhat,coffee	/s-media/thumbs-e4304ef9_salted-milkfoam-coffee.jpg
+special-white-coffee-s882t2	SPECIAL WHITE COFFEE	N/A	yeu-thich-nhat,coffee	/s-media/thumbs-ff2ae9eb_special-white-coffee.jpg
+strawberry-peach-tea-s1402t2	STRAWBERRY PEACH TEA	N/A	san-pham-moi,tea	/s-media/thumbs-8f1ad090_strawberry-peach-tea.jpg
+thuc-milk-tea-s195t2	THỨC MILK TEA	N/A	yeu-thich-nhat,milk-tea	/s-media/thumbs-ee18372_thuc-milk-tea-1.jpg
+tiramisu-choco-s687t2	TIRAMISU CHOCO	39.000đ	cake	/s-media/thumbs-8a88289e_tiramisu-choco.jpg
+white-coffee-s147t2	WHITE COFFEE	N/A	yeu-thich-nhat,coffee	/s-media/thumbs-1c476e91_white-coffee.jpg
