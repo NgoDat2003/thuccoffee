@@ -40,7 +40,9 @@ effort: "3h"
 ### Types (`src/data/types.ts`)
 ```ts
 interface Product { name; slug; price: number|null; priceEstimated?: boolean;
-  categories: string[]; thumb: string; image: string; description?: string; }
+  categories: string[]; thumb: string; image?: string; description?: string; }
+  // `image` (full-res) is optional — Phase 2 confirmed only 1 of 42 products (berry-mango)
+  // has a full-res asset; Phase 6's lightbox must fall back to `thumb` when absent.
 interface BlogPost { title; slug; cover; summary; }         // body = summary (source limitation)
 interface Store { name; slug; address; phone; image; hours: string; }  // hours "Mở cửa 24/7"
 interface Category { key; label; }                          // e.g. {key:'coffee', label:'Coffee'}

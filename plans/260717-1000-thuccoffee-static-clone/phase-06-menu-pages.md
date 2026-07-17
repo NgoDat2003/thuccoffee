@@ -21,7 +21,7 @@ effort: "3h"
 - 10 categories in `categories.ts` order. Left sidebar tabs (desktop) / dropdown (mobile). Right = product grid filtered by active category.
 - Active category = local `useState` (default first, `san-pham-moi`). No URL param required (source used client filter); optional `?cat=` sync is nice-to-have, keep simple with state.
 - Product detail: breadcrumb (Home > Menu > NAME), title, short description, price, full-res image (lightbox), related 4 (`getRelatedProducts`), CTA `tel:18006230` "Order xin gọi: 1800 6230", "Trở Lại" back button (`navigate(-1)`).
-- Full-res image = `product.image`; thumbnail fallback if full-res missing.
+- Full-res image = `product.image`; **thumbnail fallback is the norm, not an edge case** — Phase 2 confirmed only 1 of 42 products (berry-mango) has a full-res asset downloaded, so the lightbox will show `product.thumb` for 41 of 42 products by default. `product.image` is optional (Phase 3).
 - Reuses `ProductCard`, `SectionTitle`, `Breadcrumb`, `Container` (Phase 4), lightbox (Phase 5).
 - **Slug sanitization (red-team fix — Assumption Destroyer finding):** Phase 3 applies the same slug-cleanup pass to `products.ts` that Phase 7 applies to `blog.ts` (strip/encode non-ASCII, no raw emoji in any of the 42 product slugs) — do not assume product slugs are "clean" just because blog slugs needed sanitizing.
 
@@ -76,7 +76,7 @@ effort: "3h"
 |------|-----------|--------|------------|
 | Slug mismatch data vs route param | Med | High | Store slug verbatim from crawl (Phase 3); test one product per category. |
 | Category w/ <4 products → related short | Med | Low | Show available (≤4); acceptable, matches source behavior. |
-| Full-res image 404 (only thumb dl'd) | Low | Med | Fallback `product.thumb` in lightbox (Phase 2 flags any missing). |
+| Most products show thumb (not full-res) in lightbox (41 of 42 — confirmed, not hypothetical) | Confirmed | Low | Fallback `product.thumb` in lightbox; acceptable for a demo clone, thumbs are reasonably sized (see Phase 2). |
 | Missing price on some SKUs (count per `research/crawl-report.md`) | Med | Low | Filled with estimate Phase 3; detail always shows a price. |
 
 ## Security Considerations

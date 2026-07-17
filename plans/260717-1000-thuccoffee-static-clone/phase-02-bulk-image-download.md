@@ -24,7 +24,7 @@ effort: "2h"
   - `thumbs-{hash}_{name}.ext` — product/social **thumbnails** (grid/list views).
   - `{hash}_{name}.ext` (no `thumbs-` prefix) — **full-res** (detail-page lightbox). BOTH needed.
 - Product full-res is same base name as thumb minus `thumbs-` prefix (verified: `thumbs-847b9f4d_berry-mango.jpg` ↔ `847b9f4d_berry-mango.jpg`).
-- 45 thumbs + 45 full-res + 2 UI icons = 92 (per crawl breakdown).
+- **Actual breakdown (corrected post-execution — code review caught the original estimate was wrong): 46 `thumbs-*` files (42 product thumbnails + 4 blog/social thumbnail variants) + 44 non-`thumbs-` `/s-media/` files + 2 `/Content/images/` UI icons = 92.** Only **1 of 46** thumbnails (`berry-mango`) has a full-res counterpart in the crawled URL list — the original crawl sampled only one product detail page, so the other 41 products' full-res URLs were never discovered. This is not a download failure; it's a source-data limitation.
 - Filenames carry a hash prefix → globally unique, safe to flatten one folder per category. Keep original filenames (data layer references them verbatim).
 
 ## Requirements
@@ -91,7 +91,7 @@ effort: "2h"
 | Origin returns HTML error page instead of image (200 w/ wrong body) | Med | Med | Automated `Content-Type`/magic-byte check on all 92 files (not spot-check); `curl -f` alone does not catch this case. |
 | A cataloged URL 404s (asset removed since crawl) | **Med** (re-rated up from Low — red-team fix, Assumption Destroyer: origin's broken HTTPS cert is evidence of neglected infra) | Med | Pre-flight HEAD-check sweep catches large-scale drift early; per-file note + substitute nearest asset or `site/` placeholder for isolated 404s. |
 | **Broken HTTPS cert on origin** (informational) | High | None | Use `http://` — expected, NOT a blocker; one-time fetch, no runtime dependency on origin. |
-| Some full-res product images may not exist (only thumb) | Low | Low | If full-res 404s, lightbox falls back to thumb; document affected SKUs. |
+| Most products have no full-res image (41 of 42 — only `berry-mango` has one; corrected post-execution, was understated as "some/Low" pre-download) | **Confirmed** | Low | Lightbox falls back to `product.thumb` when `product.image` is absent. Phase 3's `Product.image` field should be optional/nullable to reflect this; Phase 6's product detail page must not assume a full-res asset always exists. |
 | Script interrupted mid-run (session timeout, network blip) | Med | Low | `.tmp` + atomic-rename means a resume never mistakes a truncated file for complete; re-run is cheap (skips done files). |
 
 ## Security Considerations
