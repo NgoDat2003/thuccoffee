@@ -20,3 +20,17 @@ npm run dev      # start dev server
 npm run build    # production build
 npm run lint     # oxlint
 ```
+
+## Running the production container
+
+Serves the built SPA through Nginx, the same image the deployment uses.
+
+```bash
+docker compose up -d --build   # build and start on http://localhost:8080
+docker compose ps              # container status and health
+docker compose logs -f         # follow logs
+docker compose down            # stop and remove
+```
+
+Port `8080` avoids clashing with a local Dokploy instance, which holds `3000`,
+`80`, and `443`. See `docs/deployment.md` for the deployment runtime contract.

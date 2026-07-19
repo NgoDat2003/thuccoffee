@@ -1,0 +1,32 @@
+# Chạy: docker compose up -d --build
+# Xem:  http://localhost:8080
+# Dừng: docker compose down
+
+services:
+  # "frontend" là tên service, tự đặt. Các container khác gọi nhau bằng tên này.
+  frontend:
+    # Build từ Dockerfile trong thư mục hiện tại (thay cho: docker build -t ... .)
+    build:
+      context: .
+      target: runtime # dùng stage runtime (nginx), bỏ qua stage build (node)
+
+    image: thuccoffee:local
+    container_name: thuccoffee-local
+
+    # "8080:80" = cổng 8080 trên máy bạn -> cổng 80 trong container.
+    # Đổi số bên TRÁI nếu 8080 đã bị chiếm; số bên phải phải giữ 80 vì nginx nghe ở đó.
+    # Tránh 3000 và 80/443 nếu đang chạy Dokploy local — nó đã giữ các cổng đó.
+    ports:
+      - "8080:80"
+
+    # Tự bật lại nếu container chết hoặc sau khi khởi động lại Docker.
+    restart: unless-stopped
+
+    # Dockerfile đã có HEALTHCHECK sẵn; khai báo lại ở đây để thấy rõ
+    # và để chỉnh thời gian mà không phải build lại image.
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
