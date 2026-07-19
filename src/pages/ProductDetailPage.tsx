@@ -3,7 +3,7 @@ import { useNavigate, useParams, Navigate } from 'react-router-dom';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import Container from '../components/ui/Container';
-import Breadcrumb from '../components/ui/Breadcrumb';
+
 import RelatedProducts from '../components/menu/RelatedProducts';
 import { getProductBySlug, getRelatedProducts } from '../data';
 import { getImageUrl } from '../lib/image-url';
@@ -28,9 +28,7 @@ export default function ProductDetailPage() {
 
   return (
     <Container className="py-10">
-      <Breadcrumb
-        items={[{ label: 'Trang chủ', to: '/' }, { label: 'Menu', to: '/menu' }, { label: product.name }]}
-      />
+
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <button onClick={() => setLightboxOpen(true)} className="block">

@@ -5,16 +5,16 @@ export interface Product {
   priceEstimated?: boolean;
   categories: string[];
   thumb: string;
-  /** Full-res asset — only 1 of 42 products has one downloaded (see Phase 2). */
+  /** Full-resolution source asset used by product detail views. */
   image?: string;
   description?: string;
 }
 
-/** `body` is not in source; pages render `summary` in its place. */
 export interface BlogPost {
   title: string;
   slug: string;
   cover: string;
+  date: string;
   summary: string;
 }
 
@@ -23,6 +23,7 @@ export interface Store {
   slug: string;
   address: string;
   phone: string;
+  gallery: string[];
   image: string;
   hours: string;
 }

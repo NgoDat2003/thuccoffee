@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import deliveryImage from '../assets/images/blog/249fc9a9_post-17042023.png';
 import Container from '../components/ui/Container';
 import { pages } from '../data';
 import { usePageMeta } from '../lib/use-page-meta';
@@ -9,20 +9,34 @@ export default function DeliveryPage() {
   return (
     <Container className="py-10">
       <h1 className="mb-6 text-2xl font-bold uppercase text-primary">{pages.delivery.heading}</h1>
-      <p className="max-w-2xl text-gray-700">{pages.delivery.body}</p>
-      <div className="mt-8 flex flex-wrap gap-4">
-        <a
-          href="tel:18006230"
-          className="rounded bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary/90"
-        >
-          Gọi đặt hàng: 1800 6230
-        </a>
-        <Link
-          to="/cua-hang"
-          className="rounded border border-primary px-5 py-2.5 text-sm font-medium text-primary hover:bg-primary hover:text-white"
-        >
-          Tìm cửa hàng gần nhất
-        </Link>
+      <div className="grid gap-8 md:grid-cols-2 md:items-start">
+        <div>
+          <p className="text-xl font-semibold text-primary">{pages.delivery.freeship}</p>
+          <p className="mt-4 text-gray-700">{pages.delivery.intro}</p>
+          <div className="mt-4 flex flex-col items-start gap-3">
+            {pages.delivery.channels.map((channel) => (
+              <a
+                key={channel.label}
+                href={channel.href}
+                target={channel.href.startsWith('http') ? '_blank' : undefined}
+                rel={channel.href.startsWith('http') ? 'noreferrer' : undefined}
+                className="rounded border border-primary px-4 py-2 text-sm font-medium text-primary hover:bg-primary hover:text-white"
+              >
+                {channel.label}
+              </a>
+            ))}
+          </div>
+          <p className="mt-5 font-medium text-gray-700">{pages.delivery.deliveryTime}</p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            {pages.delivery.codes.map((promotion) => (
+              <div key={promotion.code} className="rounded bg-gray-50 p-4">
+                <p className="font-bold text-primary">{promotion.code}</p>
+                <p className="mt-2 text-sm text-gray-700">{promotion.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <img src={deliveryImage} alt="Chương trình Thức Delivery" className="w-full rounded" />
       </div>
     </Container>
   );

@@ -9,7 +9,7 @@ export default function CategoryDropdown({ activeKey, onSelect }: CategoryDropdo
   return (
     <select
       value={activeKey}
-      onChange={(e) => onSelect(e.target.value)}
+      onChange={(event) => onSelect(event.target.value)}
       className="mb-4 w-full rounded border border-gray-300 px-3 py-2 text-sm font-medium uppercase md:hidden"
       aria-label="Chọn danh mục"
     >

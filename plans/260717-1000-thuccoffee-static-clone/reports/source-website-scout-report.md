@@ -1,4 +1,4 @@
----
+﻿---
 title: THỨC Coffee source website scout report
 source: http://www.thuccoffee.com.vn
 scanned_at: 2026-07-17
@@ -157,6 +157,18 @@ Each template contains branch name, address, phone, irregular mixed-ratio galler
 | Contact | 60% form + 40% office info | office info first, full-width form |
 | Login | centered 600px white card | about 95% viewport width |
 
+## Full Media Inventory
+
+Full-domain media enumeration covered all 400 normalized crawl paths plus two representative search result pages.
+
+- Source pages attempted: 402; successful: 394; non-2xx: the same eight broken Menu paths.
+- Unique same-origin media references: **473** from **4,849 discoveries**.
+- Extensions: 279 JPG, 184 PNG, 4 GIF, 3 JPEG, 2 SVG, 1 ICO.
+- Dimensions captured for 462 assets.
+- Ten genuinely missing images return 404. All ten are referenced by the historical story `/chuyen-cua-thuc/🎉-thang-12-–-doi-diem-lien-tay-qua-bay-ve-nha-🎉-s1085t2/`.
+- One additional reported 404 is a normalization artifact: `/tuyen-dung/` changes the relative recruitment image into `/tuyen-dung/s-media/...`; the canonical navigation path `/tuyen-dung` resolves the actual `/s-media/a82444c5_post-tuyendung-oct2023.png` asset with 200.
+- Shared assets with highest reuse include the logo, coffee divider, delivery icon and favicon.
+
 ## Browser and Accessibility Findings
 
 - High: normal Chromium secure-first flow upgrades HTTP to HTTPS and fails. Source is reliably reachable only over HTTP.
@@ -186,6 +198,7 @@ Each template contains branch name, address, phone, irregular mixed-ratio galler
 - `source-route-manifest.csv` — one row per normalized path with template classification and content lead.
 - `thuccoffee-sitemap-route-check.json` — all 48 sitemap entries and live status.
 - `source-a11y-static-check.json` — template-level H1, image-name and form-label counts.
+- `source-full-media-manifest.json` — 473 media references, discovery sources, statuses, sizes and dimensions.
 - `thuccoffee-site-crawl.ps1` — reproducible HTTP crawler.
 - Browser screenshots are stored in the thread visualization directory.
 
@@ -195,3 +208,5 @@ Each template contains branch name, address, phone, irregular mixed-ratio galler
 - POST forms were not submitted to production.
 - Authenticated-only behavior was not tested.
 - Source bugs are documented as observed; whether the clone should reproduce or correct them must be decided during clone comparison.
+
+

@@ -1,4 +1,5 @@
-import { createBrowserRouter } from 'react-router-dom';
+/* oxlint-disable react/only-export-components -- URL-aware dispatchers intentionally live with route declarations. */
+import { createBrowserRouter, useParams } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
 import MenuPage from './pages/MenuPage';
@@ -15,6 +16,19 @@ import CookiePolicyPage from './pages/CookiePolicyPage';
 import DeliveryPage from './pages/DeliveryPage';
 import LoginPage from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
+import { isCategoryPath } from './data';
+
+function MenuSlugDispatcher() {
+  const { slug } = useParams<{ slug: string }>();
+
+  return slug && isCategoryPath(slug) ? <MenuPage /> : <ProductDetailPage />;
+}
+
+function BlogSlugDispatcher() {
+  const { slug } = useParams<{ slug: string }>();
+
+  return /^t1p\d+$/.test(slug ?? '') ? <BlogIndexPage /> : <BlogDetailPage />;
+}
 
 export const router = createBrowserRouter([
   {
@@ -23,9 +37,9 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'menu', element: <MenuPage /> },
-      { path: 'menu/:slug', element: <ProductDetailPage /> },
+      { path: 'menu/:slug', element: <MenuSlugDispatcher /> },
       { path: 'chuyen-cua-thuc', element: <BlogIndexPage /> },
-      { path: 'chuyen-cua-thuc/:slug', element: <BlogDetailPage /> },
+      { path: 'chuyen-cua-thuc/:slug', element: <BlogSlugDispatcher /> },
       { path: 'gioi-thieu', element: <AboutPage /> },
       { path: 'cua-hang', element: <StoreListPage /> },
       { path: 'cua-hang/:slug', element: <StoreDetailPage /> },

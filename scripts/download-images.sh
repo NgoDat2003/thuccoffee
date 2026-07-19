@@ -5,7 +5,7 @@
 set -uo pipefail
 
 ORIGIN="http://www.thuccoffee.com.vn"
-URL_LIST="$(dirname "$0")/image-urls.txt"
+URL_LIST="${1:-$(dirname "$0")/image-urls.txt}"
 DEST_ROOT="$(dirname "$0")/../src/assets/images"
 
 if [[ ! -f "$URL_LIST" ]]; then
@@ -17,6 +17,8 @@ echo "=== Pre-flight HEAD-check sweep ==="
 head_fail=0
 head_total=0
 while IFS=$'\t' read -r path sub; do
+  path=${path%$'\r'}
+  sub=${sub%$'\r'}
   [[ -z "$path" ]] && continue
   head_total=$((head_total + 1))
   status=$(curl -s -o /dev/null -w "%{http_code}" -I --max-time 15 "$ORIGIN$path")
@@ -42,6 +44,8 @@ for sub in products blog stores site; do
 done
 
 while IFS=$'\t' read -r path sub; do
+  path=${path%$'\r'}
+  sub=${sub%$'\r'}
   [[ -z "$path" ]] && continue
   filename=$(basename "$path")
   dest="$DEST_ROOT/$sub/$filename"
@@ -86,7 +90,7 @@ if (( fail_count > 0 )); then
   echo "Failed URLs:"
   printf '  %s\n' "${fail_list[@]}"
   echo ""
-  echo "Script exiting non-zero — do not proceed to Phase 3 until this is resolved." >&2
+  echo "Script exiting non-zero — do not wire assets until this is resolved." >&2
   exit 1
 fi
 

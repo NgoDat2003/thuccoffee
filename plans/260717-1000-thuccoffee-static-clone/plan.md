@@ -3,7 +3,7 @@ title: Thức Coffee Static Clone
 description: >-
   Static React frontend clone of thuccoffee.com.vn with hardcoded data and real
   downloaded images, no backend.
-status: pending
+status: completed
 priority: P2
 effort: 26h
 branch: main
@@ -44,7 +44,7 @@ Design tokens: primary `#0c5278`, secondary `#40260a`, accent `#79a3b1`; contain
 | 7 | [blog-pages](./phase-07-blog-pages.md) | Completed |
 | 8 | [store-pages](./phase-08-store-pages.md) | Completed |
 | 9 | [static-pages](./phase-09-static-pages.md) | Completed |
-| 10 | [polish-pass](./phase-10-polish-pass.md) | Pending |
+| 10 | [polish-pass](./phase-10-polish-pass.md) | Completed |
 
 ## Dependencies
 
@@ -80,7 +80,7 @@ Design tokens: primary `#0c5278`, secondary `#40260a`, accent `#79a3b1`; contain
 | 7 | `console.warn` on missing image conflicts with Phase 10's "no console warnings" criterion | Medium | Accept | Completed |
 | 8 | Download script not idempotent/resume-safe (no tmp+atomic-rename) | Medium | Accept | Completed |
 | 9 | ~20 ambiguous image subfolder assignments left to implementer memory, not recorded | Medium | Accept | Completed |
-| 10 | Unpinned npm deps + no `npm audit` gate (supply chain) | Medium | Accept | Phase 1 |
+| 10 | Unpinned npm deps + no `npm audit` gate (supply chain) | Medium | Accept | Completed |
 | 11 | Tailwind v4 + Vite plugin combo asserted as fact without a verify step | Medium | Accept | Phase 1 (spike-verify step added) |
 | 12 | Product slugs assumed "clean" while blog slugs got explicit emoji-sanitization treatment | Medium | Accept | Phase 6 (same treatment now required in Phase 3) |
 | 13 | Google Maps iframe has no `sandbox` attribute; fallback path unspecified | Medium | Accept | Phase 8 |

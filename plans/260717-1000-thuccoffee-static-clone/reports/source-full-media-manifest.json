@@ -9,21 +9,27 @@
       "http://www.thuccoffee.com.vn/search/p1/?type=Product&keyword=c%C3%A0%20ph%C3%AA",
       "http://www.thuccoffee.com.vn/search/p1/?type=Blog&keyword=c%C3%A0%20ph%C3%AA"
     ],
-    "policy": "HTTP only; same-origin media references from src, href, poster, srcset, and inline CSS url() across every source page."
+    "policy": "HTTP only; same-origin media from src, href, poster, srcset, inline CSS url(), plus recursive url() parsing of shared SiteStyle, Slick, and Colorbox CSS. Font-file SVGs excluded.",
+    "stylesheetsInspected": [
+      "http://www.thuccoffee.com.vn/Content/SiteStyle?v=uTqOvOG0YknDcAGtYH3HF-1e_fvu9J6FMROZ3RbNamA1",
+      "http://www.thuccoffee.com.vn/Scripts/jquery-colorbox/colorbox.css",
+      "http://www.thuccoffee.com.vn/Scripts/slick/slick.css"
+    ]
   },
   "totals": {
     "sourcePagesAttempted": 402,
     "sourcePagesSuccessful": 394,
     "sourcePagesFailedOrNon2xx": 8,
-    "uniqueMediaAssets": 465,
-    "totalMediaDiscoveries": 4839,
-    "assetsWithDimensions": 454,
+    "uniqueMediaAssets": 473,
+    "totalMediaDiscoveries": 4849,
+    "assetsWithDimensions": 462,
     "brokenAssets": 11,
     "byExtension": {
+      "gif": 4,
       "ico": 1,
       "jpeg": 3,
       "jpg": 279,
-      "png": 180,
+      "png": 184,
       "svg": 2
     }
   },
@@ -182,6 +188,25 @@
   ],
   "assets": [
     {
+      "url": "http://www.thuccoffee.com.vn/Content/images/home-blog-bg.png",
+      "extension": "png",
+      "discoveryCount": 1,
+      "sourceRouteCount": 1,
+      "sampleSourceRoutes": [
+        "http://www.thuccoffee.com.vn/Content/SiteStyle?v=uTqOvOG0YknDcAGtYH3HF-1e_fvu9J6FMROZ3RbNamA1"
+      ],
+      "headStatus": 200,
+      "getStatus": 200,
+      "status": 200,
+      "contentType": "image/png",
+      "contentLength": 96051,
+      "width": 551,
+      "height": 577,
+      "aspectRatio": 0.954939,
+      "broken": false,
+      "error": null
+    },
+    {
       "url": "http://www.thuccoffee.com.vn/Content/images/icon-coffee.png",
       "extension": "png",
       "discoveryCount": 394,
@@ -230,6 +255,44 @@
       "width": 60,
       "height": 60,
       "aspectRatio": 1,
+      "broken": false,
+      "error": null
+    },
+    {
+      "url": "http://www.thuccoffee.com.vn/Content/images/preloader.gif",
+      "extension": "gif",
+      "discoveryCount": 1,
+      "sourceRouteCount": 1,
+      "sampleSourceRoutes": [
+        "http://www.thuccoffee.com.vn/Content/SiteStyle?v=uTqOvOG0YknDcAGtYH3HF-1e_fvu9J6FMROZ3RbNamA1"
+      ],
+      "headStatus": 200,
+      "getStatus": 200,
+      "status": 200,
+      "contentType": "image/gif",
+      "contentLength": 13999,
+      "width": 64,
+      "height": 64,
+      "aspectRatio": 1,
+      "broken": false,
+      "error": null
+    },
+    {
+      "url": "http://www.thuccoffee.com.vn/Content/images/website-loader.gif",
+      "extension": "gif",
+      "discoveryCount": 1,
+      "sourceRouteCount": 1,
+      "sampleSourceRoutes": [
+        "http://www.thuccoffee.com.vn/Content/SiteStyle?v=uTqOvOG0YknDcAGtYH3HF-1e_fvu9J6FMROZ3RbNamA1"
+      ],
+      "headStatus": 200,
+      "getStatus": 200,
+      "status": 200,
+      "contentType": "image/gif",
+      "contentLength": 540,
+      "width": 144,
+      "height": 32,
+      "aspectRatio": 4.5,
       "broken": false,
       "error": null
     },
@@ -9549,6 +9612,101 @@
       "contentLength": 919,
       "width": 23,
       "height": 23,
+      "aspectRatio": 1,
+      "broken": false,
+      "error": null
+    },
+    {
+      "url": "http://www.thuccoffee.com.vn/Scripts/jquery-colorbox/images/controls.png",
+      "extension": "png",
+      "discoveryCount": 3,
+      "sourceRouteCount": 1,
+      "sampleSourceRoutes": [
+        "http://www.thuccoffee.com.vn/Scripts/jquery-colorbox/colorbox.css"
+      ],
+      "headStatus": 200,
+      "getStatus": 200,
+      "status": 200,
+      "contentType": "image/png",
+      "contentLength": 2893,
+      "width": 176,
+      "height": 50,
+      "aspectRatio": 3.52,
+      "broken": false,
+      "error": null
+    },
+    {
+      "url": "http://www.thuccoffee.com.vn/Scripts/jquery-colorbox/images/loading_background.png",
+      "extension": "png",
+      "discoveryCount": 1,
+      "sourceRouteCount": 1,
+      "sampleSourceRoutes": [
+        "http://www.thuccoffee.com.vn/Scripts/jquery-colorbox/colorbox.css"
+      ],
+      "headStatus": 200,
+      "getStatus": 200,
+      "status": 200,
+      "contentType": "image/png",
+      "contentLength": 157,
+      "width": 40,
+      "height": 40,
+      "aspectRatio": 1,
+      "broken": false,
+      "error": null
+    },
+    {
+      "url": "http://www.thuccoffee.com.vn/Scripts/jquery-colorbox/images/loading.gif",
+      "extension": "gif",
+      "discoveryCount": 1,
+      "sourceRouteCount": 1,
+      "sampleSourceRoutes": [
+        "http://www.thuccoffee.com.vn/Scripts/jquery-colorbox/colorbox.css"
+      ],
+      "headStatus": 200,
+      "getStatus": 200,
+      "status": 200,
+      "contentType": "image/gif",
+      "contentLength": 9427,
+      "width": 32,
+      "height": 32,
+      "aspectRatio": 1,
+      "broken": false,
+      "error": null
+    },
+    {
+      "url": "http://www.thuccoffee.com.vn/Scripts/jquery-colorbox/images/overlay.png",
+      "extension": "png",
+      "discoveryCount": 1,
+      "sourceRouteCount": 1,
+      "sampleSourceRoutes": [
+        "http://www.thuccoffee.com.vn/Scripts/jquery-colorbox/colorbox.css"
+      ],
+      "headStatus": 200,
+      "getStatus": 200,
+      "status": 200,
+      "contentType": "image/png",
+      "contentLength": 182,
+      "width": 30,
+      "height": 30,
+      "aspectRatio": 1,
+      "broken": false,
+      "error": null
+    },
+    {
+      "url": "http://www.thuccoffee.com.vn/Scripts/slick/ajax-loader.gif",
+      "extension": "gif",
+      "discoveryCount": 1,
+      "sourceRouteCount": 1,
+      "sampleSourceRoutes": [
+        "http://www.thuccoffee.com.vn/Scripts/slick/slick.css"
+      ],
+      "headStatus": 200,
+      "getStatus": 200,
+      "status": 200,
+      "contentType": "image/gif",
+      "contentLength": 4178,
+      "width": 32,
+      "height": 32,
       "aspectRatio": 1,
       "broken": false,
       "error": null

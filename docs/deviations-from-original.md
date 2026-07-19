@@ -1,46 +1,71 @@
-# Deviations from the original site
+# Deviations from the Original Site
 
-This is a static clone of thuccoffee.com.vn built from a one-time crawl. The
-following differences from the original are intentional, not bugs.
+This project is a static React clone of `thuccoffee.com.vn`, built from a
+one-time crawl and a fixed set of downloaded assets. The visual-parity update
+completed on 2026-07-17 closes the known shared-shell, route, content, and media
+gaps. The differences below remain intentional.
 
-## No backend
-- No real cart, checkout, payments, or member accounts. Order CTAs link to
-  the hotline (`tel:18006230`) or a store page, matching the original's own
-  "call to order" pattern (the original also had no cart).
-- Login page (`/account/login`) is UI-only: no real authentication, no
-  session, no protected routes. Carries a visible on-page disclosure.
-- Contact form and newsletter inputs are client-side only; nothing is sent
-  anywhere.
-- No Facebook Messenger chat widget (required a real Facebook Page ID tied
-  to the business).
+## Implemented Parity Scope
 
-## Content
-- **Blog article bodies**: the source site's blog posts have no separate
-  article body in the crawled markup, only a short summary shown on the
-  index. The detail page reuses that summary as the body, compensated with
-  a larger cover image and a related-posts strip.
-- **Product prices**: some products (see `research/crawl-report.md`) had no
-  price in the crawled category view. Those carry an estimated price
-  (flagged `priceEstimated: true` in `src/data/products.ts`) based on their
-  category's typical range.
-- **Product full-resolution images**: the crawl only discovered a full-res
-  image URL for one product (`berry-mango`). All other products' detail
-  pages show the same thumbnail used in the grid, scaled up.
-- Static page copy (About, Membership FAQ, Careers, Cookie Policy) is
-  original writing in the spirit of the source, not transcribed — the
-  crawl didn't capture full prose for these pages. No invented statistics
-  or dates. The contact page uses only the real hotline and email found in
-  the source; no street address is shown since one wasn't verifiable
-  against committed crawl data.
+- Shared header, mobile drawer, menu mega-menu, full-bleed home banner, footer,
+  cookie banner, product cards, and floating order control follow the crawled
+  layout and responsive breakpoints.
+- Menu routing supports the 10 source-shaped category URLs under `/menu/*` and
+  keeps the 42 product-detail URLs distinct from category URLs.
+- All 42 product details use downloaded full-resolution primary images. Source
+  descriptions are included where available; 11 prices unavailable in the
+  crawl remain explicitly marked as estimates in `src/data/products.ts`.
+- `/cua-hang` renders the first crawled branch as the default detail view. All
+  7 branch URLs render branch-specific contact data, maps, selectors, and
+  5-image galleries.
+- Blog pagination supports the source-shaped `/chuyen-cua-thuc/t1p1` through
+  `/chuyen-cua-thuc/t1p54` URLs. Article and pagination limitations are
+  documented below.
+- About, membership, careers, contact, delivery, and cookie-policy pages render
+  the crawled copy and available local images. The contact form includes the
+  source Name, Email, Phone, and Content fields.
 
-## Behavior
-- Search icon in the header is decorative (no results backend exists).
-- Newsletter subscribe inputs from the original were dropped rather than
-  built as inert no-ops (a non-functional input is worse UX than omitting
-  it).
+## No Backend or Account Services
 
-## Technical
-- Origin's HTTPS certificate is mismatched (serves a certificate for an
-  unrelated domain). This clone was built entirely from content fetched
-  over plain HTTP from the origin; the clone itself is a static site with
-  no such issue once deployed normally.
+- No real cart, checkout, payments, or member accounts exist. Order CTAs use
+  the hotline or source-linked external delivery channels.
+- `/account/login` is UI-only: no authentication, session, or protected routes.
+  The page carries a visible disclosure and clears submitted values locally.
+- The contact form performs client-side validation and shows a demo toast;
+  nothing is transmitted. Footer newsletter and mobile search forms are also
+  non-submitting UI shells.
+- Header search controls do not provide search results.
+- No embedded Facebook Messenger chat widget is included. Delivery links open
+  the externally hosted Zalo/Messenger order destination instead.
+
+## Snapshot Content Limitations
+
+- The clone does not sync with the live site. Products, prices, promotions,
+  jobs, store details, policies, and images reflect the committed crawl.
+- Only 10 real blog posts were captured. The 54 source pagination routes each
+  render five cards by cycling those 10 posts; titles and dates are not
+  fabricated or shifted.
+- The captured blog records contain summaries but no separate article bodies.
+  Detail pages reuse the summary as the body and add a larger cover image plus
+  related-post navigation.
+- Five products had no captured source description and intentionally omit the
+  description. Eleven products had no captured price and retain category-based
+  estimated prices with `priceEstimated: true`.
+- The cookie-policy copy is reproduced from the source and mentions services
+  such as accounts, commerce, newsletters, and analytics. Those references
+  describe the source policy; this static clone does not implement those
+  services.
+
+## External and Local-Only Behavior
+
+- Store maps are Google Maps embeds and require network access to display.
+- Cookie acceptance is stored only in the browser's `localStorage`. If storage
+  is unavailable, the banner can appear again on a later visit.
+- Social, delivery, telephone, and email links leave the static application or
+  invoke the corresponding device handler.
+
+## Technical Constraint
+
+- The origin's HTTPS certificate is mismatched and serves a certificate for an
+  unrelated domain. Source content and media were fetched over plain HTTP. The
+  clone itself is a static build and can be deployed behind normal HTTPS.

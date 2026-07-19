@@ -9,9 +9,13 @@ export default function BannerSlider() {
       key={filename}
       src={getImageUrl(filename)}
       alt="Thức Coffee"
-      className="h-[300px] w-full rounded object-cover md:h-[450px]"
+      className="block h-auto w-full object-cover md:h-[calc(100vh-82px)]"
     />
   ));
 
-  return <EmblaCarousel slides={slides} autoplayMs={6000} />;
+  return (
+    <div className="relative -mx-2 overflow-hidden [&_.mt-3]:absolute [&_.mt-3]:bottom-4 [&_.mt-3]:left-0 [&_.mt-3]:right-0">
+      <EmblaCarousel slides={slides} autoplayMs={6000} />
+    </div>
+  );
 }

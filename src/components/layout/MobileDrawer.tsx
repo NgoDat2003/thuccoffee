@@ -1,77 +1,134 @@
 import { useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { NAV_LINKS, SOCIAL_LINKS } from './nav-links';
-import { CloseIcon, FacebookIcon, InstagramIcon, YoutubeIcon, PhoneIcon } from '../ui/Icon';
+import {
+  CloseIcon,
+  FacebookIcon,
+  InstagramIcon,
+  PhoneIcon,
+  SearchIcon,
+  YoutubeIcon,
+} from '../ui/Icon';
+import { getImageUrl } from '../../lib/image-url';
 
 interface MobileDrawerProps {
   open: boolean;
   onClose: () => void;
 }
 
+const drawerLinkClass = ({ isActive }: { isActive: boolean }) =>
+  `border-b border-gray-200 py-3 text-sm font-medium uppercase ${
+    isActive ? 'text-primary' : 'text-text hover:text-primary'
+  }`;
+
 export default function MobileDrawer({ open, onClose }: MobileDrawerProps) {
   const location = useLocation();
 
   useEffect(() => {
     if (open) onClose();
-    // intentionally only tracking pathname, not open/onClose, to avoid re-closing on every render
+    // intentionally only tracking pathname so the drawer closes after navigation
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
   useEffect(() => {
     if (!open) return;
+
     const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+    const desktopQuery = window.matchMedia('(min-width: 768px)');
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
     };
+    const onBreakpointChange = (event: MediaQueryListEvent) => {
+      if (event.matches) onClose();
+    };
+
+    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', onKeyDown);
+    desktopQuery.addEventListener('change', onBreakpointChange);
+
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', onKeyDown);
+      desktopQuery.removeEventListener('change', onBreakpointChange);
     };
   }, [open, onClose]);
 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] lg:hidden">
-      <button
-        aria-label="Đóng menu"
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-      />
-      <div className="absolute right-0 top-0 h-full w-72 bg-white p-6 shadow-xl">
-        <button aria-label="Đóng menu" className="mb-6" onClick={onClose}>
-          <CloseIcon />
-        </button>
-        <nav className="flex flex-col gap-4">
+    <aside
+      id="mobile-navigation"
+      className="fixed bottom-0 left-0 right-0 top-[50px] z-[60] overflow-y-auto bg-white md:hidden"
+      aria-label="Menu di động"
+    >
+      <div className="mx-auto flex min-h-full w-full max-w-[640px] flex-col px-[15px] pb-8">
+        <div className="flex items-center justify-between py-4">
+          <NavLink to="/" aria-label="Thức Coffee - Trang chủ">
+            <img
+              src={getImageUrl('151b6674_circlelogo-white-blue-jul2023.png')}
+              alt="Thức Coffee"
+              className="h-[70px] w-[70px]"
+            />
+          </NavLink>
+          <button type="button" aria-label="Đóng menu" className="p-2 text-text" onClick={onClose}>
+            <CloseIcon />
+          </button>
+        </div>
+
+        <form className="relative mb-4" role="search" onSubmit={(event) => event.preventDefault()}>
+          <label htmlFor="mobile-search" className="sr-only">
+            Tìm kiếm
+          </label>
+          <input
+            id="mobile-search"
+            type="search"
+            placeholder="Tìm kiếm"
+            className="h-[40px] w-full border border-[#b5b5b5] bg-white px-3 pr-10 text-sm outline-none focus:border-primary"
+          />
+          <button
+            type="submit"
+            aria-label="Tìm kiếm"
+            className="absolute right-0 top-0 flex h-[40px] w-[40px] items-center justify-center text-text"
+          >
+            <SearchIcon className="h-5 w-5" />
+          </button>
+        </form>
+
+        <nav className="flex flex-col" aria-label="Điều hướng di động">
+          <NavLink to="/" className={drawerLinkClass}>
+            Trang chủ
+          </NavLink>
           {NAV_LINKS.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                `text-sm font-medium uppercase ${isActive ? 'text-primary font-bold' : 'text-gray-700'}`
-              }
-            >
+            <NavLink key={link.to} to={link.to} className={drawerLinkClass}>
               {link.label}
             </NavLink>
           ))}
+          <NavLink to="/account/login" className={drawerLinkClass}>
+            Đăng Nhập
+          </NavLink>
         </nav>
-        <a href="tel:18006230" className="mt-6 flex items-center gap-2 text-sm font-medium text-secondary">
-          <PhoneIcon /> 1800 6230
-        </a>
-        <div className="mt-6 flex gap-4">
-          <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-            <FacebookIcon />
+
+        <div className="mt-6 space-y-2 text-sm font-medium">
+          <a href="tel:18006230" className="flex items-center gap-2 text-secondary">
+            <PhoneIcon /> 1800 6230
           </a>
-          <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-            <InstagramIcon />
+          <a href="mailto:info.thuccoffee247@gmail.com" className="block text-text hover:text-primary">
+            info.thuccoffee247@gmail.com
           </a>
-          <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-            <YoutubeIcon />
+        </div>
+
+        <div className="mt-6 flex gap-2">
+          <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="flex h-[35px] w-[35px] items-center justify-center rounded-full border border-[#cdcdcd] hover:bg-primary hover:text-white">
+            <FacebookIcon className="h-4 w-4" />
+          </a>
+          <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex h-[35px] w-[35px] items-center justify-center rounded-full border border-[#cdcdcd] hover:bg-primary hover:text-white">
+            <InstagramIcon className="h-4 w-4" />
+          </a>
+          <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="flex h-[35px] w-[35px] items-center justify-center rounded-full border border-[#cdcdcd] hover:bg-primary hover:text-white">
+            <YoutubeIcon className="h-4 w-4" />
           </a>
         </div>
       </div>
-    </div>
+    </aside>
   );
 }

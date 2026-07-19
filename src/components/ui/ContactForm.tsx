@@ -6,6 +6,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function ContactForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [showToast, setShowToast] = useState(false);
@@ -13,7 +14,7 @@ export default function ContactForm() {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim() || !email.trim() || !message.trim()) {
+    if (!name.trim() || !email.trim() || !phone.trim() || !message.trim()) {
       setError('Vui lòng điền đầy đủ thông tin.');
       return;
     }
@@ -25,6 +26,7 @@ export default function ContactForm() {
     setError('');
     setName('');
     setEmail('');
+    setPhone('');
     setMessage('');
     setShowToast(true);
   };
@@ -34,7 +36,7 @@ export default function ContactForm() {
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <div>
           <label htmlFor="contact-name" className="mb-1 block text-sm font-medium text-gray-700">
-            Họ tên
+            Tên
           </label>
           <input
             id="contact-name"
@@ -52,6 +54,18 @@ export default function ContactForm() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label htmlFor="contact-phone" className="mb-1 block text-sm font-medium text-gray-700">
+            Điện thoại
+          </label>
+          <input
+            id="contact-phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
             className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
           />
         </div>

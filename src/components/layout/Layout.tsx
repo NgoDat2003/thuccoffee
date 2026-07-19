@@ -8,7 +8,7 @@ export default function Layout() {
   return (
     <>
       <Header />
-      <main className="pt-[82px]">
+      <main className="pt-[50px] md:pt-[82px]">
         <Outlet />
       </main>
       <Footer />

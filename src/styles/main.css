@@ -7,10 +7,21 @@
   --color-primary: #0c5278;
   --color-secondary: #40260a;
   --color-accent: #79a3b1;
+  --color-text: #292929;
+  --color-page: #f5f5f5;
   --font-sans: Roboto, system-ui, sans-serif;
   --container-max: 1170px;
 }
 
 html {
   font-family: var(--font-sans);
+}
+
+body {
+  margin: 0;
+  background: var(--color-page);
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
 }

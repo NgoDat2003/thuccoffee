@@ -15,11 +15,9 @@ export default function HomePage() {
 
   return (
     <>
-      <Container className="pt-6">
-        <BannerSlider />
-      </Container>
+      <BannerSlider />
 
-      <Container className="py-10">
+      <Container className="py-[30px]">
         <SectionTitle title="Top thức uống được ưa thích" />
         <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
           {featured.map((product) => (
@@ -28,22 +26,22 @@ export default function HomePage() {
         </div>
       </Container>
 
-      <Container className="py-10">
+      <Container className="py-[30px]">
         <SectionTitle title="Ưu đãi khi đến với Thức" />
         <PromoBanner />
       </Container>
 
-      <Container className="py-10">
+      <Container className="py-[30px]">
         <SectionTitle title="Chuyện của Thức" />
         <BlogCarousel />
       </Container>
 
-      <Container className="py-10">
+      <Container className="py-[30px]">
         <SectionTitle title="Hệ thống cửa hàng" />
         <StoreLocator />
       </Container>
 
-      <Container className="py-10">
+      <Container className="py-[30px]">
         <SectionTitle title="Bộ sưu tập của Thức" />
         <GalleryLightbox />
       </Container>

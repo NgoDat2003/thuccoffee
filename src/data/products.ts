@@ -9,6 +9,8 @@ export const products: Product[] = [
     price: 45000,
     categories: ['coffee'],
     thumb: 'thumbs-e600e38f_americano.jpg',
+    image: 'e600e38f_americano.jpg',
+    description: 'AMERICANO (HOT)',
   },
   {
     name: 'BERRY MANGO',
@@ -17,6 +19,7 @@ export const products: Product[] = [
     categories: ['san-pham-moi', 'mango-breeze'],
     thumb: 'thumbs-847b9f4d_berry-mango.jpg',
     image: '847b9f4d_berry-mango.jpg',
+    description: 'Xoài Dâu Đá Xay - vị chua thanh của dâu tây mix cùng độ ngọt thơm của xoài, thêm topping dâu sấy giòn vui miệng, uống một ngụm là "bật công tắc" tươi tỉnh.',
   },
   {
     name: 'BISCUIT STICKS WITH CREAMFOAM',
@@ -25,6 +28,8 @@ export const products: Product[] = [
     priceEstimated: true,
     categories: ['san-pham-moi', 'yeu-thich-nhat', 'cake'],
     thumb: 'thumbs-243b0721_untitled-design-4-.png',
+    image: '243b0721_untitled-design-4-.png',
+    description: 'BÁNH QUE CHẤM KEM mang vị mặn nhè nhẹ của bánh, chấm lớp kem sữa beo béo, tuy đơn giản nhưng vô cùng lôi cuốn và hấp dẫn',
   },
   {
     name: 'BLACK COFFEE',
@@ -32,6 +37,8 @@ export const products: Product[] = [
     price: 35000,
     categories: ['coffee'],
     thumb: 'thumbs-302411f4_black-coffee.jpg',
+    image: '302411f4_black-coffee.jpg',
+    description: 'CÀ PHÊ ĐEN',
   },
   {
     name: 'BLACK COLD BREW COFFEE',
@@ -39,6 +46,8 @@ export const products: Product[] = [
     price: 55000,
     categories: ['san-pham-moi', 'yeu-thich-nhat', 'coffee'],
     thumb: 'thumbs-e8ac352a_black-cold-brew.jpg',
+    image: 'e8ac352a_black-cold-brew.jpg',
+    description: 'Capacity: 230ML with 100% Arabica',
   },
   {
     name: 'CAPPUCCINO',
@@ -46,6 +55,7 @@ export const products: Product[] = [
     price: 50000,
     categories: ['coffee'],
     thumb: 'thumbs-a84ab08_cappuccino-1.jpg',
+    image: 'a84ab08_cappuccino-1.jpg',
   },
   {
     name: 'CARAMEL COFFEE JELLY IB',
@@ -53,6 +63,8 @@ export const products: Product[] = [
     price: 55000,
     categories: ['blended'],
     thumb: 'thumbs-4c9bafc_caramel-coffee-jelly.jpg',
+    image: '4c9bafc_caramel-coffee-jelly.jpg',
+    description: 'CÀ PHÊ CARAMEL ĐÁ XAY SIZE M',
   },
   {
     name: 'CHOCOLATE IB',
@@ -60,6 +72,8 @@ export const products: Product[] = [
     price: 55000,
     categories: ['blended'],
     thumb: 'thumbs-366d6f6b_chocolate-ib.jpg',
+    image: '366d6f6b_chocolate-ib.jpg',
+    description: 'SÔ-CÔ-LA ĐÁ XAY SIZE M',
   },
   {
     name: 'CHOCOLATE',
@@ -67,6 +81,8 @@ export const products: Product[] = [
     price: 55000,
     categories: ['non-coffee'],
     thumb: 'thumbs-b0f6ab89_chocolate-latte.jpg',
+    image: 'b0f6ab89_chocolate-latte.jpg',
+    description: 'SÔ-CÔ-LA SỮA',
   },
   {
     name: 'CINNAMON ORANGE COLD BREW',
@@ -74,6 +90,8 @@ export const products: Product[] = [
     price: 55000,
     categories: ['san-pham-moi', 'yeu-thich-nhat', 'cold-brew-origins'],
     thumb: 'thumbs-fb1f9a06_cinnamon-orange-cold-brew.jpg',
+    image: 'fb1f9a06_cinnamon-orange-cold-brew.jpg',
+    description: 'Cà phê ủ lạnh Cam Quế được mix match từ nước cam tươi và cà phê ủ lạnh thanh mát thoang thoảng hương quế đặc trưng.',
   },
   {
     name: 'CINNAMON TEA',
@@ -81,6 +99,8 @@ export const products: Product[] = [
     price: 45000,
     categories: ['tea'],
     thumb: 'thumbs-8db1f84b_cinnamon-tea.jpg',
+    image: '8db1f84b_cinnamon-tea.jpg',
+    description: 'TRÀ QUẾ HOA HỒI COLD (SIZE S)',
   },
   {
     name: 'COCO COFFEE ICEBLEND',
@@ -89,6 +109,8 @@ export const products: Product[] = [
     priceEstimated: true,
     categories: ['yeu-thich-nhat', 'coffee'],
     thumb: 'thumbs-1b2b2c7d_coco-coffee-iceblend.jpg',
+    image: '1b2b2c7d_coco-coffee-iceblend.jpg',
+    description: 'COCO COFFEE ICEBLEND (Cà Phê Dừa) sự kết hợp độc đáo từ cà phê và dừa trên nền đá xay mát lạnh, thoảng chút đắng của cà phê và vị béo đặc trưng của dừa.',
   },
   {
     name: 'COCO COLD BREW',
@@ -96,6 +118,8 @@ export const products: Product[] = [
     price: 55000,
     categories: ['san-pham-moi', 'yeu-thich-nhat', 'cold-brew-origins'],
     thumb: 'thumbs-f97f625a_coco-cold-brew.jpg',
+    image: 'f97f625a_coco-cold-brew.jpg',
+    description: 'Cà phê ủ lạnh Dừa sự kết hợp thanh mát từ nước dừa mang vị ngọt nhẹ cùng cà phê ủ lạnh đặc trưng Thức Coffee.',
   },
   {
     name: 'COCO LATTE',
@@ -103,6 +127,8 @@ export const products: Product[] = [
     price: 60000,
     categories: ['san-pham-moi', 'coffee'],
     thumb: 'thumbs-366cf1eb_coco-latte.jpg',
+    image: '366cf1eb_coco-latte.jpg',
+    description: 'CÀ PHÊ SỮA DỪA',
   },
   {
     name: 'COCO MANGO',
@@ -110,6 +136,8 @@ export const products: Product[] = [
     price: 59000,
     categories: ['san-pham-moi', 'mango-breeze'],
     thumb: 'thumbs-df382150_coco-mango.jpg',
+    image: 'df382150_coco-mango.jpg',
+    description: 'Xoài Dừa Đá Xay - Gấp đôi sự nhiệt đới với vị béo nhẹ từ dừa nhấn nhá trên nền xoài ngọt dịu, cuốn cuốn, dính dính không thể rời môi.',
   },
   {
     name: 'COCO MATCHA',
@@ -117,6 +145,7 @@ export const products: Product[] = [
     price: 65000,
     categories: ['san-pham-moi', 'yeu-thich-nhat', 'non-coffee'],
     thumb: 'thumbs-aa590f31_coco-matcha.jpg',
+    image: 'aa590f31_coco-matcha.jpg',
   },
   {
     name: 'COOKIE MATCHA LAND',
@@ -124,6 +153,8 @@ export const products: Product[] = [
     price: 65000,
     categories: ['blended'],
     thumb: 'thumbs-4013cfe4_cookie-matcha-land.jpg',
+    image: '4013cfe4_cookie-matcha-land.jpg',
+    description: 'TRÀ XANH OREO ĐÁ XAY',
   },
   {
     name: 'EGG COFFEE',
@@ -131,6 +162,8 @@ export const products: Product[] = [
     price: 55000,
     categories: ['san-pham-moi', 'yeu-thich-nhat', 'coffee'],
     thumb: 'thumbs-67b9de1e_egg-coffee.jpg',
+    image: '67b9de1e_egg-coffee.jpg',
+    description: 'Cà Phê Trứng một món cà phê nóng được biến tấu cùng kem trứng béo mịn, vị đắng nhẹ của cà phê và vị béo của trứng hoà quyện vô cùng hấp dẫn.',
   },
   {
     name: 'ESPRESSO',
@@ -138,6 +171,7 @@ export const products: Product[] = [
     price: 39000,
     categories: ['coffee'],
     thumb: 'thumbs-f90391dd_espresso.jpg',
+    image: 'f90391dd_espresso.jpg',
   },
   {
     name: 'FLAN GATO',
@@ -145,6 +179,8 @@ export const products: Product[] = [
     price: 39000,
     categories: ['cake'],
     thumb: 'thumbs-c95be405_dfa.jpg',
+    image: 'c95be405_dfa.jpg',
+    description: 'Flan Gato vớt cốt bông lan mềm cùng lớp flan caramel béo ngậy, rất hợp vị team thích béo.',
   },
   {
     name: 'GOLDEN BERRY PASSION TEA',
@@ -152,6 +188,8 @@ export const products: Product[] = [
     price: 65000,
     categories: ['san-pham-moi', 'yeu-thich-nhat', 'tea'],
     thumb: 'thumbs-8971210b_golden-berry-passion-tea.jpg',
+    image: '8971210b_golden-berry-passion-tea.jpg',
+    description: 'TRÀ TẦM BÓP CHANH DÂY HẠT ĐÁC',
   },
   {
     name: 'HONEY LEMON COLD BREW',
@@ -159,6 +197,8 @@ export const products: Product[] = [
     price: 55000,
     categories: ['san-pham-moi', 'yeu-thich-nhat', 'cold-brew-origins'],
     thumb: 'thumbs-57306aa5_honey-lemon-cold-brew.jpg',
+    image: '57306aa5_honey-lemon-cold-brew.jpg',
+    description: 'Cà phê ủ lạnh Chanh Mật Ong mang vị chua nhẹ từ chanh cùng vị ngọt thanh từ mật ong trên nền cà phê ủ lạnh dịu mát.',
   },
   {
     name: 'KUMQUAT COOLER',
@@ -167,6 +207,8 @@ export const products: Product[] = [
     priceEstimated: true,
     categories: ['yeu-thich-nhat', 'blended'],
     thumb: 'thumbs-f0621ca5_kumquat-cooler-.jpg',
+    image: 'f0621ca5_kumquat-cooler-.jpg',
+    description: 'SODA TẮC - XÍ MUỘI ĐÁ XAY',
   },
   {
     name: 'LATTE COFFEE',
@@ -174,6 +216,7 @@ export const products: Product[] = [
     price: 50000,
     categories: ['coffee'],
     thumb: 'thumbs-ae566bec_latte-coffee.jpg',
+    image: 'ae566bec_latte-coffee.jpg',
   },
   {
     name: 'LEMON BLACK TEA',
@@ -181,6 +224,8 @@ export const products: Product[] = [
     price: 45000,
     categories: ['tea'],
     thumb: 'thumbs-9410ff44_lemon-black-tea.jpg',
+    image: '9410ff44_lemon-black-tea.jpg',
+    description: 'HỒNG TRÀ CHANH COLD (SIZE S)',
   },
   {
     name: 'LONGAN TEA',
@@ -188,6 +233,8 @@ export const products: Product[] = [
     price: 59000,
     categories: ['san-pham-moi', 'tea'],
     thumb: 'thumbs-eea4bb17_longan-tea.jpg',
+    image: 'eea4bb17_longan-tea.jpg',
+    description: 'TRÀ NHÃN HẠT CHIA',
   },
   {
     name: 'LYCHEE MANGO',
@@ -195,6 +242,8 @@ export const products: Product[] = [
     price: 59000,
     categories: ['san-pham-moi', 'mango-breeze'],
     thumb: 'thumbs-cd2fb98e_lychee-mango.jpg',
+    image: 'cd2fb98e_lychee-mango.jpg',
+    description: 'Xoài Vải Đá Xay - sự kết hợp nhân đôi sự mọng nước, quả vải thơm lừng quyện cùng xoài chín, mang đến cảm giác mát lành như một cơn gió mùa hè vừa ghé ngang!',
   },
   {
     name: 'LYCHEE TEA',
@@ -203,6 +252,8 @@ export const products: Product[] = [
     priceEstimated: true,
     categories: ['yeu-thich-nhat', 'tea'],
     thumb: 'thumbs-2fe1c35b_lychee-tea.jpg',
+    image: '2fe1c35b_lychee-tea.jpg',
+    description: 'TRÀ VẢI HẠT CHIA',
   },
   {
     name: 'MATCHA IB',
@@ -210,6 +261,8 @@ export const products: Product[] = [
     price: 55000,
     categories: ['blended'],
     thumb: 'thumbs-a54d2069_matcha-ib.jpg',
+    image: 'a54d2069_matcha-ib.jpg',
+    description: 'TRÀ XANH ĐÁ XAY SIZE M',
   },
   {
     name: 'MATCHA TEA LATTE',
@@ -217,6 +270,8 @@ export const products: Product[] = [
     price: 55000,
     categories: ['non-coffee'],
     thumb: 'thumbs-2b383bd1_matcha-tea-latte-1.jpg',
+    image: '2b383bd1_matcha-tea-latte-1.jpg',
+    description: 'TRÀ XANH LATTE',
   },
   {
     name: 'OOLONG BUBBLE MILK TEA',
@@ -225,6 +280,8 @@ export const products: Product[] = [
     priceEstimated: true,
     categories: ['yeu-thich-nhat', 'milk-tea'],
     thumb: 'thumbs-34551208_oolong-bubble-milk-tea.jpg',
+    image: '34551208_oolong-bubble-milk-tea.jpg',
+    description: 'TRÀ SỮA Ô LONG',
   },
   {
     name: 'ORANGE JUICE',
@@ -232,6 +289,8 @@ export const products: Product[] = [
     price: 50000,
     categories: ['tea'],
     thumb: 'thumbs-c76bcd3b_orange-juice.jpg',
+    image: 'c76bcd3b_orange-juice.jpg',
+    description: 'NƯỚC ÉP CAM',
   },
   {
     name: 'PALOMA ICE TEA',
@@ -240,6 +299,8 @@ export const products: Product[] = [
     priceEstimated: true,
     categories: ['yeu-thich-nhat', 'tea'],
     thumb: 'thumbs-146249b3_paloma-iced-tea.jpg',
+    image: '146249b3_paloma-iced-tea.jpg',
+    description: 'Còn được gọi là "Trà bưởi hồng - chanh dây hạt đác" với sự kết hợp vị thanh chua nhẹ của bưởi hồng và chanh dây tươi cùng với hương thơm mát của hồng trà, dùng kèm mứt bưởi và hạt đác rim, cảm giác của bạn sẽ từ lạ thành quen khi trải nghiệm “em nó” đấy!',
   },
   {
     name: 'PASSION MANGO CHEESE',
@@ -247,6 +308,8 @@ export const products: Product[] = [
     price: 39000,
     categories: ['cake'],
     thumb: 'thumbs-5ff9576_passion-mango-cheese.jpg',
+    image: '5ff9576_passion-mango-cheese.jpg',
+    description: 'Passion Mango Cheese - sự kết hợp từ xoài và chanh dây luôn tạo nên những hương vị đặc biệt, bánh có vị chua nhẹ của lớp mousse chanh dây và xoài, kết hợp cùng lớp bông lan ngọt nhẹ kích thích vị giác.',
   },
   {
     name: 'RICE MILK TEA',
@@ -254,6 +317,8 @@ export const products: Product[] = [
     price: 55000,
     categories: ['san-pham-moi', 'yeu-thich-nhat', 'milk-tea'],
     thumb: 'thumbs-bb571d19_rice-milk-tea.jpg',
+    image: 'bb571d19_rice-milk-tea.jpg',
+    description: 'WHITE RICE MILK TEA (English: Roasted Rice Milk Tea) Trà Sữa Gạo Rang - vị trà đậm đà, hương gạo rang thơm ngát hoà quyện cùng vị béo của sữa, thêm lớp kem phô mai béo mịn, hoà quyện hài hoà.',
   },
   {
     name: 'SALTED CREAMFOAM CHOCO',
@@ -261,6 +326,8 @@ export const products: Product[] = [
     price: 65000,
     categories: ['san-pham-moi', 'yeu-thich-nhat', 'non-coffee'],
     thumb: 'thumbs-1a69f86_salted-creamfoam-choco.jpg',
+    image: '1a69f86_salted-creamfoam-choco.jpg',
+    description: 'SÔ-CÔ-LA KEM MUỐI',
   },
   {
     name: 'SALTED MILKFOAM COFFEE',
@@ -269,6 +336,8 @@ export const products: Product[] = [
     priceEstimated: true,
     categories: ['yeu-thich-nhat', 'coffee'],
     thumb: 'thumbs-e4304ef9_salted-milkfoam-coffee.jpg',
+    image: 'e4304ef9_salted-milkfoam-coffee.jpg',
+    description: 'Sự kết hợp hoàn hảo từ hương vị cà phê đặc trưng của Thức, cùng lớp kem mặn béo ngậy đậm đà, CÀ PHÊ MUỐI Thức Coffee sẽ chinh phục mọi người ngay từ nốt vị đầu tiên.',
   },
   {
     name: 'SPECIAL WHITE COFFEE',
@@ -277,6 +346,8 @@ export const products: Product[] = [
     priceEstimated: true,
     categories: ['yeu-thich-nhat', 'coffee'],
     thumb: 'thumbs-ff2ae9eb_special-white-coffee.jpg',
+    image: 'ff2ae9eb_special-white-coffee.jpg',
+    description: 'BẠC XỈU VIỆT NAM',
   },
   {
     name: 'STRAWBERRY PEACH TEA',
@@ -284,6 +355,8 @@ export const products: Product[] = [
     price: 59000,
     categories: ['san-pham-moi', 'tea'],
     thumb: 'thumbs-8f1ad090_strawberry-peach-tea.jpg',
+    image: '8f1ad090_strawberry-peach-tea.jpg',
+    description: 'TRÀ ĐÀO CAM DÂU',
   },
   {
     name: 'THỨC MILK TEA',
@@ -292,6 +365,7 @@ export const products: Product[] = [
     priceEstimated: true,
     categories: ['yeu-thich-nhat', 'milk-tea'],
     thumb: 'thumbs-ee18372_thuc-milk-tea-1.jpg',
+    image: 'ee18372_thuc-milk-tea-1.jpg',
   },
   {
     name: 'TIRAMISU CHOCO',
@@ -299,6 +373,8 @@ export const products: Product[] = [
     price: 39000,
     categories: ['cake'],
     thumb: 'thumbs-8a88289e_tiramisu-choco.jpg',
+    image: '8a88289e_tiramisu-choco.jpg',
+    description: 'Tiramisu Chocolate, vị bánh mềm thơm, ngọt nhẹ và có chút đăng đắng của lớp bột ca cao trên bề mặt bánh.',
   },
   {
     name: 'WHITE COFFEE',
@@ -307,5 +383,7 @@ export const products: Product[] = [
     priceEstimated: true,
     categories: ['yeu-thich-nhat', 'coffee'],
     thumb: 'thumbs-1c476e91_white-coffee.jpg',
+    image: '608fc617_coffee-with-milk-1.jpg',
+    description: 'CÀ PHÊ SỮA TRUYỀN THỐNG',
   },
 ];

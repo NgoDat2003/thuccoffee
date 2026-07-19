@@ -9,6 +9,13 @@ export const stores: Store[] = [
     address: '40D Lý Tự Trọng, P.Bến Nghé, Q.1, TP.HCM',
     phone: '028 3822 1081',
     image: '444adc75_z6157733703207-60f39403ff895814bcae5bee6e3dbfba.jpg',
+    gallery: [
+      '48270e72_z6157795668203-258e0e9a0e1ce535d1d0782e3199ea9a.jpg',
+      '9ead2735_z6157794639130-42110afa99c0a14e5f9c8fdd6d5e84a5.jpg',
+      'a96b3f5c_z6157794642418-4e22336e67fc1feac49709d2e700744e.jpg',
+      'c3bc3b1c_z6155463159164-bfe0689d79840c400bbaad0696aeec0c.jpg',
+      'f4efbbf4_z6174415800778-affb677883ba863f3a09111ad3df3ba7.jpg',
+    ],
     hours: 'Mở cửa 24/7',
   },
   {
@@ -17,6 +24,13 @@ export const stores: Store[] = [
     address: 'số 2, đường số 41, Phường 6, Quận 4, TP.HCM',
     phone: '02862754531',
     image: '4c12c914_z4133906633239-68941175e8af772fe5b4dd680622f293.jpg',
+    gallery: [
+      '29c5231a_z4133906633239-68941175e8af772fe5b4dd680622f293.jpg',
+      '2dcba532_z4255299463565-74660b963dc1f58ab53e4cd2f0362739.jpg',
+      '324409a9_thuc-duong41-4.jpg',
+      '66a8471c_thuc-duong41-6.jpg',
+      'f2ca332c_thuc-duong41-3.jpg',
+    ],
     hours: 'Mở cửa 24/7',
   },
   {
@@ -25,6 +39,13 @@ export const stores: Store[] = [
     address: '42 Cống Quỳnh, Phường Nguyễn Cư Trinh, Quận 1, TP.HCM',
     phone: '028 6291 0488',
     image: 'efd28138_t3.jpg',
+    gallery: [
+      '23fdf32f_thuc42congquynh-2-.jpg',
+      '6c1f995_t3.jpg',
+      'c51cc25a_t3.jpg',
+      'd8ebfaa3_t3.jpg',
+      'e67a7101_t3.jpg',
+    ],
     hours: 'Mở cửa 24/7',
   },
   {
@@ -33,6 +54,13 @@ export const stores: Store[] = [
     address: '42 Hoa Phượng, phường 2, quận Phú Nhuận, TP.HCM',
     phone: '(028) 3517 8199',
     image: 'bfccd894_post-04052020.png',
+    gallery: [
+      '3e09f989_9.jpg',
+      '53822433_5.jpg',
+      '9aaae371_6.jpg',
+      'b0b63660_74.jpg',
+      'e5fde988_post-04052020.png',
+    ],
     hours: 'Mở cửa 24/7',
   },
   {
@@ -41,6 +69,13 @@ export const stores: Store[] = [
     address: '45 Nguyễn Oanh, P.10, Q.Gò Vấp, TP.HCM',
     phone: '028 3989 6891',
     image: '18fd29ae_t8.jpg',
+    gallery: [
+      '266602a7_untitled-design-2-.png',
+      '4247a6de_thuc45nguyenoanh.jpg',
+      'bf92baee_t8.jpg',
+      'cac08344_thuc45nguyenoanh.jpg',
+      'e7402d85_thuc45nguyenoanh.jpg',
+    ],
     hours: 'Mở cửa 24/7',
   },
   {
@@ -49,6 +84,13 @@ export const stores: Store[] = [
     address: '320 Nguyễn Thái Sơn, P.4, Q.Gò Vấp, TP.HCM',
     phone: '028 3985 3943',
     image: '1498c923_thuc-nts.jpg',
+    gallery: [
+      '1d90946a_5.png',
+      '28968056_thuc-nts.jpg',
+      '362b6046_2.png',
+      '8c407f7c_1.png',
+      'ac214c32_4.png',
+    ],
     hours: 'Mở cửa 24/7',
   },
   {
@@ -57,6 +99,13 @@ export const stores: Store[] = [
     address: '37 Lý Tự Trọng, P.Bến Nghé, Q.1, TP.HCM',
     phone: '028 3520 8094',
     image: '2fa7f203_thuc37ltt1.jpg',
+    gallery: [
+      '579bf7fd_cuahang-37lytutrong.jpg',
+      '7cca7bf9_img-15041.JPG',
+      '7da8c452_thuc37ltt.jpg',
+      '8a86b032_thuc37ltt1.jpg',
+      '9346791a_img-15661.JPG',
+    ],
     hours: 'Mở cửa 24/7',
   },
 ];
