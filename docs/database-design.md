@@ -185,11 +185,36 @@ phải quay lại khi dữ liệu lớn hơn.
 | Soft delete (`deleted_at`) | Chưa có nhu cầu khôi phục |
 | Lịch sử phiên bản nội dung | Git đã là lịch sử cho dữ liệu seed |
 
+## Quy tắc sinh slug
+
+Slug tự sinh từ tiêu đề khi tạo bản ghi mới, admin sửa lại được nếu muốn.
+
+Các bước chuẩn hóa:
+
+1. Bỏ dấu tiếng Việt. Xử lý `Đ`/`đ` thành `d` **trước** khi chạy
+   `normalize('NFD')` — `Đ` là chữ cái riêng, không phải `D` mang dấu, nên bước
+   khử dấu Unicode thông thường sẽ bỏ sót nó.
+2. Chuyển thường, thay khoảng trắng và ký tự không phải chữ/số bằng `-`.
+3. Gộp nhiều `-` liên tiếp, cắt `-` ở đầu và cuối.
+
+Ví dụ: `THỨC COFFEE — 40D Lý Tự Trọng!` → `thuc-coffee-40d-ly-tu-trong`
+
+**Chống trùng phải làm ở backend**, không phải ở form. Nếu slug đã tồn tại thì
+thêm hậu tố tăng dần (`ca-phe-sua-2`). Sinh slug ở frontend rồi gửi lên không
+đủ — hai người tạo cùng lúc vẫn có thể trùng, nên bước kiểm tra cuối cùng phải
+nằm cạnh ràng buộc UNIQUE của database.
+
+**Sửa tiêu đề không tự đổi slug** của bản ghi đã xuất bản. Đổi slug là làm chết
+mọi link đã chia sẻ. Chỉ đổi khi admin chủ động yêu cầu.
+
+Slug trong dữ liệu hiện tại có hậu tố lấy từ site gốc (`-s153t2`, `-s92t2`).
+Bước seed giữ nguyên chúng để không phá link đang chạy; chỉ bản ghi tạo mới mới
+dùng slug tự sinh.
+
 ## Câu chưa chốt
 
-- Slug do admin nhập tay hay tự sinh từ tiêu đề? Ảnh hưởng validate ở form.
-- Khi đổi slug của bài đã xuất bản, có cần giữ redirect từ slug cũ không? Nếu
-  có thì cần thêm bảng ánh xạ.
+- Khi admin chủ động đổi slug của bài đã xuất bản, có cần giữ redirect từ slug
+  cũ không? Nếu có thì cần thêm bảng ánh xạ slug cũ → bản ghi.
 - Phân trang blog hiện là giả: `BLOG_PAGE_COUNT` là 54 trong khi chỉ có 10 bài
   thật, và `getBlogPage()` lặp lại chúng để khớp số trang của site gốc (quyết
   định có chủ ý, đã được duyệt trước đó). Khi chuyển sang DB, hành vi này phải

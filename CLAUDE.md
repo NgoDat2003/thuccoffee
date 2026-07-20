@@ -1,9 +1,19 @@
 # CLAUDE.md
 
 Stack, scripts, lệnh container: @README.md
-Runtime contract khi deploy: @docs/deployment.md
-Môi trường local và CI: @docs/local-environment-and-ci.md
-Khác biệt có chủ ý so với site gốc: @docs/deviations-from-original.md
+
+## Đọc tài liệu nào
+
+Đọc theo việc đang làm, không đọc hết.
+
+| Đang làm | Đọc |
+|---|---|
+| Backend, database, admin | `docs/backend-architecture.md` → `docs/database-design.md` |
+| Giao diện, nội dung trang | `docs/deviations-from-original.md` |
+| Container, deploy, CI | `docs/deployment.md`, `docs/local-environment-and-ci.md` |
+
+`plans/` là lịch sử các đợt làm việc đã xong. Không cần đọc trừ khi truy nguồn
+một quyết định cũ.
 
 ## Dự án này là gì
 
@@ -84,6 +94,11 @@ vĩnh viễn, `index.html` không bao giờ cache, và đường dẫn trông nh
 không tồn tại thì trả `404` chứ không rơi về `index.html`. Chỉ route không khớp
 và không phải asset mới fallback cho client-side routing. Gộp cả ba thành một
 `try_files` sẽ phá 404 của asset thiếu.
+
+## Nhánh
+
+`main` giữ trạng thái frontend deploy được. Backend làm trên `feat/backend`,
+merge vào `main` khi chạy được đầu-cuối. Tag `v1.0.0` là điểm quay về.
 
 ## Trước khi commit
 
