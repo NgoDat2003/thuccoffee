@@ -39,9 +39,12 @@ thuccoffee/
 │   ├── package.json        deps riêng, độc lập với frontend
 │   ├── Dockerfile          image riêng cho backend
 │   └── src/
-│       ├── index.ts        khởi tạo app, đăng ký route
-│       ├── db/             schema Drizzle, migration, seed
-│       └── routes/         một file mỗi nhóm tài nguyên
+│       ├── index.ts        khởi tạo Express, đăng ký route, phục vụ /docs
+│       ├── db/             schema Drizzle, client, migration, seed
+│       ├── routes/         một file mỗi nhóm tài nguyên
+│       ├── schemas/        schema Zod dùng chung cho validate và OpenAPI
+│       ├── middleware/     require-auth, validate, xử lý lỗi
+│       └── lib/            sinh slug tiếng Việt, tiện ích chung
 ├── Dockerfile              frontend (đã có, không đổi)
 └── compose.yaml            thêm service postgres và backend
 ```
@@ -53,13 +56,33 @@ Hai `package.json` tách biệt. Frontend không cài thư viện backend và ng
 | Thành phần | Chọn | Lý do |
 |---|---|---|
 | Runtime | Node 22 | Khớp `node:22-alpine` trong Dockerfile frontend |
-| Framework | Hono | Nhẹ, TypeScript-first |
+| Framework | Express 5 | Phổ biến, nhiều tài liệu, dễ bàn giao |
 | ORM | Drizzle | Schema viết bằng TypeScript, chuyển từ `types.ts` gần như trực tiếp |
 | Database | Postgres 16 | Dokploy có sẵn service này |
-| Validate | Zod | Dùng chung schema cho API và form admin |
+| Validate | Zod | Một schema dùng cho cả validate lẫn sinh tài liệu API |
+| Tài liệu API | `zod-openapi` + Swagger UI | Sinh từ chính schema Zod, không khai báo hai lần |
 
 Backend viết TypeScript giống frontend, nhưng không có React — chỉ xử lý request
 và truy vấn database.
+
+Express không có validate sẵn, nên mỗi route khai báo schema Zod cho body và
+query. Cùng schema đó sinh ra đặc tả OpenAPI, phục vụ tại `/docs`. Khai báo một
+lần, dùng ba việc: chặn dữ liệu sai, suy ra kiểu TypeScript, và sinh tài liệu.
+
+## Cấu hình gốc cần sửa khi thêm server/
+
+Bốn file ở thư mục gốc hiện áp dụng cho toàn repo và sẽ chạm tới `server/` nếu
+để nguyên:
+
+| File | Vấn đề | Sửa |
+|---|---|---|
+| `.dockerignore` | `Dockerfile` frontend dùng `COPY . .`, sẽ copy cả `server/` vào image | Thêm dòng `server` |
+| `.oxlintrc.json` | Bật plugin `react`, sẽ quét code backend vốn không có React | Thêm `ignorePatterns` cho `server/`; `server/` có config lint riêng |
+| `.github/workflows/ci.yml` | Chỉ build frontend | Thêm job cài, lint, build `server/` |
+| `compose.yaml` | Chỉ có frontend | Thêm service `postgres` (có volume) và `backend` |
+
+`tsconfig.app.json` đã giới hạn `include: ["src"]` nên không ảnh hưởng.
+`node_modules` tách tự nhiên vì hai `package.json` độc lập.
 
 ## Cấu hình Postgres
 
@@ -86,6 +109,9 @@ trị thật.
 Đọc công khai, ghi phải đăng nhập.
 
 ```
+GET    /docs                      Swagger UI, sinh từ schema Zod
+GET    /api/health                cho healthcheck của container
+
 GET    /api/products              danh sách, lọc theo ?category=
 GET    /api/products/:slug
 GET    /api/categories
