@@ -111,9 +111,9 @@ theo loại việc:
 `main` giữ trạng thái deploy được — merge vào khi việc đã chạy được đầu-cuối.
 Tag `v1.0.0` là điểm quay về cho bản frontend tĩnh.
 
-**Không tự ý push.** Commit thì được, nhưng `git push` phải hỏi trước — kể cả
-tài liệu, plan, hay thay đổi nhỏ. Push là hành động ra ngoài, người khác thấy
-được, và khó thu hồi.
+**Không tự ý commit hay push.** Sửa file thì được, nhưng `git commit` và
+`git push` đều phải hỏi trước — kể cả tài liệu, plan, hay thay đổi nhỏ. Viết
+xong thì dừng lại, nói rõ đã đổi gì, rồi chờ đồng ý.
 
 Repo có hai remote: `origin` là repo cá nhân (mặc định làm việc ở đây), `work`
 là repo công ty (chỉ đẩy khi có mốc bàn giao, và phải hỏi riêng).
