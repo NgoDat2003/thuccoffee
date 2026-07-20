@@ -59,15 +59,27 @@ Hai `package.json` tách biệt. Frontend không cài thư viện backend và ng
 | Framework | Express 5 | Phổ biến, nhiều tài liệu, dễ bàn giao |
 | ORM | Drizzle | Schema viết bằng TypeScript, chuyển từ `types.ts` gần như trực tiếp |
 | Database | Postgres 16 | Dokploy có sẵn service này |
-| Validate | Zod | Một schema dùng cho cả validate lẫn sinh tài liệu API |
-| Tài liệu API | `zod-openapi` + Swagger UI | Sinh từ chính schema Zod, không khai báo hai lần |
+| Validate | Zod | Chặn dữ liệu sai và suy ra kiểu TypeScript từ cùng một khai báo |
+| Dữ liệu phía FE | TanStack Query | Cache, loading, error, invalidate sau khi sửa |
 
 Backend viết TypeScript giống frontend, nhưng không có React — chỉ xử lý request
 và truy vấn database.
 
 Express không có validate sẵn, nên mỗi route khai báo schema Zod cho body và
-query. Cùng schema đó sinh ra đặc tả OpenAPI, phục vụ tại `/docs`. Khai báo một
-lần, dùng ba việc: chặn dữ liệu sai, suy ra kiểu TypeScript, và sinh tài liệu.
+query. Kiểu TypeScript suy ra từ chính schema đó, không khai báo hai lần.
+
+### Chia sẻ kiểu giữa backend và frontend — chưa chốt
+
+Vì là monorepo và cùng TypeScript, frontend import thẳng kiểu từ
+`server/src/schemas/` là đủ: sửa schema ở backend thì frontend báo lỗi ngay,
+không cần bước sinh code nào.
+
+Phương án còn lại là sinh đặc tả OpenAPI từ Zod rồi dùng công cụ như `orval`
+sinh ra kiểu và hook TanStack Query. Cách này thêm hai ba thư viện và một bước
+build; nó chỉ đáng khi frontend và backend không chung ngôn ngữ hoặc không chung
+repo — không phải trường hợp ở đây.
+
+Đang chờ tài liệu từ dự án QA/QC để đối chiếu trước khi quyết.
 
 ## Cấu hình gốc cần sửa khi thêm server/
 
@@ -116,7 +128,6 @@ trị thật.
 Đọc công khai, ghi phải đăng nhập.
 
 ```
-GET    /docs                      Swagger UI, sinh từ schema Zod
 GET    /api/health                cho healthcheck của container
 
 GET    /api/products              danh sách, lọc theo ?category=
@@ -162,7 +173,9 @@ Ba thay đổi không tránh được:
 
 **Dữ liệu trở thành bất đồng bộ.** Các hàm trong `src/data/index.ts` hiện trả
 kết quả ngay; sau khi dùng `fetch` chúng trả Promise. Các trang cần trạng thái
-đang tải và trạng thái lỗi.
+đang tải và trạng thái lỗi. Dùng TanStack Query ngay từ bước này thay vì tự viết
+`useState`/`useEffect` — trang admin ở giai đoạn sau cần invalidate cache sau mỗi
+lần sửa, và viết lại lúc đó tốn hơn.
 
 **Phân trang blog đang là giả.** `BLOG_PAGE_COUNT` là 54 trong khi chỉ có 10
 bài thật — `getBlogPage()` lặp lại chúng để khớp số trang site gốc. Khi dùng dữ
@@ -184,5 +197,7 @@ Tag `v1.0.0` trỏ vào commit frontend hoàn chỉnh, dùng làm điểm quay v
 
 ## Câu chưa chốt
 
+- Cách chia sẻ kiểu giữa backend và frontend: import trực tiếp hay sinh qua
+  OpenAPI. Chờ tài liệu từ dự án QA/QC.
 - Khi admin đổi slug bài đã xuất bản, có giữ redirect từ slug cũ không.
 - Việc blog rút từ 54 trang xuống ~2 trang có chấp nhận được không.

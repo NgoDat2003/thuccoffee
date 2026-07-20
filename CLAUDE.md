@@ -95,10 +95,28 @@ không tồn tại thì trả `404` chứ không rơi về `index.html`. Chỉ r
 và không phải asset mới fallback cho client-side routing. Gộp cả ba thành một
 `try_files` sẽ phá 404 của asset thiếu.
 
-## Nhánh
+## Git
 
-`main` giữ trạng thái frontend deploy được. Backend làm trên `feat/backend`,
-merge vào `main` khi chạy được đầu-cuối. Tag `v1.0.0` là điểm quay về.
+**Không sửa trực tiếp trên `main`.** Mỗi việc mới rẽ một nhánh riêng, đặt tên
+theo loại việc:
+
+| Tiền tố | Dùng khi |
+|---|---|
+| `feat/` | Tính năng mới |
+| `fix/` | Sửa lỗi |
+| `docs/` | Chỉ đổi tài liệu |
+| `refactor/` | Đổi cấu trúc, không đổi hành vi |
+| `chore/` | Cấu hình, phụ thuộc, việc lặt vặt |
+
+`main` giữ trạng thái deploy được — merge vào khi việc đã chạy được đầu-cuối.
+Tag `v1.0.0` là điểm quay về cho bản frontend tĩnh.
+
+**Không tự ý push.** Commit thì được, nhưng `git push` phải hỏi trước — kể cả
+tài liệu, plan, hay thay đổi nhỏ. Push là hành động ra ngoài, người khác thấy
+được, và khó thu hồi.
+
+Repo có hai remote: `origin` là repo cá nhân (mặc định làm việc ở đây), `work`
+là repo công ty (chỉ đẩy khi có mốc bàn giao, và phải hỏi riêng).
 
 ## Trước khi commit
 
