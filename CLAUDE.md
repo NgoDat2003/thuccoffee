@@ -1,60 +1,94 @@
 # CLAUDE.md
 
-Stack, scripts, and container commands are in @README.md.
-Deployment runtime contract: @docs/deployment.md
-Local environments and CI: @docs/local-environment-and-ci.md
-Intentional differences from the source site: @docs/deviations-from-original.md
+Stack, scripts, lệnh container: @README.md
+Runtime contract khi deploy: @docs/deployment.md
+Môi trường local và CI: @docs/local-environment-and-ci.md
+Khác biệt có chủ ý so với site gốc: @docs/deviations-from-original.md
 
-## What this project is
+## Dự án này là gì
 
-Static clone of a live Vietnamese coffee-chain site. Content is hardcoded, there
-is no backend, no auth, no real cart, and no payments. Features that look
-interactive on the original are presentational here — check
-`docs/deviations-from-original.md` before assuming a gap is a bug.
+Bản clone tĩnh của một site chuỗi cà phê Việt Nam đang chạy thật. Nội dung
+hardcode, không backend, không auth, không giỏ hàng thật, không thanh toán.
+Nhiều thứ trông có vẻ tương tác trên bản gốc thì ở đây chỉ là giao diện — đọc
+`docs/deviations-from-original.md` trước khi kết luận một khoảng trống là bug.
 
-## Conventions that are not obvious from the code
+## Hỏi lại thay vì đoán
 
-**Images go through `getImageUrl()`** (`src/lib/image-url.ts`). It resolves a
-bare filename against a `import.meta.glob` map of `src/assets/images/**`. Do not
-write `import img from '...'` or hardcode `/assets/...` paths — a missing file
-falls back to a placeholder and warns in dev, and hashed build names differ from
-source names.
+Không suy diễn nghiệp vụ. Khi gặp một trong các trường hợp sau thì **dừng lại
+và hỏi**, không tự chọn hướng rồi viết code:
 
-**Page metadata goes through `usePageMeta()`** (`src/lib/use-page-meta.ts`), not
-manual `document.title` writes. Every route-level page calls it.
+- Yêu cầu có thể hiểu theo nhiều cách, và các cách đó dẫn tới cấu trúc dữ liệu
+  hoặc luồng khác nhau.
+- Cần thêm field/route/trạng thái mà `src/data/types.ts` chưa có, và không rõ
+  giá trị hợp lệ là gì.
+- Không tìm thấy nội dung tương ứng trên site gốc để đối chiếu.
+- Yêu cầu mâu thuẫn với `docs/deviations-from-original.md`.
 
-**Tailwind v4 is CSS-first.** Design tokens live in the `@theme` block in
-`src/styles/main.css` (`--color-primary`, `--container-max`, …), not in a
-`tailwind.config.js` — that file does not exist. Add tokens there and use them
-as normal utilities (`text-primary`, `bg-page`).
+Khi chưa chắc, nói thẳng "chưa đủ thông tin, cần xác nhận X" kèm 2–3 phương án
+cụ thể để chọn. Không viết code chạy tạm rồi sửa sau.
 
-**Routing is config-based** in `src/routes.tsx` (React Router v7), not file-based.
-New pages need an entry there. Vietnamese URL slugs (`/chuyen-cua-thuc`,
-`/cua-hang`) mirror the original site and must not be renamed.
+Không bịa: tên file, tên hàm, tên field, API, tên gói, đường dẫn. Kiểm tra bằng
+Read/Grep/Glob trước khi nhắc tới chúng. Nếu đã kiểm tra mà không có thì nói là
+không có, đừng tạo ra một cái nghe hợp lý.
 
-**Content lives in `src/data/*.ts`** as typed modules, not JSON or a CMS. Types
-are in `src/data/types.ts`.
+Báo cáo trung thực: lint/build/test fail thì nói fail kèm output, bỏ qua bước
+nào thì nói rõ. Không mô tả việc chưa làm như đã làm.
 
-## Layout
+## Phản biện, không gật đầu
 
-- `src/components/<area>/` — PascalCase `.tsx`, grouped by feature (`blog`, `home`, `layout`, `menu`, `store`, `ui`)
-- `src/pages/` — one component per route
-- `src/lib/` — shared helpers, kebab-case filenames
-- `deploy/nginx.conf` — production Nginx config baked into the image
+Khi thấy cách làm tốt hơn về cấu trúc, luồng dữ liệu, hoặc khả năng bảo trì thì
+phải nêu ra trước khi thực hiện — kể cả khi yêu cầu đã nói rõ phải làm cách kia.
+Nêu ngắn gọn: cách đang định làm, cách tốt hơn, đánh đổi cụ thể, rồi khuyến nghị
+một hướng.
 
-## Nginx behavior worth knowing
+Nói thẳng khi một yêu cầu là over-engineering, trùng lặp thứ đã có, hoặc sẽ tạo
+nợ kỹ thuật. YAGNI/KISS/DRY được ưu tiên hơn việc làm hài lòng.
 
-`deploy/nginx.conf` deliberately distinguishes three cases: hashed `/assets/`
-files get immutable caching, `index.html` is never cached, and static-looking
-paths that do not exist return `404` rather than falling back to `index.html`.
-Only unmatched non-asset routes fall back for client-side routing. Preserve that
-split when editing — collapsing it into a single `try_files` breaks 404s for
-missing assets.
+Phản biện xong vẫn tôn trọng quyết định cuối của người dùng. Nếu đã trao đổi và
+người dùng vẫn chọn hướng ban đầu thì làm theo, không nêu lại.
 
-## Before committing
+## Quy ước không đọc code là biết
 
-Run `npm run lint` and `npm run build`. CI runs both plus a container check on
-every push to `main`; see `.github/workflows/ci.yml`.
+**Ảnh phải qua `getImageUrl()`** (`src/lib/image-url.ts`). Hàm này map tên file
+trần vào `import.meta.glob` của `src/assets/images/**`. Không dùng
+`import img from '...'`, không hardcode `/assets/...` — tên file sau build có
+hash khác, và file thiếu sẽ rơi về ảnh placeholder kèm cảnh báo ở dev.
 
-Vietnamese text is user-facing copy — preserve diacritics exactly and do not
-"fix" it to English.
+**Meta trang phải qua `usePageMeta()`** (`src/lib/use-page-meta.ts`), không tự
+gán `document.title`. Mọi page cấp route đều gọi hook này.
+
+**Tailwind v4 là CSS-first.** Design token nằm trong block `@theme` ở
+`src/styles/main.css` (`--color-primary`, `--container-max`, …). **Không có
+`tailwind.config.js`** — đừng tạo. Thêm token ở đó rồi dùng như utility bình
+thường (`text-primary`, `bg-page`).
+
+**Routing config-based** trong `src/routes.tsx` (React Router v7), không phải
+file-based. Trang mới phải khai báo ở đó. Slug tiếng Việt (`/chuyen-cua-thuc`,
+`/cua-hang`, `/gioi-thieu`) khớp site gốc, không được đổi.
+
+**Nội dung nằm ở `src/data/*.ts`** dạng module có kiểu, không phải JSON hay CMS.
+Kiểu dữ liệu ở `src/data/types.ts`.
+
+## Bố cục
+
+- `src/components/<area>/` — `.tsx` PascalCase, nhóm theo mảng (`blog`, `home`,
+  `layout`, `menu`, `store`, `ui`)
+- `src/pages/` — mỗi route một component
+- `src/lib/` — helper dùng chung, tên file kebab-case
+- `deploy/nginx.conf` — cấu hình Nginx production, nướng vào image
+
+## Nginx: ba nhánh có chủ ý
+
+`deploy/nginx.conf` phân biệt ba trường hợp: file `/assets/` có hash được cache
+vĩnh viễn, `index.html` không bao giờ cache, và đường dẫn trông như file tĩnh mà
+không tồn tại thì trả `404` chứ không rơi về `index.html`. Chỉ route không khớp
+và không phải asset mới fallback cho client-side routing. Gộp cả ba thành một
+`try_files` sẽ phá 404 của asset thiếu.
+
+## Trước khi commit
+
+Chạy `npm run lint` và `npm run build`. CI chạy cả hai cộng thêm kiểm tra
+container ở mỗi lần push lên `main` — xem `.github/workflows/ci.yml`.
+
+Chữ tiếng Việt là nội dung hiển thị cho người dùng: giữ nguyên dấu, không "sửa"
+sang tiếng Anh.
