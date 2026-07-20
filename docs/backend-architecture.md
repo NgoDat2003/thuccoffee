@@ -39,11 +39,14 @@ thuccoffee/
 │   ├── package.json        deps riêng, độc lập với frontend
 │   ├── Dockerfile          image riêng cho backend
 │   └── src/
-│       ├── index.ts        khởi tạo Express, đăng ký route, phục vụ /docs
+│       ├── index.ts        khởi tạo Express, đăng ký route
+│       ├── common/         error handler, validate middleware, hằng số
+│       ├── modules/        đóng gói theo tài nguyên
+│       │   └── products/
+│       │       ├── products.routes.ts    định nghĩa route
+│       │       ├── products.service.ts   truy vấn và nghiệp vụ
+│       │       └── schemas.ts            create / update / query / response
 │       ├── db/             schema Drizzle, client, migration, seed
-│       ├── routes/         một file mỗi nhóm tài nguyên
-│       ├── schemas/        schema Zod dùng chung cho validate và OpenAPI
-│       ├── middleware/     require-auth, validate, xử lý lỗi
 │       └── lib/            sinh slug tiếng Việt, tiện ích chung
 ├── Dockerfile              frontend (đã có, không đổi)
 └── compose.yaml            thêm service postgres và backend
@@ -68,18 +71,162 @@ và truy vấn database.
 Express không có validate sẵn, nên mỗi route khai báo schema Zod cho body và
 query. Kiểu TypeScript suy ra từ chính schema đó, không khai báo hai lần.
 
-### Chia sẻ kiểu giữa backend và frontend — chưa chốt
+### Thư viện
 
-Vì là monorepo và cùng TypeScript, frontend import thẳng kiểu từ
-`server/src/schemas/` là đủ: sửa schema ở backend thì frontend báo lỗi ngay,
-không cần bước sinh code nào.
+| Gói | Việc |
+|---|---|
+| `express` | HTTP server |
+| `drizzle-orm`, `drizzle-kit` | Truy vấn và migration |
+| `pg` | Driver Postgres |
+| `zod` | Validate body/query và validate biến môi trường lúc khởi động |
+| `dotenv` | Đọc `.env` khi chạy local |
+| `argon2` | Hash mật khẩu — cùng lựa chọn với dự án QA/QC, mạnh hơn bcrypt |
+| `jsonwebtoken` | Ký và xác minh token đăng nhập |
+| `helmet` | Đặt HTTP security header |
+| `compression` | Nén phản hồi |
+| `cors` | Cho phép frontend khác cổng gọi API |
+| `pino`, `pino-http` | Log có cấu trúc — cùng lựa chọn với QA/QC |
 
-Phương án còn lại là sinh đặc tả OpenAPI từ Zod rồi dùng công cụ như `orval`
-sinh ra kiểu và hook TanStack Query. Cách này thêm hai ba thư viện và một bước
-build; nó chỉ đáng khi frontend và backend không chung ngôn ngữ hoặc không chung
-repo — không phải trường hợp ở đây.
+Dev: `typescript`, `tsx`, `oxlint`, `@types/*`.
 
-Đang chờ tài liệu từ dự án QA/QC để đối chiếu trước khi quyết.
+Không dùng `bcrypt` — `argon2` là khuyến nghị hiện tại và là thứ dự án QA/QC
+đang chạy. Không thêm thư viện upload hay xử lý ảnh (`multer`, `sharp`) vì ảnh
+nằm trong repo, ngoài phạm vi.
+
+### Quy ước module
+
+Mỗi tài nguyên là một thư mục trong `modules/`, chứa mọi thứ liên quan tới nó —
+route, nghiệp vụ, schema. Không gom theo loại file kiểu `controllers/` chứa mọi
+controller. Đây là cách dự án QA/QC tổ chức 27 module và nó vẫn đọc được.
+
+Schema tách theo mục đích, không dùng chung một kiểu cho mọi việc:
+
+| Schema | Dùng cho |
+|---|---|
+| `createXSchema` | Body khi tạo mới |
+| `updateXSchema` | Body khi sửa, thường là partial của create |
+| `listXQuerySchema` | Query params khi lọc, tìm, phân trang |
+| `xResponseSchema` | Hình dạng trả về |
+
+Input và output là hai kiểu khác nhau: body tạo mới không có `id` hay
+`createdAt`, còn response thì có. Dùng chung một kiểu cho cả hai sẽ khiến client
+tưởng phải gửi những trường mà server tự sinh.
+
+Drizzle schema là ngoại lệ — để tập trung ở `db/schema.ts` thay vì rải theo
+module, vì các bảng tham chiếu lẫn nhau qua khoá ngoại và tách ra sẽ tạo vòng
+tròn import.
+
+### Hình dạng phản hồi
+
+Mọi phản hồi có body đều bọc trong một kiểu duy nhất:
+
+```ts
+type ApiResponse<T> =
+  | { success: true; data: T; meta?: PaginationMeta }
+  | { success: false; error: { code: string; message: string; details?: unknown } };
+```
+
+Đây là discriminated union: kiểm tra `success` xong thì TypeScript tự thu hẹp
+kiểu, nên không thể đọc nhầm `data` ở nhánh lỗi — trình biên dịch chặn.
+
+**Thành công:**
+
+```json
+HTTP 200
+{ "success": true, "data": { "id": 1, "name": "AMERICANO", "price": 45000 } }
+```
+
+**Danh sách:**
+
+```json
+HTTP 200
+{ "success": true, "data": [ { "id": 1 }, { "id": 2 } ] }
+```
+
+**Danh sách có phân trang** — metadata nằm cạnh `data`, không lẫn vào trong:
+
+```json
+HTTP 200
+{
+  "success": true,
+  "data": [ ... ],
+  "meta": { "page": 2, "pageSize": 5, "total": 10, "totalPages": 2 }
+}
+```
+
+Chỉ blog cần `meta`. Sản phẩm, cửa hàng, danh mục, banner đều vài chục bản ghi
+nên trả hết một lần.
+
+**Lỗi:**
+
+```json
+HTTP 404
+{ "success": false, "error": { "code": "NOT_FOUND", "message": "Không tìm thấy sản phẩm." } }
+```
+
+**Lỗi validate** kèm chi tiết từng trường:
+
+```json
+HTTP 400
+{
+  "success": false,
+  "error": {
+    "code": "BAD_REQUEST",
+    "message": "Dữ liệu không hợp lệ.",
+    "details": [ { "field": "price", "message": "Giá phải là số nguyên dương." } ]
+  }
+}
+```
+
+| Trường của `error` | Ý nghĩa |
+|---|---|
+| `code` | Mã hằng để frontend phân nhánh: `BAD_REQUEST`, `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `INTERNAL_ERROR` |
+| `message` | Câu tiếng Việt hiển thị được cho người dùng |
+| `details` | Lỗi từng trường khi validate thất bại; vắng mặt nếu không có |
+
+Phân nhánh theo `code`, không theo `message` — `message` là chữ hiển thị và có
+thể đổi bất cứ lúc nào.
+
+### Hai quy tắc không được vi phạm
+
+**HTTP status giữ đúng ngữ nghĩa.** Bọc body không có nghĩa luôn trả `200`.
+Không tìm thấy vẫn là `404`, chưa đăng nhập vẫn là `401`. Trả `200` kèm
+`success: false` sẽ làm cache, giám sát và logic thử lại hiểu sai — đây là lỗi
+phổ biến nhất của kiểu phản hồi có bọc.
+
+**`204 No Content` không có body.** Xoá thành công thì trả `204` rỗng, không ép
+bọc thành `200` với `data: null`.
+
+### Khác với dự án QA/QC
+
+Dự án đó trả dữ liệu trần: controller trả thẳng `BrandResponseDto[]`, lỗi thì
+`ApiExceptionFilter` trả envelope riêng. Cách đó cũng hợp lệ — frontend phân biệt
+đúng/sai qua `res.ok` của Fetch.
+
+Ở đây chọn bọc vì lý do khác: một hình dạng duy nhất cho mọi endpoint, khai báo
+`ApiResponse<T>` một lần, và discriminated union ép frontend xử lý cả hai nhánh
+thay vì quên nhánh lỗi.
+
+### Chia sẻ kiểu giữa backend và frontend
+
+Frontend import thẳng kiểu từ module backend tương ứng:
+
+```ts
+import type { Product } from '../../server/src/modules/products/schemas';
+```
+
+Sửa schema ở backend thì frontend báo lỗi ngay trong editor, không qua bước sinh
+code nào có thể lỗi thời.
+
+Không dùng OpenAPI + Orval như dự án QA/QC. Ở đó pipeline này xứng đáng: 139
+endpoint sinh ra hơn 15.000 dòng client và 415 file model — viết tay là bất khả
+thi. Dự án này có khoảng 15 endpoint, nên chi phí dựng pipeline (script sinh
+spec, config Orval, custom mutator xử lý refresh/blob, cổng kiểm tra drift trong
+CI) lớn hơn phần tiết kiệm được. Cấu hình bên đó cũng không bê sang được vì họ
+dùng NestJS, nơi decorator Swagger sinh spec sẵn.
+
+Thêm OpenAPI sau vẫn được nếu API mở cho bên thứ ba dùng, hoặc xuất hiện client
+không viết bằng TypeScript.
 
 ## Cấu hình gốc cần sửa khi thêm server/
 
@@ -102,13 +249,16 @@ Kết nối qua biến môi trường, không hardcode:
 
 ```
 DATABASE_URL=postgres://user:pass@host:5432/thuccoffee
-PORT=4000
+PORT=8080
 NODE_ENV=development
 ```
 
-Cổng ở local phải tránh những cổng đã có chủ: `3000` là Dokploy UI, `80`/`443`
-là Traefik của Dokploy, `8080` là frontend chạy qua Compose. Backend dùng `4000`,
-Postgres dùng `5432`.
+Cổng ở local: frontend `3000`, backend `8080`, Postgres `5432`. Dokploy local đã
+tắt nên các cổng nó từng giữ (`3000`, `80`, `443`) đã trống.
+
+Biến môi trường được validate bằng Zod ngay lúc khởi động. Thiếu biến bắt buộc
+thì server dừng kèm thông báo nêu đúng tên biến, thay vì lỗi khó hiểu ở tầng sâu
+hơn khi có request đầu tiên.
 
 Trong container thì cổng nào cũng được — Dokploy định tuyến theo cấu hình
 Application, không theo cổng máy chủ.
@@ -197,7 +347,5 @@ Tag `v1.0.0` trỏ vào commit frontend hoàn chỉnh, dùng làm điểm quay v
 
 ## Câu chưa chốt
 
-- Cách chia sẻ kiểu giữa backend và frontend: import trực tiếp hay sinh qua
-  OpenAPI. Chờ tài liệu từ dự án QA/QC.
 - Khi admin đổi slug bài đã xuất bản, có giữ redirect từ slug cũ không.
 - Việc blog rút từ 54 trang xuống ~2 trang có chấp nhận được không.

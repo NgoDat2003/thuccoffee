@@ -21,11 +21,27 @@ Kiến trúc và stack: `docs/backend-architecture.md`
 ## Phạm vi
 
 - Tạo `server/` với `package.json`, `tsconfig.json`, lint config riêng.
+- Dựng Express theo cấu trúc module, kèm chuẩn hoá lỗi và validate biến môi
+  trường bằng Zod.
 - Schema Drizzle cho 7 bảng, chuyển từ `src/data/types.ts`.
 - Thêm service `postgres` vào `compose.yaml`, có volume giữ dữ liệu.
 - Script seed đọc `src/data/*.ts` đổ vào database.
 - Dọn 4 file cấu hình gốc để không chạm vào `server/`.
-- Đổi cổng local: frontend sang `3000`, backend giữ chỗ `8080`.
+- Đổi cổng local: frontend sang `3000`, backend `8080`.
+
+## Quyết định đã chốt trước khi bắt đầu
+
+| Mục | Chọn |
+|---|---|
+| Cấu trúc repo | Monorepo, `server/` cùng repo với frontend |
+| Nhánh | `feat/backend`, merge vào `main` khi chạy được đầu-cuối |
+| Framework | Express 5 |
+| Tổ chức code | Module theo tài nguyên, mỗi module một `schemas.ts` |
+| Chia sẻ kiểu FE–BE | Frontend import thẳng kiểu từ module backend |
+| OpenAPI, Orval | Không dùng — lý do trong `docs/backend-architecture.md` |
+| Hash mật khẩu | `argon2`, theo dự án QA/QC |
+
+Ảnh không vào phạm vi backend: vẫn nằm trong repo, database chỉ lưu tên file.
 
 ## Ngoài phạm vi
 
@@ -52,6 +68,8 @@ Kiến trúc và stack: `docs/backend-architecture.md`
 ## Tiêu chí hoàn thành
 
 - `docker compose up -d` dựng được cả frontend và postgres.
+- Frontend truy cập được ở cổng `3000`, `/api/health` của backend trả `200`.
+- Lỗi từ backend trả về đúng một hình dạng chuẩn hoá.
 - Truy vấn SQL trả về đúng 42 sản phẩm, 10 bài viết, 7 cửa hàng, 10 danh mục.
 - Quan hệ sản phẩm–danh mục khớp dữ liệu gốc.
 - Chạy seed lần hai không tạo bản ghi trùng.
