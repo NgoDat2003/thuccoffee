@@ -90,9 +90,16 @@ Kết nối qua biến môi trường, không hardcode:
 
 ```
 DATABASE_URL=postgres://user:pass@host:5432/thuccoffee
-PORT=3000
+PORT=4000
 NODE_ENV=development
 ```
+
+Cổng ở local phải tránh những cổng đã có chủ: `3000` là Dokploy UI, `80`/`443`
+là Traefik của Dokploy, `8080` là frontend chạy qua Compose. Backend dùng `4000`,
+Postgres dùng `5432`.
+
+Trong container thì cổng nào cũng được — Dokploy định tuyến theo cấu hình
+Application, không theo cổng máy chủ.
 
 Local chạy qua `compose.yaml` (thêm service `postgres`, có volume để dữ liệu
 sống qua các lần restart). Production do Dokploy cấp: Postgres là service riêng
