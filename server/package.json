@@ -1,0 +1,42 @@
+{
+  "name": "thuccoffee-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc --project tsconfig.build.json && npm run typecheck && npm run typecheck:seed",
+    "start": "node dist/index.js",
+    "lint": "oxlint",
+    "smoke:api": "tsx scripts/smoke-api.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx src/db/seed.ts",
+    "db:seed-images": "tsx src/db/seed-images.ts",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "typecheck:seed": "tsc --project tsconfig.seed.json --noEmit"
+  },
+  "dependencies": {
+    "compression": "1.8.1",
+    "cors": "2.8.5",
+    "dotenv": "16.4.7",
+    "drizzle-orm": "^0.45.2",
+    "express": "5.1.0",
+    "helmet": "8.0.0",
+    "minio": "^8.0.7",
+    "pg": "^8.22.0",
+    "pino": "9.5.0",
+    "pino-http": "10.3.0",
+    "zod": "3.24.1"
+  },
+  "devDependencies": {
+    "@types/compression": "1.7.5",
+    "@types/cors": "2.8.17",
+    "@types/express": "5.0.0",
+    "@types/node": "22.10.5",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.10",
+    "oxlint": "1.71.0",
+    "tsx": "4.19.2",
+    "typescript": "5.7.3"
+  }
+}

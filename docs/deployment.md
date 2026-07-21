@@ -1,12 +1,36 @@
 # Deployment
 
-## Platform: Dokploy Self-Hosted
+## Target Platform: Dokploy Self-Hosted
 
-The frontend is a React/Vite single-page application served by Nginx from a two-stage Docker image. It currently has no runtime secrets, persistent volume, backend, or database.
+The repository now has two application images plus Postgres and MinIO. The
+React/Vite frontend is served by Nginx; the Express backend has its own Node 22
+image. Local Compose is the verified integration environment. Dokploy remains
+the production target, but production service wiring and domains are not yet
+deployed.
 
 Production URL: `TBD`
 
-## Runtime Contract
+## Local Compose Runtime
+
+| Service | Host port | Container role | Persistence |
+|---|---:|---|---|
+| `frontend` | `3000` | Nginx SPA | None |
+| `backend` | `8080` | Express; `GET /api/health` | None |
+| `postgres` | `5432` | Postgres 16 | `postgres-data` |
+| `minio` API | `9000` | S3-compatible object API | `minio-data` |
+| `minio` console | `9001` | Local administration | Same `minio-data` |
+| `minio-init` | None | Creates `thuccoffee`, enables anonymous download, exits | None |
+
+The backend waits for healthy Postgres and MinIO. `minio-init` waits for MinIO,
+then exits successfully; it is not a long-running service. The bucket is
+public-read for image downloads, while write operations still require MinIO
+credentials.
+
+The frontend remains intentionally independent: it bundles files from
+`src/assets/images/` and makes no request to MinIO. The bucket is preparation
+for a later content API/image URL migration.
+
+## Frontend Runtime Contract
 
 | Setting | Value |
 |---|---|
@@ -24,35 +48,58 @@ Nginx gives hashed Vite assets long-lived immutable caching. `index.html` is not
 ## Local Verification
 
 ```bash
-npm ci
-npm run lint
-npm run build
-docker build -t thuccoffee-frontend:dokploy-local .
-docker run --rm --name thuccoffee-frontend-local -p 8080:80 thuccoffee-frontend:dokploy-local
+docker compose config --quiet
+docker compose up -d --build
+docker compose ps -a
 ```
 
-In another terminal:
+Verify the services and bucket policy:
 
 ```bash
-curl -i http://127.0.0.1:8080/healthz
-curl -I http://127.0.0.1:8080/
-curl -I http://127.0.0.1:8080/menu
-curl -I http://127.0.0.1:8080/chuyen-cua-thuc/example
-curl -I http://127.0.0.1:8080/cua-hang/example
-curl -fsS http://127.0.0.1:8080/menu | grep -q 'id="root"'
-curl -fsS http://127.0.0.1:8080/chuyen-cua-thuc/example | grep -q 'id="root"'
-curl -I http://127.0.0.1:8080/assets/does-not-exist.js
-curl -I http://127.0.0.1:8080/robots.txt
-docker inspect --format '{{.State.Health.Status}}' thuccoffee-frontend-local
+curl -fsS http://127.0.0.1:3000/healthz
+curl -fsS http://127.0.0.1:8080/api/health
+curl -fsS http://127.0.0.1:9000/minio/health/ready
+docker compose logs minio-init
+docker compose exec minio sh -c \
+  'mc alias set local http://127.0.0.1:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null && mc anonymous get local/thuccoffee'
 ```
 
-Expected:
+Seed images from the host-side backend workspace:
+
+```bash
+cd server
+cp .env.example .env # first run only; never commit the real file
+npm ci
+npm run db:seed-images
+cd ..
+
+# Compare dynamically; do not encode this count into scripts.
+find src/assets/images -type f | wc -l
+docker compose exec minio mc find local/thuccoffee --type f | wc -l
+```
+
+Current snapshot: 498 valid source files/target objects. The previous 103 emoji
+PNG files were converted to Unicode text in blog content and removed. Treat 498
+as an observed snapshot; the two commands above are the durable verification.
+
+Verified on 2026-07-21: the corrected seed completed twice with `498 uploaded`
+and `0 skipped`; the bucket contained 498 objects and no emoji keys. JPEG/PNG
+content types were correct and a representative public object returned HTTP
+`200`. This verifies storage only; the frontend still reads bundled assets.
+
+Expected architecture and checks:
 
 - `/healthz` returns `200`, body `ok`, and `Cache-Control: no-store`.
+- `/api/health` and MinIO readiness return `200`.
+- `minio-init` exits `0`; policy output is `download`.
+- A seed run uploads paths relative to `src/assets/images/`; rerunning is the
+  idempotence check because the same object keys are overwritten.
+- Source and object counts match after a successful seed.
 - Application and deep routes return `200` and GET assertions find the SPA root.
 - Missing `/assets/...` and root static-looking files return `404`, not `index.html`.
 - A real hashed `/assets/...` file returns immutable one-year caching.
-- Docker health becomes `healthy`.
+- Browser network requests for the current frontend still use `/assets/...`,
+  not port `9000`.
 
 ## Dokploy Setup
 
@@ -61,10 +108,14 @@ Expected:
 ```text
 Project: thuccoffee
 Environment: production
-Application: frontend
+Applications: frontend, backend
+Private services: postgres, minio
+One-shot setup: minio-init or an equivalent deployment job
 ```
 
-The future backend must be a separate `backend` Application. PostgreSQL must be a separate database service without a public port.
+Keep frontend and backend as separate Applications. PostgreSQL and MinIO must
+share a private network with the backend. Do not publish the database or MinIO
+console directly.
 
 ### 2. Git Source
 
@@ -75,6 +126,8 @@ The future backend must be a separate `backend` Application. PostgreSQL must be 
 
 ### 3. Build Settings
 
+Frontend:
+
 ```text
 Build type: Dockerfile
 Dockerfile path: Dockerfile
@@ -82,7 +135,36 @@ Docker context path: .
 Docker build stage: runtime
 ```
 
-No environment variables are required for this frontend. Never place a secret in a Vite `VITE_*` variable because it is compiled into the browser bundle.
+Backend:
+
+```text
+Build type: Dockerfile
+Dockerfile path: server/Dockerfile
+Docker context path: server
+Docker build stage: runtime
+Container port: 8080
+Health endpoint: /api/health
+```
+
+No environment variables are required for the frontend. Never place a secret
+in a Vite `VITE_*` variable because it is compiled into the browser bundle.
+
+Backend/seed environment contract:
+
+| Variable | Meaning |
+|---|---|
+| `DATABASE_URL` | Postgres connection string; use the private service hostname |
+| `PORT` | Backend listen port, normally `8080` |
+| `NODE_ENV` | `development`, `test`, or `production` |
+| `MINIO_ENDPOINT` | MinIO hostname without protocol |
+| `MINIO_PORT` | MinIO API port |
+| `MINIO_ACCESS_KEY` | Write-capable access key |
+| `MINIO_SECRET_KEY` | Matching secret key |
+| `MINIO_BUCKET` | `thuccoffee` by default |
+| `MINIO_USE_SSL` | `true` when the configured endpoint uses TLS |
+
+MinIO itself receives `MINIO_ROOT_USER` and `MINIO_ROOT_PASSWORD`. Store all
+production credentials in Dokploy secrets/environment configuration, not Git.
 
 ### 4. Domain and TLS
 
@@ -102,7 +184,22 @@ Field labels can vary slightly by Dokploy version. Keep the semantic values abov
 
 Do not publish a frontend host port. Traefik should be the only public HTTP entry point.
 
-### 5. Deploy and Auto-Deploy
+### 5. Storage and Network Security
+
+- Replace all local default Postgres and MinIO credentials before deployment.
+- Never expose MinIO console port `9001` to the public internet. Reach it only
+  through a private network, VPN, or temporary authenticated tunnel.
+- Keep Postgres private. Keep MinIO API private while only the backend/seed uses
+  it. If browsers later download public bucket objects directly, publish a
+  dedicated TLS hostname through Traefik; do not expose a raw host port.
+- Set `MINIO_USE_SSL=true` for a TLS MinIO endpoint. Use trusted certificates;
+  do not disable certificate verification in application code.
+- Public-read applies only to object downloads. Root/write credentials remain
+  secrets and must never reach the frontend.
+- Back up both `postgres-data` and `minio-data`. An application rollback does
+  not restore database rows or object data.
+
+### 6. Deploy and Auto-Deploy
 
 1. Save the Application and run the first deployment manually.
 2. Check build logs, deployment logs, `/healthz`, and representative deep routes.
@@ -113,10 +210,13 @@ Do not publish a frontend host port. Traefik should be the only public HTTP entr
 After every production deployment:
 
 1. Confirm Dokploy reports the service healthy.
-2. Open the homepage through HTTPS.
-3. Hard-refresh `/menu`, one product route, one blog route, and one store route.
-4. Confirm missing static files return `404`.
-5. Confirm the deployed commit matches the intended release.
+2. Confirm frontend `/healthz` and backend `/api/health` through their intended routes.
+3. Confirm MinIO is healthy, the bucket exists, and its anonymous policy is download-only.
+4. Open the homepage through HTTPS.
+5. Hard-refresh `/menu`, one product route, one blog route, and one store route.
+6. Confirm missing static files return `404`.
+7. Until the API migration, confirm frontend images still load from `/assets/`.
+8. Confirm the deployed commit matches the intended release.
 
 ## Rollback
 
@@ -144,6 +244,31 @@ For mature production, build images in CI, tag them with the Git commit SHA, pus
 - Check that `/healthz` succeeds inside the container.
 - Check Dokploy deployment logs and Traefik routing.
 
+### Backend is unhealthy
+
+- Confirm `DATABASE_URL` uses the private Postgres service hostname, not `localhost`.
+- Confirm `MINIO_ENDPOINT` uses the private MinIO hostname and API port `9000`.
+- Check `/api/health` inside the backend container before debugging Traefik.
+
+### MinIO is healthy but the bucket is missing
+
+- Check the `minio-init` job/container exit code and logs.
+- Re-run the idempotent init command; do not recreate or delete the data volume.
+- Confirm `MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD`, and `MINIO_BUCKET` match.
+
+### Object count is higher than the source count
+
+- `db:seed-images` overwrites managed keys but does not prune arbitrary stale
+  objects. Review unexpected keys, then remove only the confirmed stale objects.
+- Do not use `docker compose down -v` as cleanup; that deletes the whole MinIO
+  volume and can also delete local Postgres data.
+
+### Browser cannot load a future MinIO object URL
+
+- Confirm the object exists under its full relative key and the bucket policy is `download`.
+- Confirm the public object hostname has TLS and routes to MinIO API port `9000`.
+- Do not solve this by exposing console port `9001`.
+
 ### Build exhausts VPS memory
 
 - Build and push the image from CI or a dedicated build server.
@@ -154,4 +279,3 @@ For mature production, build images in CI, tag them with the Git commit SHA, pus
 - Confirm `index.html` returns `Cache-Control: no-store, no-cache, must-revalidate`.
 - Confirm hashed files under `/assets/` changed with the Vite build.
 - Purge external CDN cache only after checking origin response headers.
-

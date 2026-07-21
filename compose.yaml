@@ -1,5 +1,5 @@
 # Chạy: docker compose up -d --build
-# Xem:  http://localhost:8080
+# Xem:  http://localhost:3000
 # Dừng: docker compose down
 
 services:
@@ -13,14 +13,14 @@ services:
     image: thuccoffee:local
     container_name: thuccoffee-local
 
-    # "8080:80" = cổng 8080 trên máy bạn -> cổng 80 trong container.
-    # Đổi số bên TRÁI nếu 8080 đã bị chiếm; số bên phải phải giữ 80 vì nginx nghe ở đó.
-    # Tránh 3000 và 80/443 nếu đang chạy Dokploy local — nó đã giữ các cổng đó.
+    # "3000:80" = cổng 3000 trên máy bạn -> cổng 80 trong container.
+    # Đổi số bên TRÁI nếu 3000 đã bị chiếm; số bên phải phải giữ 80 vì nginx nghe ở đó.
+    # Backend dùng 8080, Postgres dùng 5432 (thêm ở phase sau).
     ports:
-      - "8080:80"
+      - "3000:80"
 
-    # Tự bật lại nếu container chết hoặc sau khi khởi động lại Docker.
-    restart: unless-stopped
+    # Không tự bật lại; chỉ chạy sau lệnh docker compose up do người dùng cho phép.
+    restart: "no"
 
     # Dockerfile đã có HEALTHCHECK sẵn; khai báo lại ở đây để thấy rõ
     # và để chỉnh thời gian mà không phải build lại image.
@@ -30,3 +30,97 @@ services:
       timeout: 3s
       start_period: 5s
       retries: 3
+
+  backend:
+    build:
+      context: ./server
+      target: runtime
+    image: thuccoffee-backend:local
+    container_name: thuccoffee-backend
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      DATABASE_URL: postgresql://thuccoffee:thuccoffee@postgres:5432/thuccoffee
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-thuccoffee}
+      MINIO_USE_SSL: "false"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: "no"
+
+  # Postgres cho backend local. Cổng 5432 được publish ra host để công cụ trên
+  # máy kết nối trực tiếp; đổi mật khẩu mặc định nếu cho máy khác truy cập.
+  postgres:
+    image: postgres:16-alpine
+    container_name: thuccoffee-postgres
+    environment:
+      POSTGRES_USER: thuccoffee
+      POSTGRES_PASSWORD: thuccoffee
+      POSTGRES_DB: thuccoffee
+    ports:
+      - "5432:5432"
+    # Volume giữ dữ liệu sống sót qua `docker compose down`. Bỏ dòng này là mất
+    # sạch dữ liệu mỗi lần dừng — lỗi hay gặp nhất khi mới dùng Postgres trong Docker.
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: "no"
+    # Postgres nhận kết nối trước khi thực sự sẵn sàng; healthcheck này để backend
+    # đợi qua `depends_on: condition: service_healthy`.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U thuccoffee -d thuccoffee"]
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 5
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: thuccoffee-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - minio-data:/data
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/ready"]
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 5
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    container_name: thuccoffee-minio-init
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        mc alias set local http://minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}"
+        mc mb --ignore-existing "local/$${MINIO_BUCKET}"
+        mc anonymous set download "local/$${MINIO_BUCKET}"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-thuccoffee}
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  postgres-data:
+  minio-data:

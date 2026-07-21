@@ -1,6 +1,7 @@
 # Kiến trúc Backend
 
-Điểm vào cho công việc backend. Chưa triển khai — `server/` chưa tồn tại.
+Điểm vào cho công việc backend. Nền tảng `server/` đã tồn tại với Express,
+chuẩn hoá phản hồi/lỗi, validate biến môi trường và `GET /api/health`.
 
 Schema và lý do đằng sau nó: @database-design.md
 
@@ -8,19 +9,31 @@ Schema và lý do đằng sau nó: @database-design.md
 
 | File | Vì sao cần |
 |---|---|
-| `docs/database-design.md` | 7 bảng, ràng buộc, quy tắc slug, những thứ cố ý không làm |
+| `docs/database-design.md` | 14 bảng, ràng buộc, quy tắc slug, những thứ cố ý không làm |
 | `src/data/types.ts` | Kiểu dữ liệu hiện tại — gần như là schema |
 | `src/data/index.ts` | Lớp truy cập dữ liệu sẽ được thay ruột |
 
-Không cần đọc khi làm backend: `docs/deployment.md`, `docs/local-environment-and-ci.md`
-(cả hai nói về container và CI của frontend), `docs/deviations-from-original.md`
-(khác biệt giao diện so với site gốc), và toàn bộ `plans/`.
+Đọc thêm `docs/deployment.md` và `docs/local-environment-and-ci.md` khi sửa
+container hoặc CI. `docs/deviations-from-original.md` chỉ cần khi thay đổi hành
+vi giao diện so với site gốc.
 
 ## Trạng thái hiện tại
 
-Frontend là SPA tĩnh, đã gắn tag `v1.0.0`, deploy được. Nội dung nằm trong
-`src/data/*.ts` dưới dạng mảng TypeScript: 42 sản phẩm, 10 bài viết, 7 cửa hàng,
-10 danh mục.
+Frontend là SPA tĩnh, đã gắn tag `v1.0.0`, deploy được. Nội dung vẫn nằm trong
+`src/data/*.ts` dưới dạng mảng TypeScript: 42 sản phẩm, 267 bài viết, 7 cửa hàng,
+10 danh mục. Frontend chưa gọi backend.
+
+Backend trong `server/` hiện chạy được, có middleware vận hành, health endpoint
+và chín endpoint đọc công khai cho categories, banners, site settings, stores,
+blog và products. Store detail trả gallery có thứ tự; store list không trả gallery.
+Auth, admin CRUD và việc frontend chuyển sang đọc API thuộc các giai đoạn sau.
+
+Hạ tầng ảnh MinIO đã có trong Compose: API `9000`, console local `9001`, volume
+`minio-data`, bucket `thuccoffee` public-read và lệnh seed
+`npm run db:seed-images`. Frontend chưa dùng kho này; ảnh hiển thị vẫn được bundle
+từ `src/assets/images/`. Snapshot hiện tại có 498 ảnh hợp lệ sau khi 103 PNG emoji
+được đổi thành Unicode trong nội dung blog rồi xoá. Count kiểm chứng phải luôn
+tính động vì tập ảnh còn có thể thay đổi.
 
 Mọi trang đều lấy dữ liệu qua hàm trong `src/data/index.ts` —
 `getProductBySlug()`, `getBlogPage()`, `getStoreBySlug()`. Không trang nào đọc
@@ -34,16 +47,19 @@ phải sửa.
 
 ```
 thuccoffee/
-├── src/                    frontend React, không đụng tới
-├── server/                 backend, tạo mới
-│   ├── package.json        deps riêng, độc lập với frontend
-│   ├── Dockerfile          image riêng cho backend
+├── src/                         frontend React + nguồn ảnh local
+├── server/
+│   ├── Dockerfile               image backend Node 22
+│   ├── .env.example             hợp đồng env local
+│   ├── package.json             deps và script riêng
 │   └── src/
-│       ├── index.ts        khởi tạo app, đăng ký route
-│       ├── db/             schema Drizzle, migration, seed
-│       └── routes/         một file mỗi nhóm tài nguyên
-├── Dockerfile              frontend (đã có, không đổi)
-└── compose.yaml            thêm service postgres và backend
+│       ├── index.ts             khởi tạo Express, đăng ký route
+│       ├── common/env.ts        validate Postgres + MinIO env bằng Zod
+│       ├── modules/health/      GET /api/health
+│       ├── db/                  schema, migration, seed dữ liệu và seed ảnh
+│       └── lib/minio-client.ts  MinIO SDK client dùng chung
+├── Dockerfile                   image frontend Nginx
+└── compose.yaml                 frontend, backend, Postgres, MinIO + init
 ```
 
 Hai `package.json` tách biệt. Frontend không cài thư viện backend và ngược lại.
@@ -53,39 +69,238 @@ Hai `package.json` tách biệt. Frontend không cài thư viện backend và ng
 | Thành phần | Chọn | Lý do |
 |---|---|---|
 | Runtime | Node 22 | Khớp `node:22-alpine` trong Dockerfile frontend |
-| Framework | Hono | Nhẹ, TypeScript-first |
+| Framework | Express 5 | Phổ biến, nhiều tài liệu, dễ bàn giao |
 | ORM | Drizzle | Schema viết bằng TypeScript, chuyển từ `types.ts` gần như trực tiếp |
-| Database | Postgres 16 | Dokploy có sẵn service này |
-| Validate | Zod | Dùng chung schema cho API và form admin |
+| Database | Postgres 16 | Chạy ổn định bằng container local, có volume riêng |
+| Object storage | MinIO | Bucket public-read; dữ liệu sống trong volume riêng |
+| Validate | Zod | Chặn dữ liệu sai và suy ra kiểu TypeScript từ cùng một khai báo |
+| Dữ liệu phía FE | TanStack Query | Cache, loading, error, invalidate sau khi sửa |
 
 Backend viết TypeScript giống frontend, nhưng không có React — chỉ xử lý request
 và truy vấn database.
 
-## Cấu hình Postgres
+Express không có validate sẵn, nên mỗi route khai báo schema Zod cho body và
+query. Kiểu TypeScript suy ra từ chính schema đó, không khai báo hai lần.
+
+### Thư viện
+
+| Gói | Việc |
+|---|---|
+| `express` | HTTP server |
+| `drizzle-orm`, `drizzle-kit` | Truy vấn và migration |
+| `pg` | Driver Postgres |
+| `minio` | SDK upload ảnh theo object key tương đối |
+| `zod` | Validate body/query và validate biến môi trường lúc khởi động |
+| `dotenv` | Đọc `.env` khi chạy local |
+| `argon2` | Hash mật khẩu — cùng lựa chọn với dự án QA/QC, mạnh hơn bcrypt |
+| `jsonwebtoken` | Ký và xác minh token đăng nhập |
+| `helmet` | Đặt HTTP security header |
+| `compression` | Nén phản hồi |
+| `cors` | Cho phép frontend khác cổng gọi API |
+| `pino`, `pino-http` | Log có cấu trúc — cùng lựa chọn với QA/QC |
+
+Dev: `typescript`, `tsx`, `oxlint`, `@types/*`.
+
+Không dùng `bcrypt` — `argon2` là khuyến nghị hiện tại và là thứ dự án QA/QC
+đang chạy. MinIO SDK hiện chỉ phục vụ seed ảnh từ repo; chưa có upload runtime,
+`multer`, `sharp` hay admin media API.
+
+### Quy ước module
+
+Mỗi tài nguyên là một thư mục trong `modules/`, chứa mọi thứ liên quan tới nó —
+route, nghiệp vụ, schema. Không gom theo loại file kiểu `controllers/` chứa mọi
+controller. Đây là cách dự án QA/QC tổ chức 27 module và nó vẫn đọc được.
+
+Schema tách theo mục đích, không dùng chung một kiểu cho mọi việc:
+
+| Schema | Dùng cho |
+|---|---|
+| `createXSchema` | Body khi tạo mới |
+| `updateXSchema` | Body khi sửa, thường là partial của create |
+| `listXQuerySchema` | Query params khi lọc, tìm, phân trang |
+| `xResponseSchema` | Hình dạng trả về |
+
+Input và output là hai kiểu khác nhau: body tạo mới không có `id` hay
+`createdAt`, còn response thì có. Dùng chung một kiểu cho cả hai sẽ khiến client
+tưởng phải gửi những trường mà server tự sinh.
+
+Drizzle schema là ngoại lệ — để tập trung ở `db/schema.ts` thay vì rải theo
+module, vì các bảng tham chiếu lẫn nhau qua khoá ngoại và tách ra sẽ tạo vòng
+tròn import.
+
+### Hình dạng phản hồi
+
+Mọi phản hồi có body đều bọc trong một kiểu duy nhất:
+
+```ts
+type ApiResponse<T> =
+  | { success: true; data: T; meta?: PaginationMeta }
+  | { success: false; error: { code: string; message: string; details?: unknown } };
+```
+
+Đây là discriminated union: kiểm tra `success` xong thì TypeScript tự thu hẹp
+kiểu, nên không thể đọc nhầm `data` ở nhánh lỗi — trình biên dịch chặn.
+
+**Thành công:**
+
+```json
+HTTP 200
+{ "success": true, "data": { "id": 1, "name": "AMERICANO", "price": 45000 } }
+```
+
+**Danh sách:**
+
+```json
+HTTP 200
+{ "success": true, "data": [ { "id": 1 }, { "id": 2 } ] }
+```
+
+**Danh sách có phân trang** — metadata nằm cạnh `data`, không lẫn vào trong:
+
+```json
+HTTP 200
+{
+  "success": true,
+  "data": [ ... ],
+  "meta": { "page": 2, "pageSize": 5, "total": 10, "totalPages": 2 }
+}
+```
+
+Chỉ blog cần `meta`. Sản phẩm, cửa hàng, danh mục, banner đều vài chục bản ghi
+nên trả hết một lần.
+
+**Lỗi:**
+
+```json
+HTTP 404
+{ "success": false, "error": { "code": "NOT_FOUND", "message": "Không tìm thấy sản phẩm." } }
+```
+
+**Lỗi validate** kèm chi tiết từng trường:
+
+```json
+HTTP 400
+{
+  "success": false,
+  "error": {
+    "code": "BAD_REQUEST",
+    "message": "Dữ liệu không hợp lệ.",
+    "details": [ { "field": "price", "message": "Giá phải là số nguyên dương." } ]
+  }
+}
+```
+
+| Trường của `error` | Ý nghĩa |
+|---|---|
+| `code` | Mã hằng để frontend phân nhánh: `BAD_REQUEST`, `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `INTERNAL_ERROR` |
+| `message` | Câu tiếng Việt hiển thị được cho người dùng |
+| `details` | Lỗi từng trường khi validate thất bại; vắng mặt nếu không có |
+
+Phân nhánh theo `code`, không theo `message` — `message` là chữ hiển thị và có
+thể đổi bất cứ lúc nào.
+
+### Hai quy tắc không được vi phạm
+
+**HTTP status giữ đúng ngữ nghĩa.** Bọc body không có nghĩa luôn trả `200`.
+Không tìm thấy vẫn là `404`, chưa đăng nhập vẫn là `401`. Trả `200` kèm
+`success: false` sẽ làm cache, giám sát và logic thử lại hiểu sai — đây là lỗi
+phổ biến nhất của kiểu phản hồi có bọc.
+
+**`204 No Content` không có body.** Xoá thành công thì trả `204` rỗng, không ép
+bọc thành `200` với `data: null`.
+
+### Khác với dự án QA/QC
+
+Dự án đó trả dữ liệu trần: controller trả thẳng `BrandResponseDto[]`, lỗi thì
+`ApiExceptionFilter` trả envelope riêng. Cách đó cũng hợp lệ — frontend phân biệt
+đúng/sai qua `res.ok` của Fetch.
+
+Ở đây chọn bọc vì lý do khác: một hình dạng duy nhất cho mọi endpoint, khai báo
+`ApiResponse<T>` một lần, và discriminated union ép frontend xử lý cả hai nhánh
+thay vì quên nhánh lỗi.
+
+### Chia sẻ kiểu giữa backend và frontend
+
+Frontend import thẳng kiểu từ module backend tương ứng:
+
+```ts
+import type { Product } from '../../server/src/modules/products/schemas';
+```
+
+Sửa schema ở backend thì frontend báo lỗi ngay trong editor, không qua bước sinh
+code nào có thể lỗi thời.
+
+Không dùng OpenAPI + Orval như dự án QA/QC. Ở đó pipeline này xứng đáng: 139
+endpoint sinh ra hơn 15.000 dòng client và 415 file model — viết tay là bất khả
+thi. Dự án này có khoảng 15 endpoint, nên chi phí dựng pipeline (script sinh
+spec, config Orval, custom mutator xử lý refresh/blob, cổng kiểm tra drift trong
+CI) lớn hơn phần tiết kiệm được. Cấu hình bên đó cũng không bê sang được vì họ
+dùng NestJS, nơi decorator Swagger sinh spec sẵn.
+
+Thêm OpenAPI sau vẫn được nếu API mở cho bên thứ ba dùng, hoặc xuất hiện client
+không viết bằng TypeScript.
+
+## Cấu hình gốc cho monorepo
+
+Bốn file ở thư mục gốc áp dụng cho toàn repo và phải tách đúng trách nhiệm giữa
+frontend với `server/`:
+
+| File | Trách nhiệm hiện tại |
+|---|---|
+| `.dockerignore` | Loại `server/` khỏi image frontend |
+| `.oxlintrc.json` | Bỏ qua `server/`; backend dùng config lint riêng |
+| `.github/workflows/ci.yml` | Cài, lint và build cả frontend lẫn `server/` |
+| `compose.yaml` | Chạy frontend, backend, Postgres, MinIO và one-shot `minio-init` |
+
+`tsconfig.app.json` đã giới hạn `include: ["src"]` nên không ảnh hưởng.
+`node_modules` tách tự nhiên vì hai `package.json` độc lập.
+
+## Cấu hình runtime
 
 Kết nối qua biến môi trường, không hardcode:
 
 ```
 DATABASE_URL=postgres://user:pass@host:5432/thuccoffee
-PORT=3000
+PORT=8080
 NODE_ENV=development
+MINIO_ENDPOINT=localhost
+MINIO_PORT=9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET=thuccoffee
+MINIO_USE_SSL=false
 ```
 
-Local chạy qua `compose.yaml` (thêm service `postgres`, có volume để dữ liệu
-sống qua các lần restart). Production do Dokploy cấp: Postgres là service riêng
-trong cùng project, backend gọi qua tên service ở mạng nội bộ.
+Cổng local: frontend `3000`, backend `8080`, Postgres `5432`, MinIO API `9000`
+và console `9001`. Giá trị MinIO mặc định chỉ dành cho local.
 
-**Postgres không được mở cổng ra ngoài** ở production. Chỉ backend truy cập
-được. Nguyên tắc này đã ghi trong `docs/deployment.md`.
+Biến môi trường được validate bằng Zod ngay lúc khởi động. Thiếu biến bắt buộc
+thì server dừng kèm thông báo nêu đúng tên biến, thay vì lỗi khó hiểu ở tầng sâu
+hơn khi có request đầu tiên.
+
+Local, `compose.yaml` chạy đủ frontend, backend, Postgres và MinIO. Backend đợi
+Postgres + MinIO healthy; `minio-init` tạo bucket public-read rồi thoát. Hai
+volume `postgres-data` và `minio-data` giữ dữ liệu qua restart/down không xoá
+volume. Triển khai production chưa nằm trong phạm vi foundation này.
+
+Ở production, Postgres và MinIO console không được mở ra internet. Đổi credential
+mặc định; ưu tiên private network. Nếu object API phải phục vụ trình duyệt ở
+giai đoạn sau thì đặt sau TLS/proxy riêng, không công khai console. Chi tiết ở
+`docs/deployment.md`.
 
 `.env` không bao giờ commit. Kèm `.env.example` liệt kê tên biến, không có giá
 trị thật.
 
-## API
+## API hiện có và mục tiêu các giai đoạn sau
+
+`GET /api/health` và chín content API GET dưới đây đã triển khai. Frontend vẫn
+đọc dữ liệu tĩnh từ `src/data/*.ts`; auth và admin API vẫn là mục tiêu tiếp theo.
 
 Đọc công khai, ghi phải đăng nhập.
 
 ```
+GET    /api/health                cho healthcheck của container
+
 GET    /api/products              danh sách, lọc theo ?category=
 GET    /api/products/:slug
 GET    /api/categories
@@ -94,6 +309,7 @@ GET    /api/blog/:slug
 GET    /api/stores
 GET    /api/stores/:slug
 GET    /api/banners               chỉ banner đang bật
+GET    /api/site-settings         đúng 11 key public, map camelCase
 
 POST   /api/auth/login
 POST   /api/auth/logout
@@ -109,9 +325,10 @@ Endpoint công khai chỉ trả bản ghi có `is_published = true`.
 
 Mỗi bước chạy được và kiểm chứng được trước khi sang bước sau.
 
-1. **Postgres + schema + seed** — dựng DB, tạo 7 bảng, đổ dữ liệu từ
-   `src/data/*.ts`. Chưa có API. Kiểm chứng bằng truy vấn SQL.
-2. **API đọc** — các endpoint GET ở trên. Kiểm chứng bằng curl.
+1. **Foundation + hạ tầng local** — Express, Postgres/schema/seed và MinIO bucket
+   + script seed ảnh. Đã xong, từng phần kiểm chứng độc lập.
+2. **API đọc** — chín endpoint GET ở trên. Đã xong; `npm run smoke:api` kiểm
+   chứng 9/9 endpoint, gallery cửa hàng, 404 slug sai và 400 query sai.
 3. **Frontend đọc từ API** — đổi ruột `src/data/index.ts`. Các trang không sửa.
 4. **Đăng nhập** — bảng `users`, hash mật khẩu, session hoặc JWT, middleware
    chặn `/api/admin/*`.
@@ -120,8 +337,11 @@ Mỗi bước chạy được và kiểm chứng được trước khi sang bư�
 Bước 4 phải trước bước 5: có CRUD mà không có auth nghĩa là ai cũng sửa được dữ
 liệu.
 
-Upload ảnh không nằm trong danh sách này — ảnh vẫn ở trong repo, DB chỉ lưu tên
-file. Thêm ảnh mới vẫn phải commit.
+MinIO và seed ảnh đã có, nhưng **upload runtime/admin vẫn ngoài danh sách này**.
+Nguồn ảnh hiện vẫn commit trong repo; seed upload theo đường dẫn tương đối, còn
+frontend vẫn dùng `/assets/`. API đọc hiện trả tên file trần, chưa dựng URL MinIO.
+Việc map basename sang relative object key và chuyển frontend sang MinIO thuộc
+phase frontend/media sau; script ảnh không cập nhật `media_attachments`.
 
 ## Ảnh hưởng tới frontend khi chuyển sang API
 
@@ -129,11 +349,16 @@ Ba thay đổi không tránh được:
 
 **Dữ liệu trở thành bất đồng bộ.** Các hàm trong `src/data/index.ts` hiện trả
 kết quả ngay; sau khi dùng `fetch` chúng trả Promise. Các trang cần trạng thái
-đang tải và trạng thái lỗi.
+đang tải và trạng thái lỗi. Dùng TanStack Query ngay từ bước này thay vì tự viết
+`useState`/`useEffect` — trang admin ở giai đoạn sau cần invalidate cache sau mỗi
+lần sửa, và viết lại lúc đó tốn hơn.
 
-**Phân trang blog đang là giả.** `BLOG_PAGE_COUNT` là 54 trong khi chỉ có 10
-bài thật — `getBlogPage()` lặp lại chúng để khớp số trang site gốc. Khi dùng dữ
-liệu thật, số trang tính từ số bài thật, blog rút xuống còn khoảng 2 trang.
+**Phân trang blog đã dùng đủ dữ liệu tĩnh.** `src/data/blog.ts` chứa 267 bản ghi
+metadata cho danh sách. HTML đầy đủ đã làm sạch nằm trong
+`src/data/blog-content.ts`, ánh xạ theo slug và chỉ được lazy-load khi mở trang
+chi tiết. `getBlogPage()` cắt đúng năm bài mỗi trang trong 54 trang; trang 54
+còn hai bài, không lặp dữ liệu. Seed import cả hai nguồn để upsert `content` vào
+`blog_posts`; API detail hiện đã trả content đầy đủ, nhưng frontend chưa chuyển sang dùng API.
 
 **Ngày tháng đổi kiểu.** Hiện là chuỗi `'03.06.2026'`; trong DB là kiểu `date`.
 Frontend phải format lại khi hiển thị.
@@ -152,4 +377,3 @@ Tag `v1.0.0` trỏ vào commit frontend hoàn chỉnh, dùng làm điểm quay v
 ## Câu chưa chốt
 
 - Khi admin đổi slug bài đã xuất bản, có giữ redirect từ slug cũ không.
-- Việc blog rút từ 54 trang xuống ~2 trang có chấp nhận được không.

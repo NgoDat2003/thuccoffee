@@ -17,10 +17,17 @@ một quyết định cũ.
 
 ## Dự án này là gì
 
-Bản clone tĩnh của một site chuỗi cà phê Việt Nam đang chạy thật. Nội dung
-hardcode, không backend, không auth, không giỏ hàng thật, không thanh toán.
-Nhiều thứ trông có vẻ tương tác trên bản gốc thì ở đây chỉ là giao diện — đọc
-`docs/deviations-from-original.md` trước khi kết luận một khoảng trống là bug.
+Bản clone của một site chuỗi cà phê Việt Nam đang chạy thật. **Frontend** là SPA
+tĩnh (tag `v1.0.0`, deploy được): nội dung hardcode trong `src/data/*.ts`, không
+auth, không giỏ hàng thật, không thanh toán. Nhiều thứ trông có vẻ tương tác trên
+bản gốc thì ở đây chỉ là giao diện — đọc `docs/deviations-from-original.md` trước
+khi kết luận một khoảng trống là bug.
+
+**Backend** (`server/`) đang được dựng trên nhánh `feat/backend`. Hiện có
+foundation Express + `GET /api/health`, cộng schema Drizzle đầy đủ (14 bảng),
+migration và seed đổ dữ liệu từ `src/data/*.ts`. Content API, auth và admin CRUD
+là các giai đoạn sau — xem thứ tự triển khai trong `docs/backend-architecture.md`.
+Frontend **chưa** gọi backend; mọi trang vẫn đọc `src/data/index.ts`.
 
 ## Hỏi lại thay vì đoán
 
@@ -79,6 +86,41 @@ file-based. Trang mới phải khai báo ở đó. Slug tiếng Việt (`/chuyen
 **Nội dung nằm ở `src/data/*.ts`** dạng module có kiểu, không phải JSON hay CMS.
 Kiểu dữ liệu ở `src/data/types.ts`.
 
+**`src/data/index.ts` là ranh giới sẵn có với backend.** Mọi trang lấy dữ liệu
+qua hàm ở đây (`getProductBySlug`, `getBlogPage`, `getStoreBySlug`…), không đọc
+thẳng mảng. Khi có API, chỉ đổi ruột các hàm này từ `array.find()` sang `fetch()`
+— các trang không phải sửa. Đừng cho page import thẳng mảng dữ liệu, sẽ phá ranh
+giới này.
+
+## Backend: quy ước `server/`
+
+Chi tiết ở `docs/backend-architecture.md`. Những điều không đọc code là biết:
+
+**Module đóng theo tài nguyên**, không gom theo loại file. Mỗi tài nguyên là một
+thư mục trong `server/src/modules/` chứa route + nghiệp vụ + schema Zod của nó.
+Không tạo `controllers/` chứa mọi controller.
+
+**Drizzle schema tập trung ở `server/src/db/schema.ts`** (ngoại lệ của quy ước
+module) — các bảng tham chiếu nhau qua FK, tách theo module sẽ tạo vòng import.
+Đổi schema thì `npm run db:generate` sinh migration mới, không sửa tay file SQL
+trong `db/migrations/`.
+
+**Mọi phản hồi có body bọc trong `ApiResponse<T>`** (`server/src/common/api-response.ts`),
+là discriminated union theo `success`. Nhưng **HTTP status giữ đúng ngữ nghĩa**:
+không tìm thấy là `404`, chưa đăng nhập là `401` — không trả `200` kèm
+`success:false`. `204` không có body. Ném `ApiError` cho lỗi có chủ đích;
+error-handler ở cuối chuỗi lo phần bọc.
+
+**Biến môi trường validate bằng Zod lúc khởi động** (`server/src/common/env.ts`).
+Thêm biến mới thì khai báo trong schema đó, đọc qua `env`, không đọc thẳng
+`process.env`.
+
+**Kiểu chia sẻ bằng import trực tiếp**, không sinh code: frontend import type
+thẳng từ module backend. Không thêm OpenAPI/Orval ở quy mô hiện tại.
+
+**`argon2` cho hash mật khẩu, không `bcrypt`.** Ảnh vẫn trong repo — DB chỉ lưu
+tên file trong `storage_key`; không thêm `multer`/`sharp`/upload.
+
 ## Bố cục
 
 - `src/components/<area>/` — `.tsx` PascalCase, nhóm theo mảng (`blog`, `home`,
@@ -95,15 +137,34 @@ không tồn tại thì trả `404` chứ không rơi về `index.html`. Chỉ r
 và không phải asset mới fallback cho client-side routing. Gộp cả ba thành một
 `try_files` sẽ phá 404 của asset thiếu.
 
-## Nhánh
+## Git
 
-`main` giữ trạng thái frontend deploy được. Backend làm trên `feat/backend`,
-merge vào `main` khi chạy được đầu-cuối. Tag `v1.0.0` là điểm quay về.
+**Không sửa trực tiếp trên `main`.** Mỗi việc mới rẽ một nhánh riêng, đặt tên
+theo loại việc:
+
+| Tiền tố | Dùng khi |
+|---|---|
+| `feat/` | Tính năng mới |
+| `fix/` | Sửa lỗi |
+| `docs/` | Chỉ đổi tài liệu |
+| `refactor/` | Đổi cấu trúc, không đổi hành vi |
+| `chore/` | Cấu hình, phụ thuộc, việc lặt vặt |
+
+`main` giữ trạng thái deploy được — merge vào khi việc đã chạy được đầu-cuối.
+Tag `v1.0.0` là điểm quay về cho bản frontend tĩnh.
+
+**Không tự ý commit hay push.** Sửa file thì được, nhưng `git commit` và
+`git push` đều phải hỏi trước — kể cả tài liệu, plan, hay thay đổi nhỏ. Viết
+xong thì dừng lại, nói rõ đã đổi gì, rồi chờ đồng ý.
+
+Repo có hai remote: `origin` là repo cá nhân (mặc định làm việc ở đây), `work`
+là repo công ty (chỉ đẩy khi có mốc bàn giao, và phải hỏi riêng).
 
 ## Trước khi commit
 
-Chạy `npm run lint` và `npm run build`. CI chạy cả hai cộng thêm kiểm tra
-container ở mỗi lần push lên `main` — xem `.github/workflows/ci.yml`.
+Chạy `npm run lint` và `npm run build`. Backend có checks riêng trong `server/`
+(`npm run lint`, `npm run build`). CI chạy tất cả cộng kiểm tra container ở mỗi
+lần push lên bất kỳ nhánh nào — xem `.github/workflows/ci.yml`.
 
 Chữ tiếng Việt là nội dung hiển thị cho người dùng: giữ nguyên dấu, không "sửa"
 sang tiếng Anh.

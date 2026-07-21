@@ -19,3 +19,11 @@ export function getImageUrl(filename: string): string {
   }
   return placeholder;
 }
+
+const blogAssetPattern = /src="blog-asset:([^"]+)"/g;
+
+export function resolveBlogContentImageUrls(content: string): string {
+  return content.replace(blogAssetPattern, (_, filename: string) => (
+    `src="${getImageUrl(filename)}"`
+  ));
+}
