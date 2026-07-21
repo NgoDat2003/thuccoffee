@@ -22,8 +22,17 @@ Phụ thuộc: Phase 3
 | `blog_posts` | 10 |
 | `stores` | 7 |
 | `product_categories` | tổng số cặp sản phẩm–danh mục |
+| `media_attachments` | ảnh gallery của 7 cửa hàng (owner_type=`store`) |
+| `product_options` | 6 (catalog gốc) |
 
-`banners` và `users` để trống ở phase này.
+Để trống ở phase này: `banners`, `users`, `product_option_links`, `stickers`,
+`product_stickers`, `site_settings`, `static_pages`. Chúng chỉ có dữ liệu khi
+admin nhập qua giao diện sau — trừ catalog option seed 6 dòng gốc để sẵn.
+
+Gallery cửa hàng **không** còn là cột mảng. Mỗi ảnh trong `gallery` của dữ liệu
+gốc trở thành một dòng `media_attachments` với `owner_type='store'`,
+`owner_id` = id cửa hàng, `storage_key` = tên file, `sort_order` theo thứ tự
+trong mảng gốc.
 
 ## Hai việc phải xử lý
 
@@ -68,14 +77,16 @@ riêng phần dữ liệu thuần.
    - seed `categories` trước (products tham chiếu tới)
    - seed `products`, rồi tạo liên kết trong `product_categories`
    - seed `blog_posts` với ngày đã parse
-   - seed `stores` với `gallery` là mảng
+   - seed `stores`, rồi tách mỗi ảnh gallery thành một dòng `media_attachments`
+     (`owner_type='store'`, `sort_order` theo thứ tự mảng gốc)
+   - seed 6 dòng catalog `product_options`
    - mọi bảng dùng upsert theo cột UNIQUE
 3. Thêm script `db:seed` vào `server/package.json`.
 4. Chạy seed lần một.
 5. Kiểm chứng bằng SQL: đếm số bản ghi từng bảng.
 6. Kiểm tra một sản phẩm nhiều danh mục có đủ liên kết.
 7. Kiểm tra ngày blog parse đúng — so vài bản ghi với `blog.ts`.
-8. Kiểm tra `gallery` của một cửa hàng đúng số phần tử.
+8. Kiểm tra `media_attachments` của một cửa hàng đúng số ảnh và đúng thứ tự.
 9. Chạy seed lần hai, xác nhận số bản ghi không đổi.
 
 ## Todo
@@ -87,7 +98,8 @@ riêng phần dữ liệu thuần.
 - [ ] Đếm bản ghi khớp: 10 / 42 / 10 / 7
 - [ ] Kiểm tra liên kết sản phẩm–danh mục
 - [ ] Kiểm tra ngày blog
-- [ ] Kiểm tra mảng gallery
+- [ ] Kiểm tra `media_attachments` của cửa hàng (số ảnh + thứ tự)
+- [ ] Seed 6 catalog option
 - [ ] Chạy seed lần hai, số bản ghi không đổi
 
 ## Tiêu chí hoàn thành
@@ -95,7 +107,7 @@ riêng phần dữ liệu thuần.
 - Số bản ghi khớp bảng ở trên.
 - Sản phẩm thuộc nhiều danh mục có đủ dòng trong `product_categories`.
 - `published_at` khớp ngày trong `blog.ts` cho cả 10 bài.
-- `gallery` của cửa hàng có đúng số ảnh như dữ liệu gốc.
+- `media_attachments` của cửa hàng có đúng số ảnh và đúng thứ tự như dữ liệu gốc.
 - Slug giữ nguyên hậu tố gốc.
 - Chạy seed lần hai không tạo bản ghi mới, không lỗi.
 

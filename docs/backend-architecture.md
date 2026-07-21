@@ -8,7 +8,7 @@ Schema và lý do đằng sau nó: @database-design.md
 
 | File | Vì sao cần |
 |---|---|
-| `docs/database-design.md` | 7 bảng, ràng buộc, quy tắc slug, những thứ cố ý không làm |
+| `docs/database-design.md` | 14 bảng, ràng buộc, quy tắc slug, những thứ cố ý không làm |
 | `src/data/types.ts` | Kiểu dữ liệu hiện tại — gần như là schema |
 | `src/data/index.ts` | Lớp truy cập dữ liệu sẽ được thay ruột |
 
@@ -303,7 +303,7 @@ Endpoint công khai chỉ trả bản ghi có `is_published = true`.
 
 Mỗi bước chạy được và kiểm chứng được trước khi sang bước sau.
 
-1. **Postgres + schema + seed** — dựng DB, tạo 7 bảng, đổ dữ liệu từ
+1. **Postgres + schema + seed** — dựng DB, tạo 14 bảng, đổ dữ liệu từ
    `src/data/*.ts`. Chưa có API. Kiểm chứng bằng truy vấn SQL.
 2. **API đọc** — các endpoint GET ở trên. Kiểm chứng bằng curl.
 3. **Frontend đọc từ API** — đổi ruột `src/data/index.ts`. Các trang không sửa.

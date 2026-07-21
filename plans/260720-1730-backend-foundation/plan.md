@@ -23,7 +23,7 @@ Kiến trúc và stack: `docs/backend-architecture.md`
 - Tạo `server/` với `package.json`, `tsconfig.json`, lint config riêng.
 - Dựng Express theo cấu trúc module, kèm chuẩn hoá lỗi và validate biến môi
   trường bằng Zod.
-- Schema Drizzle cho 7 bảng, chuyển từ `src/data/types.ts`.
+- Schema Drizzle cho 14 bảng, chuyển từ `src/data/types.ts`.
 - Thêm service `postgres` vào `compose.yaml`, có volume giữ dữ liệu.
 - Script seed đọc `src/data/*.ts` đổ vào database.
 - Dọn 4 file cấu hình gốc để không chạm vào `server/`.
