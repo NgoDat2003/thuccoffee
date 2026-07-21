@@ -1,8 +1,13 @@
 import { and, asc, eq } from 'drizzle-orm';
 
 import { db } from '../../db/client.js';
-import { stores } from '../../db/schema.js';
-import { storeSchema, type Store } from './stores.schemas.js';
+import { mediaAttachments, stores } from '../../db/schema.js';
+import {
+  storeDetailSchema,
+  storeSchema,
+  type Store,
+  type StoreDetail,
+} from './stores.schemas.js';
 
 const publicStoreFields = {
   name: stores.name,
@@ -23,12 +28,32 @@ export async function listStores(): Promise<Store[]> {
   return storeSchema.array().parse(rows);
 }
 
-export async function getStoreBySlug(slug: string): Promise<Store | undefined> {
+export async function getStoreBySlug(
+  slug: string,
+): Promise<StoreDetail | undefined> {
   const [row] = await db
-    .select(publicStoreFields)
+    .select({ id: stores.id, ...publicStoreFields })
     .from(stores)
     .where(and(eq(stores.slug, slug), eq(stores.isPublished, true)))
     .limit(1);
 
-  return row ? storeSchema.parse(row) : undefined;
+  if (!row) {
+    return undefined;
+  }
+
+  const galleryRows = await db
+    .select({ storageKey: mediaAttachments.storageKey })
+    .from(mediaAttachments)
+    .where(and(
+      eq(mediaAttachments.ownerType, 'store'),
+      eq(mediaAttachments.ownerId, row.id),
+      eq(mediaAttachments.role, 'gallery'),
+    ))
+    .orderBy(asc(mediaAttachments.sortOrder), asc(mediaAttachments.id));
+
+  const { id: _id, ...store } = row;
+  return storeDetailSchema.parse({
+    ...store,
+    gallery: galleryRows.map(({ storageKey }) => storageKey),
+  });
 }

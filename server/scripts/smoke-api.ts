@@ -16,6 +16,7 @@ interface HttpResult<T> {
 
 interface Store {
   slug: string;
+  gallery?: string[];
 }
 
 interface BlogPost {
@@ -29,6 +30,20 @@ interface Product {
   price: number;
   priceEstimated: boolean;
   categories: string[];
+}
+
+interface PublicSiteSettings {
+  siteTitle: string;
+  brandHeading: string;
+  tagline: string;
+  logoStorageKey: string;
+  hotline: string;
+  contactEmail: string;
+  officeAddress: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  youtubeUrl: string;
+  footerCopyright: string;
 }
 
 const baseUrl = (
@@ -86,12 +101,20 @@ await check('GET /api/categories', async () => {
 
 await check('GET /api/banners', async () => {
   const data = expectSuccess(await get<unknown[]>('/api/banners'));
-  assert(Array.isArray(data), 'Expected banner array');
+  assert(Array.isArray(data) && data.length === 3, 'Expected 3 banners');
+});
+
+await check('GET /api/site-settings', async () => {
+  const data = expectSuccess(await get<PublicSiteSettings>('/api/site-settings'));
+  assert(data.hotline === '1800 6230', 'Unexpected hotline');
+  assert(data.youtubeUrl === '', 'Empty YouTube URL must be preserved');
+  assert(Object.keys(data).length === 11, 'Expected 11 public settings fields');
 });
 
 await check('GET /api/stores', async () => {
   const data = expectSuccess(await get<Store[]>('/api/stores'));
   assert(data.length === 7, 'Expected 7 stores');
+  assert(data.every((store) => !('gallery' in store)), 'Store list must not include gallery');
   assert(data[0]?.slug, 'Expected a dynamic store slug');
   storeSlug = data[0].slug;
 });
@@ -100,6 +123,9 @@ await check('GET /api/stores/:slug', async () => {
   assert(storeSlug, 'Store list did not provide a slug');
   const data = expectSuccess(await get<Store>(`/api/stores/${storeSlug}`));
   assert(data.slug === storeSlug, 'Store detail slug mismatch');
+  assert(Array.isArray(data.gallery), 'Store detail must include gallery');
+  assert(data.gallery.length === 5, 'Expected 5 ordered gallery images');
+  assert(data.gallery.every((item) => typeof item === 'string'), 'Invalid gallery shape');
   expectError(await get<never>('/api/stores/khong-ton-tai'), 404);
 });
 
@@ -165,8 +191,8 @@ await check('GET /api/products/:slug', async () => {
 });
 
 if (failures > 0) {
-  console.error(`Smoke API failed: ${failures}/8 checks failed.`);
+  console.error(`Smoke API failed: ${failures}/9 checks failed.`);
   process.exitCode = 1;
 } else {
-  console.log(`Smoke API passed: 8/8 checks at ${baseUrl}.`);
+  console.log(`Smoke API passed: 9/9 checks at ${baseUrl}.`);
 }

@@ -13,5 +13,10 @@ export const storeSchema = z.object({
   image: z.string(),
 });
 
+export const storeDetailSchema = storeSchema.extend({
+  gallery: z.array(z.string()),
+});
+
 export type StoreParams = z.infer<typeof storeParamsSchema>;
 export type Store = z.infer<typeof storeSchema>;
+export type StoreDetail = z.infer<typeof storeDetailSchema>;

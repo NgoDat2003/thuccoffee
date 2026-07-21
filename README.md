@@ -40,9 +40,10 @@ npm run lint
 npm run smoke:api # requires the local backend on port 8080
 ```
 
-The backend exposes health plus eight public read endpoints for categories, banners,
-stores, blog posts, and products. Blog pagination is database-backed and product
-categories are joined without N+1 queries. The frontend intentionally continues to
+The backend exposes health plus nine public read endpoints for categories, banners,
+site settings, stores, blog posts, and products. Store detail includes its ordered
+gallery, blog pagination is database-backed, and product categories are joined
+without N+1 queries. The frontend intentionally continues to
 read `src/data/*.ts` and bundled files from `src/assets/images/` until the next phase.
 
 ## Image storage

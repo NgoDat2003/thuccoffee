@@ -10,16 +10,36 @@ import { stores as sourceStores } from '../../../src/data/stores.ts';
 import { parseVietnameseDate } from '../lib/parse-date.js';
 import { closeDatabase, db } from './client.js';
 import {
+  banners,
   blogPosts,
   categories,
   mediaAttachments,
   productCategories,
   productOptions,
   products,
+  siteSettings,
   stores,
 } from './schema.js';
 
 const optionCatalog = ['Lạnh', 'Nóng', 'Size nhỏ', 'Size vừa', '1 Egg', '2 Eggs'];
+const bannerSeed = [
+  { type: 'slider', image: '3eb3f0f8_cover-2-.jpg', altText: 'Thức Coffee', linkUrl: null, sortOrder: 0 },
+  { type: 'slider', image: '446135be_cover-fb.jpg', altText: 'Thức Coffee', linkUrl: null, sortOrder: 1 },
+  { type: 'promotion', image: '2e94f8cc_cover-fb.jpg', altText: 'Ưu đãi khi đến với Thức', linkUrl: '/chuong-trinh-thanh-vien', sortOrder: 0 },
+] as const;
+const publicSiteSettings = [
+  { key: 'site_title', value: 'Thức Coffee' },
+  { key: 'brand_heading', value: 'THỨC COFFEE - OPEN 24/7' },
+  { key: 'tagline', value: 'Nơi ngắm nhìn Sài Gòn chuyển mình trọn vẹn 24h.' },
+  { key: 'logo_storage_key', value: '151b6674_circlelogo-white-blue-jul2023.png' },
+  { key: 'hotline', value: '1800 6230' },
+  { key: 'contact_email', value: 'info.thuccoffee247@gmail.com' },
+  { key: 'office_address', value: '40D Lý Tự Trọng, P.Sài Gòn, TP.HCM' },
+  { key: 'facebook_url', value: 'https://www.facebook.com/ThucCoffee247' },
+  { key: 'instagram_url', value: 'https://www.instagram.com/thuccoffee24h/' },
+  { key: 'youtube_url', value: '' },
+  { key: 'footer_copyright', value: '© 2018. All Right Reserved. Thức Coffee' },
+] as const;
 
 async function seed(): Promise<void> {
   await db.transaction(async (tx) => {
@@ -129,6 +149,22 @@ async function seed(): Promise<void> {
         .values({ name, sortOrder })
         .onConflictDoUpdate({ target: productOptions.name, set: { sortOrder } });
     }
+
+    await tx.delete(banners);
+    await tx.insert(banners).values(bannerSeed.map((banner) => ({
+      ...banner,
+      isActive: true,
+    })));
+
+    for (const setting of publicSiteSettings) {
+      await tx
+        .insert(siteSettings)
+        .values(setting)
+        .onConflictDoUpdate({
+          target: siteSettings.key,
+          set: { value: setting.value, updatedAt: new Date() },
+        });
+    }
   });
 
   console.log([
@@ -137,6 +173,8 @@ async function seed(): Promise<void> {
     `${sourceBlogPosts.length} bài viết`,
     `${sourceStores.length} cửa hàng`,
     `${optionCatalog.length} options`,
+    `${bannerSeed.length} banners`,
+    `${publicSiteSettings.length} site settings`,
   ].join(', '));
 }
 

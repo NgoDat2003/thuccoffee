@@ -24,7 +24,8 @@ Frontend là SPA tĩnh, đã gắn tag `v1.0.0`, deploy được. Nội dung v�
 10 danh mục. Frontend chưa gọi backend.
 
 Backend trong `server/` hiện chạy được, có middleware vận hành, health endpoint
-và tám endpoint đọc công khai cho categories, banners, stores, blog và products.
+và chín endpoint đọc công khai cho categories, banners, site settings, stores,
+blog và products. Store detail trả gallery có thứ tự; store list không trả gallery.
 Auth, admin CRUD và việc frontend chuyển sang đọc API thuộc các giai đoạn sau.
 
 Hạ tầng ảnh MinIO đã có trong Compose: API `9000`, console local `9001`, volume
@@ -292,7 +293,7 @@ trị thật.
 
 ## API hiện có và mục tiêu các giai đoạn sau
 
-`GET /api/health` và tám content API GET dưới đây đã triển khai. Frontend vẫn
+`GET /api/health` và chín content API GET dưới đây đã triển khai. Frontend vẫn
 đọc dữ liệu tĩnh từ `src/data/*.ts`; auth và admin API vẫn là mục tiêu tiếp theo.
 
 Đọc công khai, ghi phải đăng nhập.
@@ -308,6 +309,7 @@ GET    /api/blog/:slug
 GET    /api/stores
 GET    /api/stores/:slug
 GET    /api/banners               chỉ banner đang bật
+GET    /api/site-settings         đúng 11 key public, map camelCase
 
 POST   /api/auth/login
 POST   /api/auth/logout
@@ -325,8 +327,8 @@ Mỗi bước chạy được và kiểm chứng được trước khi sang bư�
 
 1. **Foundation + hạ tầng local** — Express, Postgres/schema/seed và MinIO bucket
    + script seed ảnh. Đã xong, từng phần kiểm chứng độc lập.
-2. **API đọc** — tám endpoint GET ở trên. Đã xong; `npm run smoke:api` kiểm
-   chứng 8/8 endpoint, 404 slug sai và 400 query sai.
+2. **API đọc** — chín endpoint GET ở trên. Đã xong; `npm run smoke:api` kiểm
+   chứng 9/9 endpoint, gallery cửa hàng, 404 slug sai và 400 query sai.
 3. **Frontend đọc từ API** — đổi ruột `src/data/index.ts`. Các trang không sửa.
 4. **Đăng nhập** — bảng `users`, hash mật khẩu, session hoặc JWT, middleware
    chặn `/api/admin/*`.

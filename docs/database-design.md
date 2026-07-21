@@ -177,6 +177,9 @@ Cột `type` phản ánh ba mục riêng trong admin gốc: Promotion Banner (d�
 mãi), Right Banner (banner cột phải), và Banner (slider trang chủ). Một bảng với
 cột phân loại thay vì ba bảng gần giống hệt nhau.
 
+Seed hiện tại xoá rồi tạo lại đúng 3 banner đang bật: 2 `slider` lấy filename từ
+`BannerSlider`, 1 `promotion` lấy filename từ `PromoBanner`. Không seed `right`.
+
 ### users
 
 | Cột | Kiểu | Ghi chú |
@@ -204,6 +207,9 @@ text footer/header. Tương ứng hai mục admin "Thông tin website" và "Webs
 
 Key-value thay vì mỗi cấu hình một cột, vì danh sách cấu hình sẽ thay đổi và
 không đáng migrate schema mỗi lần thêm một trường.
+
+Seed hiện tại upsert đúng 11 key public theo `key`; trong đó `youtube_url` được
+phép rỗng. API chỉ SELECT allow-list này và lỗi 500 nếu thiếu bất kỳ key bắt buộc.
 
 ### product_options và product_option_links
 
@@ -314,9 +320,9 @@ cookie, giới thiệu vẫn ở `src/data/pages.ts`.
 | content | text | Markdown hoặc HTML |
 | updated_at | timestamptz | |
 
-Chỉ hai trang này vào DB vì nội dung của chúng thay đổi thường xuyên (tin tuyển
-dụng mới, bậc thành viên điều chỉnh). Các trang còn lại gần như tĩnh nên giữ
-trong code rẻ hơn.
+Hai trang này là thiết kế dự kiến vì nội dung thay đổi thường xuyên (tin tuyển
+dụng mới, bậc thành viên điều chỉnh). Phase API `static_pages` đã hoãn/cancelled;
+seed hiện tại cố ý không tạo dòng nào trong bảng này.
 
 ## Index
 

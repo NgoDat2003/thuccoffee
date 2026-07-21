@@ -13,6 +13,7 @@ import { blogRoutes } from './modules/blog/blog.routes.js';
 import { categoriesRoutes } from './modules/categories/categories.routes.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 import { productsRoutes } from './modules/products/products.routes.js';
+import { siteSettingsRoutes } from './modules/site-settings/site-settings.routes.js';
 import { storesRoutes } from './modules/stores/stores.routes.js';
 
 const app = express();
@@ -29,6 +30,7 @@ app.use('/api/banners', bannersRoutes);
 app.use('/api/stores', storesRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/products', productsRoutes);
+app.use('/api/site-settings', siteSettingsRoutes);
 
 // 404 cho route không khớp, rồi error handler cuối chuỗi.
 app.use(notFoundHandler);
