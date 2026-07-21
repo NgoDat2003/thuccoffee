@@ -11,12 +11,13 @@ definition but run in different places and never touch each other.
 
 | Environment | Where it runs | Command | URL |
 |---|---|---|---|
-| Compose | Docker Desktop on Windows | `docker compose up -d --build` | `http://localhost:8080` |
+| Compose | Docker Desktop on Windows | `docker compose up -d --build` | `http://localhost:3000` |
 | CI | GitHub-hosted runner | automatic on push | n/a (asserts, then discards) |
 | Dokploy | WSL distro `Dokploy` | deploy from the Dokploy UI | needs a Domain entry |
 
-Port `8080` is deliberate: a local Dokploy install occupies `3000` (its UI) and
-`80`/`443` (Traefik), so Compose must stay off those.
+Local port map: frontend `3000`, backend `8080`, Postgres `5432`. An optional
+local Dokploy install would want `3000`/`80`/`443`, so run it and the Compose
+frontend one at a time rather than together.
 
 ## Continuous Integration
 

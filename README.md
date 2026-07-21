@@ -26,11 +26,11 @@ npm run lint     # oxlint
 Serves the built SPA through Nginx, the same image the deployment uses.
 
 ```bash
-docker compose up -d --build   # build and start on http://localhost:8080
+docker compose up -d --build   # build and start on http://localhost:3000
 docker compose ps              # container status and health
 docker compose logs -f         # follow logs
 docker compose down            # stop and remove
 ```
 
-Port `8080` avoids clashing with a local Dokploy instance, which holds `3000`,
-`80`, and `443`. See `docs/deployment.md` for the deployment runtime contract.
+The frontend runs on `3000`; the backend uses `8080` and Postgres `5432`. See
+`docs/deployment.md` for the deployment runtime contract.

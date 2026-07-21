@@ -1,5 +1,5 @@
 # Chạy: docker compose up -d --build
-# Xem:  http://localhost:8080
+# Xem:  http://localhost:3000
 # Dừng: docker compose down
 
 services:
@@ -13,11 +13,11 @@ services:
     image: thuccoffee:local
     container_name: thuccoffee-local
 
-    # "8080:80" = cổng 8080 trên máy bạn -> cổng 80 trong container.
-    # Đổi số bên TRÁI nếu 8080 đã bị chiếm; số bên phải phải giữ 80 vì nginx nghe ở đó.
-    # Tránh 3000 và 80/443 nếu đang chạy Dokploy local — nó đã giữ các cổng đó.
+    # "3000:80" = cổng 3000 trên máy bạn -> cổng 80 trong container.
+    # Đổi số bên TRÁI nếu 3000 đã bị chiếm; số bên phải phải giữ 80 vì nginx nghe ở đó.
+    # Backend dùng 8080, Postgres dùng 5432 (thêm ở phase sau).
     ports:
-      - "8080:80"
+      - "3000:80"
 
     # Tự bật lại nếu container chết hoặc sau khi khởi động lại Docker.
     restart: unless-stopped
@@ -30,3 +30,31 @@ services:
       timeout: 3s
       start_period: 5s
       retries: 3
+
+  # Postgres cho backend. Mật khẩu để trần ở đây chấp nhận được vì chỉ lắng nghe
+  # trên máy local; production dùng biến môi trường do Dokploy cấp.
+  postgres:
+    image: postgres:16-alpine
+    container_name: thuccoffee-postgres
+    environment:
+      POSTGRES_USER: thuccoffee
+      POSTGRES_PASSWORD: thuccoffee
+      POSTGRES_DB: thuccoffee
+    ports:
+      - "5432:5432"
+    # Volume giữ dữ liệu sống sót qua `docker compose down`. Bỏ dòng này là mất
+    # sạch dữ liệu mỗi lần dừng — lỗi hay gặp nhất khi mới dùng Postgres trong Docker.
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    # Postgres nhận kết nối trước khi thực sự sẵn sàng; healthcheck này để backend
+    # đợi qua `depends_on: condition: service_healthy`.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U thuccoffee -d thuccoffee"]
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 5
+
+volumes:
+  postgres-data:
