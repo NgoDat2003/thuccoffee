@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc && npm run typecheck:seed && npm run typecheck:scripts",
+    "build": "tsc --project tsconfig.build.json && npm run typecheck && npm run typecheck:seed",
     "start": "node dist/index.js",
     "lint": "oxlint",
     "smoke:api": "tsx scripts/smoke-api.ts",
@@ -12,8 +12,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/db/seed.ts",
     "db:seed-images": "tsx src/db/seed-images.ts",
-    "typecheck:seed": "tsc --project tsconfig.seed.json --noEmit",
-    "typecheck:scripts": "tsc --project tsconfig.scripts.json --noEmit"
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "typecheck:seed": "tsc --project tsconfig.seed.json --noEmit"
   },
   "dependencies": {
     "compression": "1.8.1",

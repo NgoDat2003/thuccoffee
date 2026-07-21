@@ -4,8 +4,9 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2023"],
-    "outDir": "dist",
-    "rootDir": "src",
+    "types": ["node"],
+    "noEmit": true,
+    "rootDir": ".",
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
@@ -14,6 +15,6 @@
     "resolveJsonModule": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["src"],
+  "include": ["src", "scripts"],
   "exclude": ["dist", "node_modules", "src/db/seed.ts", "src/db/seed-images.ts"]
 }
