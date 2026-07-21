@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "rootDir": ".."
+  },
+  "include": [
+    "src/db/seed.ts",
+    "src/lib/parse-date.ts",
+    "../src/data/blog.ts",
+    "../src/data/categories.ts",
+    "../src/data/products.ts",
+    "../src/data/stores.ts",
+    "../src/data/types.ts"
+  ],
+  "exclude": ["dist", "node_modules"]
+}
