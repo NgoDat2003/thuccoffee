@@ -1,9 +1,9 @@
 # Thiết kế Database
 
-Thiết kế cho Postgres, phục vụ backend và trang admin. Chưa triển khai — tài liệu
-này để chốt trước khi viết migration.
+Thiết kế Postgres phục vụ backend và trang admin. Schema Drizzle, migration và
+seed nền đã tồn tại; tài liệu này ghi cấu trúc và các quyết định phạm vi hiện tại.
 
-Nguồn dữ liệu hiện tại: `src/data/*.ts` (42 sản phẩm, 10 bài viết, 7 cửa hàng,
+Nguồn dữ liệu hiện tại: `src/data/*.ts` (42 sản phẩm, 267 bài viết, 7 cửa hàng,
 10 danh mục).
 
 ## Phạm vi
@@ -26,9 +26,16 @@ URL, thuộc về code.
 có giỏ hàng hay thanh toán thật (xem `deviations-from-original.md`). Không thêm
 `orders`, `order_items`, `customers`.
 
-**Ảnh:** DB chỉ lưu **tên file**, ảnh vẫn nằm trong `src/assets/images/` và được
-`src/lib/image-url.ts` phân giải. Không có upload trong phạm vi này — thêm ảnh
-mới vẫn phải commit vào repo.
+**Ảnh:** DB chỉ lưu `storage_key`, không lưu binary. Frontend vẫn phân giải file
+trong `src/assets/images/` qua `src/lib/image-url.ts`; MinIO là bản sao object
+chuẩn bị cho API sau, chưa phải nguồn ảnh của frontend. Thêm ảnh mới hiện vẫn
+phải commit vào repo rồi chạy `npm run db:seed-images` để đồng bộ object key theo
+đường dẫn tương đối. Không có upload runtime/admin trong phạm vi này.
+
+Snapshot hiện tại có 498 file ảnh hợp lệ. Trước đó 103 PNG emoji đã được thay
+bằng Unicode trong nội dung blog rồi xoá. Con số này chỉ là snapshot; kiểm chứng
+phải đếm động file nguồn và object. Riêng crawl blog lưu 456 ảnh nguồn còn hoạt
+động; 18 URL nguồn đã chết dùng logo hiện có làm placeholder.
 
 ## Sơ đồ quan hệ
 
@@ -115,9 +122,11 @@ mục cũng vậy — sản phẩm không bị xoá theo.
 | is_published | boolean | Mặc định `true` |
 | created_at / updated_at | timestamptz | |
 
-Cột `content` là mới. Dữ liệu hiện tại không có nội dung bài — `BlogDetailPage`
-đang dùng lại `summary` làm phần thân. Thêm cột ngay từ đầu để sau này viết bài
-dài không phải migrate.
+`src/data/blog.ts` hiện giữ 267 bản ghi metadata cho danh sách;
+`src/data/blog-content.ts` giữ HTML đầy đủ đã làm sạch, ánh xạ theo slug.
+`BlogDetailPage` lazy-load file nội dung khi mở trang chi tiết. Seed import cả
+hai nguồn, ghép theo slug rồi upsert `content` vào `blog_posts`. Đây là dữ liệu
+snapshot, không phải kết quả crawl lúc runtime.
 
 `published_at` dùng kiểu `date` thật, không phải chuỗi `'03.06.2026'` như hiện
 tại. Sắp xếp theo chuỗi sẽ sai thứ tự thời gian. Bước seed cần parse
@@ -260,7 +269,7 @@ nên `text[]` làm mất thông tin.
 | id | serial | PK |
 | owner_type | text | `store` \| `blog_post` \| `product` |
 | owner_id | integer | ID bản ghi thuộc `owner_type` |
-| storage_key | text | Tên file (giai đoạn này) hoặc object key (khi chuyển MinIO) |
+| storage_key | text | Seed DB hiện giữ tên file; cột có thể chứa object key tương đối |
 | role | text | `gallery` \| `cover` \| `detail`; cho phép NULL |
 | link_url | text | Cho phép NULL — ảnh có thể trỏ tới URL |
 | sort_order | integer | Thứ tự hiển thị |
@@ -272,16 +281,22 @@ tồn tại) phải xử lý ở tầng service, không phải ở database. Ch�
 loại ảnh vào một bảng thay vì ba bảng gần giống hệt nhau; nếu sau này cần FK
 nghiêm ngặt thì tách bảng theo từng loại.
 
-`storage_key` là chìa khoá để tương thích hai giai đoạn:
+`storage_key` là chìa khoá nối các giai đoạn mà không lưu binary trong DB:
 
-| Giai đoạn | `storage_key` chứa | Frontend phân giải |
+| Giai đoạn | Nguồn ảnh | Cách phân giải |
 |---|---|---|
-| Hiện tại | tên file (`americano.jpg`) | qua `getImageUrl()`, ảnh trong repo |
-| Sau (MinIO) | object key trong bucket | presigned URL từ MinIO |
+| Frontend hiện tại | file trong repo | `getImageUrl()` → asset đã bundle |
+| MinIO hiện tại | object key tương đối trong `thuccoffee` | public-read; FE chưa gọi |
+| DB hiện tại | một số `media_attachments.storage_key` vẫn là basename | chưa tự join với object MinIO |
+| API đọc sau | `storage_key`/object key | API trả public object URL cho frontend |
 
-Cùng schema, chỉ đổi cách phân giải khi làm upload — không migrate cột. MinIO là
-mã nguồn mở, tự host qua container (như Postgres), không tốn phí; đây là cách dự
-án QA/QC lưu ảnh.
+Cùng schema, chỉ đổi cách phân giải khi API đọc ảnh — không migrate cột. MinIO đã
+chạy qua Compose với volume `minio-data`; `minio-init` tạo bucket public-read.
+`db:seed-images` chỉ upload filesystem → object storage, không tự tạo hay sửa
+`media_attachments`. Trước khi API dùng cột này để dựng URL, cần cập nhật dữ liệu
+basename hiện tại thành đúng relative key (ví dụ `stores/...`) và xử lý dứt điểm
+những basename trùng giữa thư mục; đây là data migration/mapping, không cần đổi
+kiểu hay thêm cột.
 
 Cột `stores.gallery text[]` bị bỏ, thay bằng các dòng `media_attachments` có
 `owner_type='store'`.
@@ -335,7 +350,7 @@ tiêu của dự án này (clone + admin sửa nội dung), nên cố ý bỏ:
 | Thứ | Lý do |
 |---|---|
 | `orders`, `order_items`, `customers` | Admin gốc có "Đơn hàng" nhưng clone không bán hàng; query 2020→nay trả 0 đơn |
-| Upload ảnh thật (MinIO/S3) | Giai đoạn sau. Giờ ảnh trong repo, `storage_key` đã thiết kế sẵn để chuyển MinIO không phải migrate |
+| Upload runtime/admin và xử lý ảnh | MinIO + seed từ repo đã có; form upload, phân quyền ghi, resize/thumbnail và vòng đời object vẫn là giai đoạn sau |
 | `localized_texts` (18 namespace) | Chỉ `vi-VN`, không đa ngôn ngữ; text hiện ở `pages.ts` và component |
 | `audit_logs`, `created_by`/`updated_by` mọi bảng | Một người dùng, chưa cần truy vết ai sửa gì |
 | Soft delete (`deleted_at`) mọi bảng | Chưa có nhu cầu khôi phục |
@@ -378,8 +393,3 @@ dùng slug tự sinh.
 
 - Khi admin chủ động đổi slug của bài đã xuất bản, có cần giữ redirect từ slug
   cũ không? Nếu có thì cần thêm bảng ánh xạ slug cũ → bản ghi.
-- Phân trang blog hiện là giả: `BLOG_PAGE_COUNT` là 54 trong khi chỉ có 10 bài
-  thật, và `getBlogPage()` lặp lại chúng để khớp số trang của site gốc (quyết
-  định có chủ ý, đã được duyệt trước đó). Khi chuyển sang DB, hành vi này phải
-  bỏ — số trang tính từ số bài thật. Cần xác nhận việc trang blog rút từ 54
-  xuống còn vài trang là chấp nhận được.

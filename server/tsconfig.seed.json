@@ -9,6 +9,8 @@
   },
   "include": [
     "src/db/seed.ts",
+    "src/db/seed-images.ts",
+    "src/lib/minio-client.ts",
     "src/lib/parse-date.ts",
     "../src/data/blog-content.ts",
     "../src/data/blog.ts",

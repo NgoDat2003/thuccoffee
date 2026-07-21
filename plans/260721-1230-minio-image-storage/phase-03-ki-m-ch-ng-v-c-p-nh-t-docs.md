@@ -1,7 +1,7 @@
 ---
 phase: 3
 title: "Kiểm chứng và cập nhật docs"
-status: pending
+status: completed
 priority: P2
 effort: "2h"
 dependencies: [1, 2]
@@ -57,12 +57,12 @@ Không thêm code. Chỉ verify + sửa tài liệu:
 
 ## Success Criteria
 
-- [ ] Lượt compose sạch: 4 service healthy, minio-init exit 0.
-- [ ] Toàn bộ ảnh phục vụ được từ MinIO (curl 200 + hiển thị đúng), số object
+- [x] Lượt compose sạch: 4 service healthy, minio-init exit 0.
+- [x] Toàn bộ ảnh phục vụ được từ MinIO (curl 200 + hiển thị đúng), số object
       khớp số file trong `src/assets/images`.
-- [ ] FE `:3000` vẫn tải ảnh từ `/assets/`, không gọi `:9000` — FE không đổi.
-- [ ] 4 file docs cập nhật, không còn câu mâu thuẫn với thực tế.
-- [ ] lint + build sạch ở root và server.
+- [x] FE `:3000` vẫn tải ảnh từ `/assets/`, không gọi `:9000` — FE không đổi.
+- [x] 4 file docs cập nhật, không còn câu mâu thuẫn với thực tế.
+- [x] lint + build sạch ở root và server.
 
 ## Risk Assessment
 

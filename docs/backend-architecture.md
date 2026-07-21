@@ -20,12 +20,19 @@ vi giao diện so với site gốc.
 ## Trạng thái hiện tại
 
 Frontend là SPA tĩnh, đã gắn tag `v1.0.0`, deploy được. Nội dung vẫn nằm trong
-`src/data/*.ts` dưới dạng mảng TypeScript: 42 sản phẩm, 10 bài viết, 7 cửa hàng,
+`src/data/*.ts` dưới dạng mảng TypeScript: 42 sản phẩm, 267 bài viết, 7 cửa hàng,
 10 danh mục. Frontend chưa gọi backend.
 
 Backend foundation trong `server/` hiện chạy được, có middleware vận hành và
 health endpoint. Content API, auth và admin CRUD nằm ngoài phạm vi foundation
 hiện tại; chúng thuộc các giai đoạn sau.
+
+Hạ tầng ảnh MinIO đã có trong Compose: API `9000`, console local `9001`, volume
+`minio-data`, bucket `thuccoffee` public-read và lệnh seed
+`npm run db:seed-images`. Frontend chưa dùng kho này; ảnh hiển thị vẫn được bundle
+từ `src/assets/images/`. Snapshot hiện tại có 498 ảnh hợp lệ sau khi 103 PNG emoji
+được đổi thành Unicode trong nội dung blog rồi xoá. Count kiểm chứng phải luôn
+tính động vì tập ảnh còn có thể thay đổi.
 
 Mọi trang đều lấy dữ liệu qua hàm trong `src/data/index.ts` —
 `getProductBySlug()`, `getBlogPage()`, `getStoreBySlug()`. Không trang nào đọc
@@ -39,18 +46,19 @@ phải sửa.
 
 ```
 thuccoffee/
-├── src/                    frontend React, không đụng tới
-├── server/                 backend foundation hiện có
-│   ├── package.json        deps riêng, độc lập với frontend
+├── src/                         frontend React + nguồn ảnh local
+├── server/
+│   ├── Dockerfile               image backend Node 22
+│   ├── .env.example             hợp đồng env local
+│   ├── package.json             deps và script riêng
 │   └── src/
-│       ├── index.ts        khởi tạo Express, đăng ký route
-│       ├── common/         error handler, validate middleware, hằng số
-│       ├── modules/        đóng gói theo tài nguyên
-│       │   └── health/     GET /api/health
-│       ├── db/             thêm ở phase schema/migration
-│       └── lib/            thêm cùng các tiện ích dùng chung
-├── Dockerfile              frontend (đã có, không đổi)
-└── compose.yaml            frontend và Postgres local
+│       ├── index.ts             khởi tạo Express, đăng ký route
+│       ├── common/env.ts        validate Postgres + MinIO env bằng Zod
+│       ├── modules/health/      GET /api/health
+│       ├── db/                  schema, migration, seed dữ liệu và seed ảnh
+│       └── lib/minio-client.ts  MinIO SDK client dùng chung
+├── Dockerfile                   image frontend Nginx
+└── compose.yaml                 frontend, backend, Postgres, MinIO + init
 ```
 
 Hai `package.json` tách biệt. Frontend không cài thư viện backend và ngược lại.
@@ -63,6 +71,7 @@ Hai `package.json` tách biệt. Frontend không cài thư viện backend và ng
 | Framework | Express 5 | Phổ biến, nhiều tài liệu, dễ bàn giao |
 | ORM | Drizzle | Schema viết bằng TypeScript, chuyển từ `types.ts` gần như trực tiếp |
 | Database | Postgres 16 | Chạy ổn định bằng container local, có volume riêng |
+| Object storage | MinIO | Bucket public-read; dữ liệu sống trong volume riêng |
 | Validate | Zod | Chặn dữ liệu sai và suy ra kiểu TypeScript từ cùng một khai báo |
 | Dữ liệu phía FE | TanStack Query | Cache, loading, error, invalidate sau khi sửa |
 
@@ -79,6 +88,7 @@ query. Kiểu TypeScript suy ra từ chính schema đó, không khai báo hai l�
 | `express` | HTTP server |
 | `drizzle-orm`, `drizzle-kit` | Truy vấn và migration |
 | `pg` | Driver Postgres |
+| `minio` | SDK upload ảnh theo object key tương đối |
 | `zod` | Validate body/query và validate biến môi trường lúc khởi động |
 | `dotenv` | Đọc `.env` khi chạy local |
 | `argon2` | Hash mật khẩu — cùng lựa chọn với dự án QA/QC, mạnh hơn bcrypt |
@@ -91,8 +101,8 @@ query. Kiểu TypeScript suy ra từ chính schema đó, không khai báo hai l�
 Dev: `typescript`, `tsx`, `oxlint`, `@types/*`.
 
 Không dùng `bcrypt` — `argon2` là khuyến nghị hiện tại và là thứ dự án QA/QC
-đang chạy. Không thêm thư viện upload hay xử lý ảnh (`multer`, `sharp`) vì ảnh
-nằm trong repo, ngoài phạm vi.
+đang chạy. MinIO SDK hiện chỉ phục vụ seed ảnh từ repo; chưa có upload runtime,
+`multer`, `sharp` hay admin media API.
 
 ### Quy ước module
 
@@ -239,12 +249,12 @@ frontend với `server/`:
 | `.dockerignore` | Loại `server/` khỏi image frontend |
 | `.oxlintrc.json` | Bỏ qua `server/`; backend dùng config lint riêng |
 | `.github/workflows/ci.yml` | Cài, lint và build cả frontend lẫn `server/` |
-| `compose.yaml` | Chạy frontend và Postgres local; backend chạy từ `server/` ở giai đoạn này |
+| `compose.yaml` | Chạy frontend, backend, Postgres, MinIO và one-shot `minio-init` |
 
 `tsconfig.app.json` đã giới hạn `include: ["src"]` nên không ảnh hưởng.
 `node_modules` tách tự nhiên vì hai `package.json` độc lập.
 
-## Cấu hình Postgres
+## Cấu hình runtime
 
 Kết nối qua biến môi trường, không hardcode:
 
@@ -252,21 +262,30 @@ Kết nối qua biến môi trường, không hardcode:
 DATABASE_URL=postgres://user:pass@host:5432/thuccoffee
 PORT=8080
 NODE_ENV=development
+MINIO_ENDPOINT=localhost
+MINIO_PORT=9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET=thuccoffee
+MINIO_USE_SSL=false
 ```
 
-Cổng ở local: frontend `3000`, backend `8080`, Postgres `5432`.
+Cổng local: frontend `3000`, backend `8080`, Postgres `5432`, MinIO API `9000`
+và console `9001`. Giá trị MinIO mặc định chỉ dành cho local.
 
 Biến môi trường được validate bằng Zod ngay lúc khởi động. Thiếu biến bắt buộc
 thì server dừng kèm thông báo nêu đúng tên biến, thay vì lỗi khó hiểu ở tầng sâu
 hơn khi có request đầu tiên.
 
-Local, `compose.yaml` chạy frontend và Postgres có volume để dữ liệu sống qua
-các lần restart; cổng database được publish thành `5432:5432` theo cấu hình
-development hiện tại. Backend chạy từ `server/` và kết nối qua `DATABASE_URL`.
-Triển khai production chưa nằm trong phạm vi foundation này.
+Local, `compose.yaml` chạy đủ frontend, backend, Postgres và MinIO. Backend đợi
+Postgres + MinIO healthy; `minio-init` tạo bucket public-read rồi thoát. Hai
+volume `postgres-data` và `minio-data` giữ dữ liệu qua restart/down không xoá
+volume. Triển khai production chưa nằm trong phạm vi foundation này.
 
-**Postgres không được mở cổng ra ngoài** ở production. Chỉ backend truy cập
-được. Nguyên tắc này đã ghi trong `docs/deployment.md`.
+Ở production, Postgres và MinIO console không được mở ra internet. Đổi credential
+mặc định; ưu tiên private network. Nếu object API phải phục vụ trình duyệt ở
+giai đoạn sau thì đặt sau TLS/proxy riêng, không công khai console. Chi tiết ở
+`docs/deployment.md`.
 
 `.env` không bao giờ commit. Kèm `.env.example` liệt kê tên biến, không có giá
 trị thật.
@@ -305,8 +324,8 @@ Endpoint công khai chỉ trả bản ghi có `is_published = true`.
 
 Mỗi bước chạy được và kiểm chứng được trước khi sang bước sau.
 
-1. **Postgres + schema + seed** — dựng DB, tạo 14 bảng, đổ dữ liệu từ
-   `src/data/*.ts`. Chưa có API. Kiểm chứng bằng truy vấn SQL.
+1. **Foundation + hạ tầng local** — Express, Postgres/schema/seed và MinIO bucket
+   + script seed ảnh. Chưa có content API; từng phần kiểm chứng độc lập.
 2. **API đọc** — các endpoint GET ở trên. Kiểm chứng bằng curl.
 3. **Frontend đọc từ API** — đổi ruột `src/data/index.ts`. Các trang không sửa.
 4. **Đăng nhập** — bảng `users`, hash mật khẩu, session hoặc JWT, middleware
@@ -316,8 +335,12 @@ Mỗi bước chạy được và kiểm chứng được trước khi sang bư�
 Bước 4 phải trước bước 5: có CRUD mà không có auth nghĩa là ai cũng sửa được dữ
 liệu.
 
-Upload ảnh không nằm trong danh sách này — ảnh vẫn ở trong repo, DB chỉ lưu tên
-file. Thêm ảnh mới vẫn phải commit.
+MinIO và seed ảnh đã có, nhưng **upload runtime/admin vẫn ngoài danh sách này**.
+Nguồn ảnh hiện vẫn commit trong repo; seed upload theo đường dẫn tương đối, còn
+frontend vẫn dùng `/assets/`. Việc API trả URL object public và chuyển frontend
+sang MinIO thuộc bước API đọc, không phải phase hạ tầng này. Script ảnh không
+cập nhật `media_attachments`; bước API phải map basename hiện có sang relative
+object key trước khi dựng URL.
 
 ## Ảnh hưởng tới frontend khi chuyển sang API
 
@@ -329,9 +352,12 @@ kết quả ngay; sau khi dùng `fetch` chúng trả Promise. Các trang cần t
 `useState`/`useEffect` — trang admin ở giai đoạn sau cần invalidate cache sau mỗi
 lần sửa, và viết lại lúc đó tốn hơn.
 
-**Phân trang blog đang là giả.** `BLOG_PAGE_COUNT` là 54 trong khi chỉ có 10
-bài thật — `getBlogPage()` lặp lại chúng để khớp số trang site gốc. Khi dùng dữ
-liệu thật, số trang tính từ số bài thật, blog rút xuống còn khoảng 2 trang.
+**Phân trang blog đã dùng đủ dữ liệu tĩnh.** `src/data/blog.ts` chứa 267 bản ghi
+metadata cho danh sách. HTML đầy đủ đã làm sạch nằm trong
+`src/data/blog-content.ts`, ánh xạ theo slug và chỉ được lazy-load khi mở trang
+chi tiết. `getBlogPage()` cắt đúng năm bài mỗi trang trong 54 trang; trang 54
+còn hai bài, không lặp dữ liệu. Seed import cả hai nguồn để upsert `content` vào
+`blog_posts`; việc này chưa đồng nghĩa content API đã sẵn sàng.
 
 **Ngày tháng đổi kiểu.** Hiện là chuỗi `'03.06.2026'`; trong DB là kiểu `date`.
 Frontend phải format lại khi hiển thị.
@@ -350,4 +376,3 @@ Tag `v1.0.0` trỏ vào commit frontend hoàn chỉnh, dùng làm điểm quay v
 ## Câu chưa chốt
 
 - Khi admin đổi slug bài đã xuất bản, có giữ redirect từ slug cũ không.
-- Việc blog rút từ 54 trang xuống ~2 trang có chấp nhận được không.

@@ -1,7 +1,7 @@
 ---
 phase: 1
 title: "Hạ tầng compose và backend Dockerfile"
-status: in-progress
+status: completed
 priority: P1
 effort: "3h"
 dependencies: []
@@ -90,11 +90,11 @@ minio-init         → mc: tạo bucket + public-read + CORS, chạy 1 lần r�
 ## Success Criteria
 
 - [x] `docker compose up -d --build` không lỗi.
-- [ ] `docker compose ps` cho thấy frontend/postgres/minio healthy, backend chạy
+- [x] `docker compose ps` cho thấy frontend/postgres/minio healthy, backend chạy
       (health `/api/health` trả 200), minio-init đã exit 0.
-- [ ] MinIO console `http://localhost:9001` đăng nhập được bằng root user.
-- [ ] Bucket `thuccoffee` tồn tại và anonymous download được bật.
-- [ ] `docker compose down && up` giữ nguyên dữ liệu MinIO (volume hoạt động).
+- [x] MinIO console `http://localhost:9001` đăng nhập được bằng root user.
+- [x] Bucket `thuccoffee` tồn tại và anonymous download được bật.
+- [x] `docker compose down && up` giữ nguyên dữ liệu MinIO (volume hoạt động).
 
 ## Risk Assessment
 

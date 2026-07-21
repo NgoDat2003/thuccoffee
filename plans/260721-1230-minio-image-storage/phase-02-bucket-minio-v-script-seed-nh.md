@@ -1,7 +1,7 @@
 ---
 phase: 2
 title: "Bucket MinIO và script seed ảnh"
-status: pending
+status: completed
 priority: P1
 effort: "3h"
 dependencies: [1]
@@ -78,13 +78,13 @@ Zod.
 
 ## Success Criteria
 
-- [ ] `npm run db:seed-images` đẩy đủ ảnh; số object trong bucket = số file từ
+- [x] `npm run db:seed-images` đẩy đủ ảnh; số object trong bucket = số file từ
       `find src/assets/images -type f` (so khớp count, không hardcode).
-- [ ] MinIO console: bucket `thuccoffee` chứa object với key dạng path
+- [x] MinIO console: bucket `thuccoffee` chứa object với key dạng path
       (`blog/…`, `store/…`), không có key trùng.
-- [ ] `curl http://localhost:9000/thuccoffee/{path/tên-file}.jpg` trả 200 + ảnh.
-- [ ] Chạy seed lần 2 không lỗi, không nhân đôi.
-- [ ] `npm run build` và `npm run lint` trong `server/` đều sạch.
+- [x] `curl http://localhost:9000/thuccoffee/{path/tên-file}.jpg` trả 200 + ảnh.
+- [x] Chạy seed lần 2 không lỗi, không nhân đôi.
+- [x] `npm run build` và `npm run lint` trong `server/` đều sạch.
 
 ## Risk Assessment
 

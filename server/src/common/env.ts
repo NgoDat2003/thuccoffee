@@ -8,6 +8,15 @@ const envSchema = z.object({
     .default('development'),
   PORT: z.coerce.number().int().positive().default(8080),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL là bắt buộc'),
+  MINIO_ENDPOINT: z.string().min(1, 'MINIO_ENDPOINT is required'),
+  MINIO_PORT: z.coerce.number().int().positive().max(65535),
+  MINIO_ACCESS_KEY: z.string().min(1, 'MINIO_ACCESS_KEY is required'),
+  MINIO_SECRET_KEY: z.string().min(1, 'MINIO_SECRET_KEY is required'),
+  MINIO_BUCKET: z.string().min(1, 'MINIO_BUCKET is required'),
+  MINIO_USE_SSL: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
 });
 
 const parsed = envSchema.safeParse(process.env);

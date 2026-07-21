@@ -2,9 +2,9 @@
 
 Clone of [thuccoffee.com.vn](http://www.thuccoffee.com.vn), a Vietnamese coffee
 chain site. The repository now includes an Express backend foundation and local
-Postgres alongside the React frontend. The frontend still uses static data and
-downloaded images; content APIs, authentication, a real cart, and payments are
-outside the current scope.
+Postgres/MinIO infrastructure alongside the React frontend. The frontend still
+uses static data and downloaded local images; content APIs, authentication, a
+real cart, and payments are outside the current scope.
 
 See `plans/260717-1000-thuccoffee-static-clone/plan.md` for the frontend clone
 and `plans/260720-1730-backend-foundation/plan.md` for the backend foundation.
@@ -18,6 +18,7 @@ and `plans/260720-1730-backend-foundation/plan.md` for the backend foundation.
 - `embla-carousel-react` / `yet-another-react-lightbox`
 - Express 5 + TypeScript backend foundation (`server/`)
 - Postgres 16 for local backend development
+- MinIO object storage with a public-read `thuccoffee` bucket
 
 ## Development
 
@@ -39,11 +40,32 @@ npm run lint
 ```
 
 At this stage the backend exposes its health endpoint; content APIs are planned
-separately and the frontend continues to read `src/data/*.ts`.
+separately and the frontend continues to read `src/data/*.ts` and bundled files
+from `src/assets/images/`.
 
-## Running the production container
+## Image storage
 
-Serves the built SPA through Nginx, the same image the deployment uses.
+MinIO is available as the future canonical image store, but the frontend does
+not call MinIO yet. Image files intentionally exist in both places during this
+transition: the repository remains the frontend source while the seed command
+uploads the same relative keys to the public-read bucket.
+
+```bash
+cd server
+cp .env.example .env       # first run; keep the real .env uncommitted
+npm run db:seed-images
+```
+
+The seed discovers files recursively, preserves paths relative to
+`src/assets/images/`, and overwrites the same object keys safely. Verify counts
+dynamically instead of encoding them in scripts. Current snapshot: 498 valid
+image files/target objects after 103 obsolete emoji PNG files were converted to
+Unicode text in blog content and removed.
+
+## Local Compose stack
+
+Compose builds the production-style frontend and backend images, then starts
+their local dependencies.
 
 ```bash
 docker compose up -d --build   # build and start on http://localhost:3000
@@ -52,6 +74,15 @@ docker compose logs -f         # follow logs
 docker compose down            # stop and remove
 ```
 
-Compose starts the frontend on `3000` and publishes Postgres on host port
-`5432`. The backend uses `8080` when started from `server/`. See
-`docs/deployment.md` for the deployment runtime contract.
+| Service | Local endpoint | Notes |
+|---|---|---|
+| Frontend | `http://localhost:3000` | Nginx SPA; images still come from `/assets/` |
+| Backend | `http://localhost:8080/api/health` | Waits for Postgres and MinIO health |
+| Postgres | `localhost:5432` | Persistent `postgres-data` volume |
+| MinIO API | `http://localhost:9000` | Persistent `minio-data` volume |
+| MinIO console | `http://localhost:9001` | Local administration only |
+| `minio-init` | one-shot container | Creates `thuccoffee` and enables anonymous download |
+
+Local defaults are for development only. Change MinIO credentials and keep the
+console private in production; see `docs/deployment.md` for the full runtime and
+security contract.

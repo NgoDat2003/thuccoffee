@@ -10,6 +10,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/db/seed.ts",
+    "db:seed-images": "tsx src/db/seed-images.ts",
     "typecheck:seed": "tsc --project tsconfig.seed.json --noEmit"
   },
   "dependencies": {
@@ -19,6 +20,7 @@
     "drizzle-orm": "^0.45.2",
     "express": "5.1.0",
     "helmet": "8.0.0",
+    "minio": "^8.0.7",
     "pg": "^8.22.0",
     "pino": "9.5.0",
     "pino-http": "10.3.0",

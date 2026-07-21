@@ -1,7 +1,7 @@
 ---
 title: "MinIO Image Storage"
 description: "Dựng MinIO làm kho ảnh và đẩy toàn bộ ảnh (số động, key = path tương đối) lên bucket. FE giữ nguyên tĩnh; chuyển FE sang đọc ảnh MinIO là việc của vòng API đọc."
-status: in-progress
+status: completed
 priority: P2
 branch: "feat/backend"
 tags: [infra, minio, storage]
