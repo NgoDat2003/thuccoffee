@@ -43,8 +43,23 @@ nguyên, không sinh lại — đổi slug là làm chết link đang chạy.
 
 ## File tạo mới
 
-- `server/src/db/seed.ts` — đọc dữ liệu từ `../../../src/data`, ghi vào DB
+- `server/src/db/seed.ts` — đọc dữ liệu từ `src/data`, ghi vào DB
 - `server/src/lib/parse-date.ts` — chuyển `DD.MM.YYYY` sang `Date`
+
+## Import dữ liệu đúng cách
+
+Import thẳng từ từng file gốc, **không qua `src/data/index.ts`**:
+
+```ts
+import { products } from '../../../src/data/products';
+import { blogPosts } from '../../../src/data/blog';
+```
+
+`index.ts` kéo theo `pages.ts` (ngoài phạm vi) và các helper. Các file data gốc
+(`products.ts`, `blog.ts`, `stores.ts`, `categories.ts`) chỉ import type, không
+dính `import.meta.glob` hay `getImageUrl` — đã kiểm tra, nên Node đọc được trực
+tiếp. Nếu về sau có file data thêm import từ `src/lib`, seed sẽ gãy; khi đó tách
+riêng phần dữ liệu thuần.
 
 ## Các bước
 
