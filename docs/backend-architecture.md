@@ -23,9 +23,9 @@ Frontend là SPA tĩnh, đã gắn tag `v1.0.0`, deploy được. Nội dung v�
 `src/data/*.ts` dưới dạng mảng TypeScript: 42 sản phẩm, 267 bài viết, 7 cửa hàng,
 10 danh mục. Frontend chưa gọi backend.
 
-Backend foundation trong `server/` hiện chạy được, có middleware vận hành và
-health endpoint. Content API, auth và admin CRUD nằm ngoài phạm vi foundation
-hiện tại; chúng thuộc các giai đoạn sau.
+Backend trong `server/` hiện chạy được, có middleware vận hành, health endpoint
+và tám endpoint đọc công khai cho categories, banners, stores, blog và products.
+Auth, admin CRUD và việc frontend chuyển sang đọc API thuộc các giai đoạn sau.
 
 Hạ tầng ảnh MinIO đã có trong Compose: API `9000`, console local `9001`, volume
 `minio-data`, bucket `thuccoffee` public-read và lệnh seed
@@ -290,11 +290,10 @@ giai đoạn sau thì đặt sau TLS/proxy riêng, không công khai console. Ch
 `.env` không bao giờ commit. Kèm `.env.example` liệt kê tên biến, không có giá
 trị thật.
 
-## API mục tiêu cho các giai đoạn sau
+## API hiện có và mục tiêu các giai đoạn sau
 
-Foundation hiện chỉ có `GET /api/health`. Các content API, auth và admin API
-dưới đây chưa nằm trong phạm vi hiện tại; frontend vẫn đọc dữ liệu tĩnh từ
-`src/data/*.ts`.
+`GET /api/health` và tám content API GET dưới đây đã triển khai. Frontend vẫn
+đọc dữ liệu tĩnh từ `src/data/*.ts`; auth và admin API vẫn là mục tiêu tiếp theo.
 
 Đọc công khai, ghi phải đăng nhập.
 
@@ -325,8 +324,9 @@ Endpoint công khai chỉ trả bản ghi có `is_published = true`.
 Mỗi bước chạy được và kiểm chứng được trước khi sang bước sau.
 
 1. **Foundation + hạ tầng local** — Express, Postgres/schema/seed và MinIO bucket
-   + script seed ảnh. Chưa có content API; từng phần kiểm chứng độc lập.
-2. **API đọc** — các endpoint GET ở trên. Kiểm chứng bằng curl.
+   + script seed ảnh. Đã xong, từng phần kiểm chứng độc lập.
+2. **API đọc** — tám endpoint GET ở trên. Đã xong; `npm run smoke:api` kiểm
+   chứng 8/8 endpoint, 404 slug sai và 400 query sai.
 3. **Frontend đọc từ API** — đổi ruột `src/data/index.ts`. Các trang không sửa.
 4. **Đăng nhập** — bảng `users`, hash mật khẩu, session hoặc JWT, middleware
    chặn `/api/admin/*`.
@@ -337,10 +337,9 @@ liệu.
 
 MinIO và seed ảnh đã có, nhưng **upload runtime/admin vẫn ngoài danh sách này**.
 Nguồn ảnh hiện vẫn commit trong repo; seed upload theo đường dẫn tương đối, còn
-frontend vẫn dùng `/assets/`. Việc API trả URL object public và chuyển frontend
-sang MinIO thuộc bước API đọc, không phải phase hạ tầng này. Script ảnh không
-cập nhật `media_attachments`; bước API phải map basename hiện có sang relative
-object key trước khi dựng URL.
+frontend vẫn dùng `/assets/`. API đọc hiện trả tên file trần, chưa dựng URL MinIO.
+Việc map basename sang relative object key và chuyển frontend sang MinIO thuộc
+phase frontend/media sau; script ảnh không cập nhật `media_attachments`.
 
 ## Ảnh hưởng tới frontend khi chuyển sang API
 
@@ -357,7 +356,7 @@ metadata cho danh sách. HTML đầy đủ đã làm sạch nằm trong
 `src/data/blog-content.ts`, ánh xạ theo slug và chỉ được lazy-load khi mở trang
 chi tiết. `getBlogPage()` cắt đúng năm bài mỗi trang trong 54 trang; trang 54
 còn hai bài, không lặp dữ liệu. Seed import cả hai nguồn để upsert `content` vào
-`blog_posts`; việc này chưa đồng nghĩa content API đã sẵn sàng.
+`blog_posts`; API detail hiện đã trả content đầy đủ, nhưng frontend chưa chuyển sang dùng API.
 
 **Ngày tháng đổi kiểu.** Hiện là chuỗi `'03.06.2026'`; trong DB là kiểu `date`.
 Frontend phải format lại khi hiển thị.

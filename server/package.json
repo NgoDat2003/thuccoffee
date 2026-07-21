@@ -7,6 +7,7 @@
     "build": "tsc && npm run typecheck:seed",
     "start": "node dist/index.js",
     "lint": "oxlint",
+    "smoke:api": "tsx scripts/smoke-api.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/db/seed.ts",

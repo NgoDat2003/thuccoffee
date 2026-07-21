@@ -1,9 +1,9 @@
 # Thức Coffee — Frontend Clone + Backend Foundation
 
 Clone of [thuccoffee.com.vn](http://www.thuccoffee.com.vn), a Vietnamese coffee
-chain site. The repository now includes an Express backend foundation and local
+chain site. The repository now includes an Express backend with public read APIs and local
 Postgres/MinIO infrastructure alongside the React frontend. The frontend still
-uses static data and downloaded local images; content APIs, authentication, a
+uses static data and downloaded local images; authentication, admin CRUD, a
 real cart, and payments are outside the current scope.
 
 See `plans/260717-1000-thuccoffee-static-clone/plan.md` for the frontend clone
@@ -37,11 +37,13 @@ npm install
 npm run dev      # backend on http://localhost:8080
 npm run build
 npm run lint
+npm run smoke:api # requires the local backend on port 8080
 ```
 
-At this stage the backend exposes its health endpoint; content APIs are planned
-separately and the frontend continues to read `src/data/*.ts` and bundled files
-from `src/assets/images/`.
+The backend exposes health plus eight public read endpoints for categories, banners,
+stores, blog posts, and products. Blog pagination is database-backed and product
+categories are joined without N+1 queries. The frontend intentionally continues to
+read `src/data/*.ts` and bundled files from `src/assets/images/` until the next phase.
 
 ## Image storage
 

@@ -19,8 +19,8 @@ services:
     ports:
       - "3000:80"
 
-    # Tự bật lại nếu container chết hoặc sau khi khởi động lại Docker.
-    restart: unless-stopped
+    # Không tự bật lại; chỉ chạy sau lệnh docker compose up do người dùng cho phép.
+    restart: "no"
 
     # Dockerfile đã có HEALTHCHECK sẵn; khai báo lại ở đây để thấy rõ
     # và để chỉnh thời gian mà không phải build lại image.
@@ -54,7 +54,7 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-    restart: unless-stopped
+    restart: "no"
 
   # Postgres cho backend local. Cổng 5432 được publish ra host để công cụ trên
   # máy kết nối trực tiếp; đổi mật khẩu mặc định nếu cho máy khác truy cập.
@@ -71,7 +71,7 @@ services:
     # sạch dữ liệu mỗi lần dừng — lỗi hay gặp nhất khi mới dùng Postgres trong Docker.
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    restart: unless-stopped
+    restart: "no"
     # Postgres nhận kết nối trước khi thực sự sẵn sàng; healthcheck này để backend
     # đợi qua `depends_on: condition: service_healthy`.
     healthcheck:
@@ -93,7 +93,7 @@ services:
       - "127.0.0.1:9001:9001"
     volumes:
       - minio-data:/data
-    restart: unless-stopped
+    restart: "no"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/ready"]
       interval: 10s

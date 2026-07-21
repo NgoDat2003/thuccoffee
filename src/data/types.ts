@@ -1,7 +1,7 @@
 export interface Product {
   name: string;
   slug: string;
-  price: number | null;
+  price: number;
   priceEstimated?: boolean;
   categories: string[];
   thumb: string;
