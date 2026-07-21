@@ -1,21 +1,44 @@
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import Container from '../components/ui/Container';
 import { blogPosts, getBlogBySlug } from '../data';
-import { getImageUrl } from '../lib/image-url';
+import { getImageUrl, resolveBlogContentImageUrls } from '../lib/image-url';
 import { usePageMeta } from '../lib/use-page-meta';
 
 export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const post = slug ? getBlogBySlug(slug) : undefined;
+  const postSlug = post?.slug;
+  const [loadedContent, setLoadedContent] = useState<{ slug: string; html: string } | null>(null);
+  const [contentLoadState, setContentLoadState] = useState<'loading' | 'loaded' | 'error'>('loading');
+  const [contentLoadAttempt, setContentLoadAttempt] = useState(0);
 
   usePageMeta(post?.title ?? 'Chuyện của Thức', post?.summary);
+
+  useEffect(() => {
+    if (!postSlug) return;
+    let active = true;
+    setContentLoadState('loading');
+    void import('../data/blog-content')
+      .then(({ blogContentBySlug }) => {
+        if (!active) return;
+        setLoadedContent({ slug: postSlug, html: blogContentBySlug[postSlug] ?? '' });
+        setContentLoadState('loaded');
+      })
+      .catch(() => {
+        if (active) setContentLoadState('error');
+      });
+    return () => {
+      active = false;
+    };
+  }, [contentLoadAttempt, postSlug]);
 
   if (!post) {
     return <Navigate to="/chuyen-cua-thuc" replace />;
   }
 
-  // Source articles have no body text — the summary is reused as the body.
+  const content = loadedContent?.slug === post.slug ? loadedContent.html : null;
   const related = blogPosts.filter((candidate) => candidate.slug !== post.slug).slice(0, 4);
 
   return (
@@ -29,7 +52,25 @@ export default function BlogDetailPage() {
           />
           <h1 className="mt-6 text-2xl font-bold text-primary">{post.title}</h1>
           <time className="mt-2 block text-sm text-[#959595]">{post.date}</time>
-          <p className="mt-4 text-gray-700">{post.summary}</p>
+          {contentLoadState === 'error' ? (
+            <div className="mt-4 rounded border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              <p>Không thể tải nội dung bài viết.</p>
+              <button
+                type="button"
+                onClick={() => setContentLoadAttempt((attempt) => attempt + 1)}
+                className="mt-2 font-medium underline hover:no-underline"
+              >
+                Thử lại
+              </button>
+            </div>
+          ) : content === null ? (
+            <p className="mt-4 text-gray-700">{post.summary}</p>
+          ) : (
+            <div
+              className="mt-4 text-gray-700 [&_a]:text-primary [&_img]:my-4 [&_img]:h-auto [&_img]:max-w-full [&_p]:my-3"
+              dangerouslySetInnerHTML={{ __html: resolveBlogContentImageUrls(content) }}
+            />
+          )}
 
           <button
             onClick={() => navigate(-1)}

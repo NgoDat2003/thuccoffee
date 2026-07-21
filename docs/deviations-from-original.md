@@ -19,8 +19,8 @@ gaps. The differences below remain intentional.
   7 branch URLs render branch-specific contact data, maps, selectors, and
   5-image galleries.
 - Blog pagination supports the source-shaped `/chuyen-cua-thuc/t1p1` through
-  `/chuyen-cua-thuc/t1p54` URLs. Article and pagination limitations are
-  documented below.
+  `/chuyen-cua-thuc/t1p54` URLs with 267 static posts: pages 1–53 contain five
+  posts and page 54 contains two.
 - About, membership, careers, contact, delivery, and cookie-policy pages render
   the crawled copy and available local images. The contact form includes the
   source Name, Email, Phone, and Content fields.
@@ -42,12 +42,17 @@ gaps. The differences below remain intentional.
 
 - The clone does not sync with the live site. Products, prices, promotions,
   jobs, store details, policies, and images reflect the committed crawl.
-- Only 10 real blog posts were captured. The 54 source pagination routes each
-  render five cards by cycling those 10 posts; titles and dates are not
-  fabricated or shifted.
-- The captured blog records contain summaries but no separate article bodies.
-  Detail pages reuse the summary as the body and add a larger cover image plus
-  related-post navigation.
+- The one-time blog crawl stores 267 `BlogPost` listing records in
+  `src/data/blog.ts`; they contain metadata only. `src/data/blog-content.ts`
+  stores full sanitized HTML keyed by slug and is lazy-loaded only on detail
+  pages. The database
+  seed imports both sources to populate `blog_posts.content`; this does not
+  make the planned content API available.
+- 456 live source images were downloaded locally. Eighteen dead source image
+  URLs use the existing logo placeholder; the local blog image set is about
+  344 MB.
+- No crawler or crawler dependency runs in the application. The committed
+  records and images are a fixed snapshot and do not refresh at runtime.
 - Five products had no captured source description and intentionally omit the
   description. Eleven products had no captured price and retain category-based
   estimated prices with `priceEstimated: true`.

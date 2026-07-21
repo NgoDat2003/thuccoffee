@@ -2,6 +2,7 @@ import 'dotenv/config';
 
 import { and, eq } from 'drizzle-orm';
 
+import { blogContentBySlug } from '../../../src/data/blog-content.ts';
 import { blogPosts as sourceBlogPosts } from '../../../src/data/blog.ts';
 import { categories as sourceCategories } from '../../../src/data/categories.ts';
 import { products as sourceProducts } from '../../../src/data/products.ts';
@@ -69,12 +70,14 @@ async function seed(): Promise<void> {
     }
 
     for (const post of sourceBlogPosts) {
+      const content = blogContentBySlug[post.slug];
+      if (!content) throw new Error(`Bài viết không có nội dung seed: ${post.slug}`);
       const postValues = {
         title: post.title,
         slug: post.slug,
         cover: post.cover,
         summary: post.summary,
-        content: null,
+        content,
         publishedAt: parseVietnameseDate(post.date),
         isPublished: true,
         updatedAt: new Date(),

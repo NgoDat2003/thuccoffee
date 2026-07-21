@@ -49,10 +49,5 @@ export function getBlogPage(page: number, perPage = 5): BlogPost[] {
   }
 
   const pageOffset = (page - 1) * perPage;
-
-  // Intentional: pages beyond the 10 real posts repeat them (user-approved); real dates stay unchanged.
-  return Array.from(
-    { length: perPage },
-    (_, index) => blogPosts[(pageOffset + index) % blogPosts.length],
-  );
+  return blogPosts.slice(pageOffset, pageOffset + perPage);
 }

@@ -10,6 +10,7 @@
   "include": [
     "src/db/seed.ts",
     "src/lib/parse-date.ts",
+    "../src/data/blog-content.ts",
     "../src/data/blog.ts",
     "../src/data/categories.ts",
     "../src/data/products.ts",
