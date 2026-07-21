@@ -1,6 +1,7 @@
 # Kiến trúc Backend
 
-Điểm vào cho công việc backend. Chưa triển khai — `server/` chưa tồn tại.
+Điểm vào cho công việc backend. Nền tảng `server/` đã tồn tại với Express,
+chuẩn hoá phản hồi/lỗi, validate biến môi trường và `GET /api/health`.
 
 Schema và lý do đằng sau nó: @database-design.md
 
@@ -12,15 +13,19 @@ Schema và lý do đằng sau nó: @database-design.md
 | `src/data/types.ts` | Kiểu dữ liệu hiện tại — gần như là schema |
 | `src/data/index.ts` | Lớp truy cập dữ liệu sẽ được thay ruột |
 
-Không cần đọc khi làm backend: `docs/deployment.md`, `docs/local-environment-and-ci.md`
-(cả hai nói về container và CI của frontend), `docs/deviations-from-original.md`
-(khác biệt giao diện so với site gốc), và toàn bộ `plans/`.
+Đọc thêm `docs/deployment.md` và `docs/local-environment-and-ci.md` khi sửa
+container hoặc CI. `docs/deviations-from-original.md` chỉ cần khi thay đổi hành
+vi giao diện so với site gốc.
 
 ## Trạng thái hiện tại
 
-Frontend là SPA tĩnh, đã gắn tag `v1.0.0`, deploy được. Nội dung nằm trong
+Frontend là SPA tĩnh, đã gắn tag `v1.0.0`, deploy được. Nội dung vẫn nằm trong
 `src/data/*.ts` dưới dạng mảng TypeScript: 42 sản phẩm, 10 bài viết, 7 cửa hàng,
-10 danh mục.
+10 danh mục. Frontend chưa gọi backend.
+
+Backend foundation trong `server/` hiện chạy được, có middleware vận hành và
+health endpoint. Content API, auth và admin CRUD nằm ngoài phạm vi foundation
+hiện tại; chúng thuộc các giai đoạn sau.
 
 Mọi trang đều lấy dữ liệu qua hàm trong `src/data/index.ts` —
 `getProductBySlug()`, `getBlogPage()`, `getStoreBySlug()`. Không trang nào đọc
@@ -35,21 +40,17 @@ phải sửa.
 ```
 thuccoffee/
 ├── src/                    frontend React, không đụng tới
-├── server/                 backend, tạo mới
+├── server/                 backend foundation hiện có
 │   ├── package.json        deps riêng, độc lập với frontend
-│   ├── Dockerfile          image riêng cho backend
 │   └── src/
 │       ├── index.ts        khởi tạo Express, đăng ký route
 │       ├── common/         error handler, validate middleware, hằng số
 │       ├── modules/        đóng gói theo tài nguyên
-│       │   └── products/
-│       │       ├── products.routes.ts    định nghĩa route
-│       │       ├── products.service.ts   truy vấn và nghiệp vụ
-│       │       └── schemas.ts            create / update / query / response
-│       ├── db/             schema Drizzle, client, migration, seed
-│       └── lib/            sinh slug tiếng Việt, tiện ích chung
+│       │   └── health/     GET /api/health
+│       ├── db/             thêm ở phase schema/migration
+│       └── lib/            thêm cùng các tiện ích dùng chung
 ├── Dockerfile              frontend (đã có, không đổi)
-└── compose.yaml            thêm service postgres và backend
+└── compose.yaml            frontend và Postgres local
 ```
 
 Hai `package.json` tách biệt. Frontend không cài thư viện backend và ngược lại.
@@ -61,7 +62,7 @@ Hai `package.json` tách biệt. Frontend không cài thư viện backend và ng
 | Runtime | Node 22 | Khớp `node:22-alpine` trong Dockerfile frontend |
 | Framework | Express 5 | Phổ biến, nhiều tài liệu, dễ bàn giao |
 | ORM | Drizzle | Schema viết bằng TypeScript, chuyển từ `types.ts` gần như trực tiếp |
-| Database | Postgres 16 | Dokploy có sẵn service này |
+| Database | Postgres 16 | Chạy ổn định bằng container local, có volume riêng |
 | Validate | Zod | Chặn dữ liệu sai và suy ra kiểu TypeScript từ cùng một khai báo |
 | Dữ liệu phía FE | TanStack Query | Cache, loading, error, invalidate sau khi sửa |
 
@@ -228,17 +229,17 @@ dùng NestJS, nơi decorator Swagger sinh spec sẵn.
 Thêm OpenAPI sau vẫn được nếu API mở cho bên thứ ba dùng, hoặc xuất hiện client
 không viết bằng TypeScript.
 
-## Cấu hình gốc cần sửa khi thêm server/
+## Cấu hình gốc cho monorepo
 
-Bốn file ở thư mục gốc hiện áp dụng cho toàn repo và sẽ chạm tới `server/` nếu
-để nguyên:
+Bốn file ở thư mục gốc áp dụng cho toàn repo và phải tách đúng trách nhiệm giữa
+frontend với `server/`:
 
-| File | Vấn đề | Sửa |
-|---|---|---|
-| `.dockerignore` | `Dockerfile` frontend dùng `COPY . .`, sẽ copy cả `server/` vào image | Thêm dòng `server` |
-| `.oxlintrc.json` | Bật plugin `react`, sẽ quét code backend vốn không có React | Thêm `ignorePatterns` cho `server/`; `server/` có config lint riêng |
-| `.github/workflows/ci.yml` | Chỉ build frontend | Thêm job cài, lint, build `server/` |
-| `compose.yaml` | Chỉ có frontend | Thêm service `postgres` (có volume) và `backend` |
+| File | Trách nhiệm hiện tại |
+|---|---|
+| `.dockerignore` | Loại `server/` khỏi image frontend |
+| `.oxlintrc.json` | Bỏ qua `server/`; backend dùng config lint riêng |
+| `.github/workflows/ci.yml` | Cài, lint và build cả frontend lẫn `server/` |
+| `compose.yaml` | Chạy frontend và Postgres local; backend chạy từ `server/` ở giai đoạn này |
 
 `tsconfig.app.json` đã giới hạn `include: ["src"]` nên không ảnh hưởng.
 `node_modules` tách tự nhiên vì hai `package.json` độc lập.
@@ -253,19 +254,16 @@ PORT=8080
 NODE_ENV=development
 ```
 
-Cổng ở local: frontend `3000`, backend `8080`, Postgres `5432`. Dokploy local đã
-tắt nên các cổng nó từng giữ (`3000`, `80`, `443`) đã trống.
+Cổng ở local: frontend `3000`, backend `8080`, Postgres `5432`.
 
 Biến môi trường được validate bằng Zod ngay lúc khởi động. Thiếu biến bắt buộc
 thì server dừng kèm thông báo nêu đúng tên biến, thay vì lỗi khó hiểu ở tầng sâu
 hơn khi có request đầu tiên.
 
-Trong container thì cổng nào cũng được — Dokploy định tuyến theo cấu hình
-Application, không theo cổng máy chủ.
-
-Local chạy qua `compose.yaml` (thêm service `postgres`, có volume để dữ liệu
-sống qua các lần restart). Production do Dokploy cấp: Postgres là service riêng
-trong cùng project, backend gọi qua tên service ở mạng nội bộ.
+Local, `compose.yaml` chạy frontend và Postgres có volume để dữ liệu sống qua
+các lần restart; cổng database được publish thành `5432:5432` theo cấu hình
+development hiện tại. Backend chạy từ `server/` và kết nối qua `DATABASE_URL`.
+Triển khai production chưa nằm trong phạm vi foundation này.
 
 **Postgres không được mở cổng ra ngoài** ở production. Chỉ backend truy cập
 được. Nguyên tắc này đã ghi trong `docs/deployment.md`.
@@ -273,7 +271,11 @@ trong cùng project, backend gọi qua tên service ở mạng nội bộ.
 `.env` không bao giờ commit. Kèm `.env.example` liệt kê tên biến, không có giá
 trị thật.
 
-## API
+## API mục tiêu cho các giai đoạn sau
+
+Foundation hiện chỉ có `GET /api/health`. Các content API, auth và admin API
+dưới đây chưa nằm trong phạm vi hiện tại; frontend vẫn đọc dữ liệu tĩnh từ
+`src/data/*.ts`.
 
 Đọc công khai, ghi phải đăng nhập.
 

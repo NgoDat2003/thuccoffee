@@ -26,6 +26,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
 
       # npm ci = cai dung phien ban trong package-lock.json (nghiem ngat hon npm install)
       - name: Install dependencies
@@ -37,6 +40,19 @@ jobs:
 
       # Build production — bao do neu TypeScript hoac Vite loi
       - name: Build
+        run: npm run build
+
+      # Backend co package-lock rieng, nen cai va kiem tra trong server/.
+      - name: Install server dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Lint server
+        working-directory: server
+        run: npm run lint
+
+      - name: Build server
+        working-directory: server
         run: npm run build
 
   # --- Job 2: kiem tra Docker image chay duoc ---

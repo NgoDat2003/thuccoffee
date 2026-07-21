@@ -1,3 +1,11 @@
+---
+phase: 4
+title: "Seed dữ liệu và kiểm chứng"
+status: completed
+priority: P1
+dependencies: [3]
+---
+
 # Phase 4 — Seed dữ liệu và kiểm chứng
 
 Trạng thái: Pending
@@ -91,16 +99,16 @@ riêng phần dữ liệu thuần.
 
 ## Todo
 
-- [ ] `parse-date.ts`
-- [ ] `seed.ts` với upsert
-- [ ] Script `db:seed`
-- [ ] Chạy seed lần một
-- [ ] Đếm bản ghi khớp: 10 / 42 / 10 / 7
-- [ ] Kiểm tra liên kết sản phẩm–danh mục
-- [ ] Kiểm tra ngày blog
-- [ ] Kiểm tra `media_attachments` của cửa hàng (số ảnh + thứ tự)
-- [ ] Seed 6 catalog option
-- [ ] Chạy seed lần hai, số bản ghi không đổi
+- [x] `parse-date.ts`
+- [x] `seed.ts` với upsert
+- [x] Script `db:seed`
+- [x] Chạy seed lần một
+- [x] Đếm bản ghi khớp: 10 / 42 / 10 / 7
+- [x] Kiểm tra liên kết sản phẩm–danh mục
+- [x] Kiểm tra ngày blog
+- [x] Kiểm tra `media_attachments` của cửa hàng (số ảnh + thứ tự)
+- [x] Seed 6 catalog option
+- [x] Chạy seed lần hai, số bản ghi không đổi
 
 ## Tiêu chí hoàn thành
 

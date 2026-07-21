@@ -1,3 +1,11 @@
+---
+phase: 1
+title: "Dựng server và dọn cấu hình gốc"
+status: completed
+priority: P1
+dependencies: []
+---
+
 # Phase 1 — Dựng server và dọn cấu hình gốc
 
 Trạng thái: Pending
@@ -138,25 +146,25 @@ Hai điều dễ làm sai:
 
 ## Todo
 
-- [ ] `server/package.json`
-- [ ] `server/tsconfig.json`
-- [ ] `server/.oxlintrc.json`
-- [ ] `server/.env.example`
-- [ ] `server/src/common/env.ts` validate bằng Zod
-- [ ] `server/src/common/api-response.ts` với `ApiResponse<T>`, `ok()`
-- [ ] `server/src/common/api-error.ts`
-- [ ] `server/src/common/error-handler.ts`
-- [ ] `server/src/modules/health/health.routes.ts`
-- [ ] `server/src/index.ts` với helmet, compression, cors, pino
-- [ ] Sửa `.dockerignore`
-- [ ] Sửa `.oxlintrc.json` gốc
-- [ ] Sửa `.gitignore`
-- [ ] Đổi cổng frontend sang `3000`
-- [ ] Cập nhật `README.md` và `docs/local-environment-and-ci.md`
-- [ ] Xác minh `/api/health` trả 200
-- [ ] Xác minh lỗi 404 đúng hình dạng chuẩn hoá
-- [ ] Xác minh thiếu biến môi trường thì server báo lỗi rõ ràng
-- [ ] Xác minh lint/build gốc không quét `server/`
+- [x] `server/package.json`
+- [x] `server/tsconfig.json`
+- [x] `server/.oxlintrc.json`
+- [x] `server/.env.example`
+- [x] `server/src/common/env.ts` validate bằng Zod
+- [x] `server/src/common/api-response.ts` với `ApiResponse<T>`, `ok()`
+- [x] `server/src/common/api-error.ts`
+- [x] `server/src/common/error-handler.ts`
+- [x] `server/src/modules/health/health.routes.ts`
+- [x] `server/src/index.ts` với helmet, compression, cors, pino
+- [x] Sửa `.dockerignore`
+- [x] Sửa `.oxlintrc.json` gốc
+- [x] Sửa `.gitignore`
+- [x] Đổi cổng frontend sang `3000`
+- [x] Cập nhật `README.md` và `docs/local-environment-and-ci.md`
+- [x] Xác minh `/api/health` trả 200
+- [x] Xác minh lỗi 404 đúng hình dạng chuẩn hoá
+- [x] Xác minh thiếu biến môi trường thì server báo lỗi rõ ràng
+- [x] Xác minh lint/build gốc không quét `server/`
 
 ## Tiêu chí hoàn thành
 

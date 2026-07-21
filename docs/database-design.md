@@ -73,17 +73,19 @@ Quan hệ nhiều-nhiều:
 | id | serial | PK |
 | name | text | |
 | slug | text | UNIQUE, dùng cho route `/menu/:slug` |
-| price | integer | VNĐ, không có phần lẻ |
-| price_estimated | boolean | Mặc định `false`; 11 sản phẩm hiện là `true` |
+| price | integer | VNĐ, không có phần lẻ; cho phép NULL |
+| price_estimated | boolean | Mặc định `false`; 10 sản phẩm hiện là `true` |
 | thumb | text | Tên file ảnh nhỏ |
-| image | text | Tên file ảnh đầy đủ |
+| image | text | Tên file ảnh đầy đủ; cho phép NULL |
 | description | text | Cho phép NULL |
 | is_published | boolean | Mặc định `true` |
 | sort_order | integer | |
 | created_at / updated_at | timestamptz | |
 
 `price` dùng `integer` thay vì `numeric` vì giá VNĐ luôn nguyên. Tránh cả lỗi
-làm tròn lẫn chi phí của kiểu thập phân.
+làm tròn lẫn chi phí của kiểu thập phân. Cho phép NULL vì `types.ts` gốc khai
+báo `price: number | null` — hiện không có sản phẩm nào null, nhưng giữ khả năng
+đó cho tới khi business chốt giá là bắt buộc. Có CHECK `price >= 0`.
 
 Sticker không phải cột ở đây. Audit admin thật cho thấy một sản phẩm mang được
 nhiều sticker (10 sản phẩm có 2 nhãn), nên quan hệ là nhiều-nhiều qua bảng

@@ -1,3 +1,11 @@
+---
+phase: 3
+title: "Schema Drizzle và migration"
+status: completed
+priority: P1
+dependencies: [2]
+---
+
 # Phase 3 — Schema Drizzle và migration
 
 Trạng thái: Pending
@@ -78,15 +86,15 @@ tên file, sau chuyển thành object key MinIO mà không migrate.
 
 ## Todo
 
-- [ ] Cài `drizzle-kit`
-- [ ] `schema.ts` với 14 bảng
-- [ ] Index theo tài liệu thiết kế
-- [ ] `client.ts`
-- [ ] `drizzle.config.ts`
-- [ ] Sinh migration và đọc lại SQL
-- [ ] Áp dụng migration
-- [ ] Xác minh bằng `psql`
-- [ ] Script `db:generate`, `db:migrate`
+- [x] Cài `drizzle-kit`
+- [x] `schema.ts` với 14 bảng
+- [x] Index theo tài liệu thiết kế
+- [x] `client.ts`
+- [x] `drizzle.config.ts`
+- [x] Sinh migration và đọc lại SQL
+- [x] Áp dụng migration
+- [x] Xác minh bằng `psql`
+- [x] Script `db:generate`, `db:migrate`
 
 ## Tiêu chí hoàn thành
 

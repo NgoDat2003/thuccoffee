@@ -1,7 +1,7 @@
 ---
 title: "Backend Foundation"
 description: "Dựng Postgres, schema Drizzle, và seed dữ liệu từ src/data sang database."
-status: pending
+status: completed
 priority: P1
 branch: "feat/backend"
 created: "2026-07-20T17:30:00+07:00"
@@ -50,7 +50,7 @@ Kiến trúc và stack: `docs/backend-architecture.md`
 - Đổi `src/data/index.ts` sang `fetch` — giai đoạn 3.
 - Dockerfile cho backend — chỉ cần khi deploy.
 
-## Các phase
+## Phases
 
 | Phase | Tên | Trạng thái |
 |---|---|---|

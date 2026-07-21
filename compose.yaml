@@ -31,8 +31,8 @@ services:
       start_period: 5s
       retries: 3
 
-  # Postgres cho backend. Mật khẩu để trần ở đây chấp nhận được vì chỉ lắng nghe
-  # trên máy local; production dùng biến môi trường do Dokploy cấp.
+  # Postgres cho backend local. Cổng 5432 được publish ra host để công cụ trên
+  # máy kết nối trực tiếp; đổi mật khẩu mặc định nếu cho máy khác truy cập.
   postgres:
     image: postgres:16-alpine
     container_name: thuccoffee-postgres

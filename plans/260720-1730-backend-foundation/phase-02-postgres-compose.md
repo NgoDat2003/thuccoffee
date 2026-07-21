@@ -1,3 +1,11 @@
+---
+phase: 2
+title: "Postgres qua Compose"
+status: completed
+priority: P1
+dependencies: [1]
+---
+
 # Phase 2 — Postgres qua Compose
 
 Trạng thái: Pending
@@ -50,12 +58,12 @@ bao giờ hardcode.
 
 ## Todo
 
-- [ ] Thêm service `postgres` vào `compose.yaml`
-- [ ] Khai báo volume `postgres-data`
-- [ ] Healthcheck `pg_isready`
-- [ ] Xác nhận container healthy
-- [ ] Kiểm tra dữ liệu sống sót qua restart
-- [ ] Cập nhật `server/.env.example`
+- [x] Thêm service `postgres` vào `compose.yaml`
+- [x] Khai báo volume `postgres-data`
+- [x] Healthcheck `pg_isready`
+- [x] Xác nhận container healthy
+- [x] Kiểm tra dữ liệu sống sót qua restart
+- [x] Cập nhật `server/.env.example`
 
 ## Tiêu chí hoàn thành
 
