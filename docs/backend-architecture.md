@@ -365,14 +365,17 @@ Frontend phải format lại khi hiển thị.
 
 ## Quy ước nhánh
 
-Backend làm trên nhánh `feat/backend`, tách khỏi `main`. `main` giữ trạng thái
-frontend deploy được — manager build từ đó bất cứ lúc nào mà không gặp code
-đang dở.
+Backend được dựng trên nhánh `feat/backend` và **đã merge vào `main`** (2026-07-21,
+merge `26235bf`): foundation, MinIO, public read API (9 endpoint). `main` giữ
+trạng thái build được — cả frontend lẫn `server/` lint/build sạch.
 
-Merge vào `main` khi backend chạy được đầu-cuối và frontend đã đọc từ API.
-Trước lúc đó `main` chỉ nhận sửa lỗi frontend.
+Quyết định merge sớm hơn dự tính ban đầu (kế hoạch cũ là chỉ merge khi frontend
+đã đọc API): người dùng chủ động chọn đưa backend lên `main` để task sau rẽ từ
+`main` có sẵn API. Hệ quả: `main` = frontend tĩnh + backend chưa nối FE —
+**frontend vẫn đọc tĩnh**, chưa gọi API. Vòng "FE đọc DB" là bước tiếp theo.
 
-Tag `v1.0.0` trỏ vào commit frontend hoàn chỉnh, dùng làm điểm quay về nếu cần.
+Tag `v1.0.0` trỏ vào commit frontend tĩnh hoàn chỉnh (trước khi có backend), dùng
+làm điểm quay về nếu cần.
 
 ## Câu chưa chốt
 

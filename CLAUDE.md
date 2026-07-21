@@ -150,8 +150,13 @@ theo loại việc:
 | `refactor/` | Đổi cấu trúc, không đổi hành vi |
 | `chore/` | Cấu hình, phụ thuộc, việc lặt vặt |
 
-`main` giữ trạng thái deploy được — merge vào khi việc đã chạy được đầu-cuối.
-Tag `v1.0.0` là điểm quay về cho bản frontend tĩnh.
+`main` giữ trạng thái build được (FE + `server/` đều lint/build sạch) — merge vào
+khi việc đã chạy được đầu-cuối và verify. `main` hiện đã gồm cả backend (foundation,
+MinIO, public read API); **frontend vẫn đọc tĩnh, chưa gọi API**. Tag `v1.0.0` là
+điểm quay về cho bản frontend tĩnh thuần (trước khi có backend).
+
+Task mới rẽ từ `main` (đã có backend). Vòng "FE đọc DB" cần API đọc đang có trên
+`main`.
 
 **Không tự ý commit hay push.** Sửa file thì được, nhưng `git commit` và
 `git push` đều phải hỏi trước — kể cả tài liệu, plan, hay thay đổi nhỏ. Viết
