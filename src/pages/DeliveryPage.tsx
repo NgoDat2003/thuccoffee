@@ -1,6 +1,6 @@
-import deliveryImage from '../assets/images/blog/249fc9a9_post-17042023.png';
 import Container from '../components/ui/Container';
 import { pages } from '../data/pages';
+import { getImageUrl } from '../lib/image-url';
 import { usePageMeta } from '../lib/use-page-meta';
 
 export default function DeliveryPage() {
@@ -36,7 +36,7 @@ export default function DeliveryPage() {
             ))}
           </div>
         </div>
-        <img src={deliveryImage} alt="Chương trình Thức Delivery" className="w-full rounded" />
+        <img src={getImageUrl('blog/249fc9a9_post-17042023.png')} alt="Chương trình Thức Delivery" className="w-full rounded" />
       </div>
     </Container>
   );

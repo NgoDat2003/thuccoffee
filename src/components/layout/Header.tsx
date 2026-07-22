@@ -12,7 +12,7 @@ export default function Header() {
   const { data: settings } = useSiteSettings();
   const hotline = settings?.hotline ?? '1800 6230';
   const hotlineHref = `tel:${hotline.replace(/\s+/g, '')}`;
-  const logoStorageKey = settings?.logoStorageKey ?? '151b6674_circlelogo-white-blue-jul2023.png';
+  const logoStorageKey = settings?.logoStorageKey ?? 'site/151b6674_circlelogo-white-blue-jul2023.png';
   const openDrawer = useCallback(() => setDrawerOpen(true), []);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 

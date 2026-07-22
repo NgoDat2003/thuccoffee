@@ -1,6 +1,6 @@
-import aboutImage from '../assets/images/stores/698435b6_thuc-duong41.jpg';
 import Container from '../components/ui/Container';
 import { pages } from '../data/pages';
+import { getImageUrl } from '../lib/image-url';
 import { usePageMeta } from '../lib/use-page-meta';
 
 export default function AboutPage() {
@@ -16,7 +16,7 @@ export default function AboutPage() {
           ))}
         </div>
         <img
-          src={aboutImage}
+          src={getImageUrl('stores/698435b6_thuc-duong41.jpg')}
           alt="Không gian Thức Coffee mở cửa 24/7"
           className="w-full rounded object-cover"
         />

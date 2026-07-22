@@ -6,7 +6,7 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-RUN npm exec tsc -- --project tsconfig.json
+RUN npm exec tsc -- --project tsconfig.build.json
 
 FROM node:22-alpine AS runtime
 

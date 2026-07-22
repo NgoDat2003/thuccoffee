@@ -8,6 +8,7 @@ const envSchema = z.object({
     .default('development'),
   PORT: z.coerce.number().int().positive().default(8080),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL là bắt buộc'),
+  JWT_SECRET: z.string().min(32, 'JWT_SECRET must contain at least 32 characters'),
   MINIO_ENDPOINT: z.string().min(1, 'MINIO_ENDPOINT is required'),
   MINIO_PORT: z.coerce.number().int().positive().max(65535),
   MINIO_ACCESS_KEY: z.string().min(1, 'MINIO_ACCESS_KEY is required'),

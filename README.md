@@ -1,4 +1,4 @@
-# Thức Coffee — Frontend Clone + Backend Foundation
+# Thức Coffee — Frontend Clone + Admin Auth Foundation
 
 Clone of [thuccoffee.com.vn](http://www.thuccoffee.com.vn), a Vietnamese coffee
 chain site. The repository now includes an Express backend with public read APIs and local
@@ -46,6 +46,20 @@ gallery, blog pagination is database-backed, and product categories are joined
 without N+1 queries. The frontend intentionally continues to
 read `src/data/*.ts` and bundled files from `src/assets/images/` until the next phase.
 
+## Local admin login
+
+Create or reset a local admin without placing credentials in source:
+
+```powershell
+cd server
+$env:DATABASE_URL="postgresql://thuccoffee:thuccoffee@127.0.0.1:5432/thuccoffee"
+$env:ADMIN_EMAIL="you@example.com"
+$env:ADMIN_PASSWORD="choose-a-strong-password"
+npm run create-admin
+```
+
+Then open `http://localhost:3000/admin/login`. Run `npm run smoke:auth` with the same `ADMIN_EMAIL` and `ADMIN_PASSWORD` while the stack is running.
+
 ## Image storage
 
 MinIO is available as the future canonical image store, but the frontend does
@@ -71,6 +85,7 @@ Compose builds the production-style frontend and backend images, then starts
 their local dependencies.
 
 ```bash
+cp .env.example .env           # first run; replace JWT_SECRET
 docker compose up -d --build   # build and start on http://localhost:3000
 docker compose ps              # container status and health
 docker compose logs -f         # follow logs
@@ -79,7 +94,7 @@ docker compose down            # stop and remove
 
 | Service | Local endpoint | Notes |
 |---|---|---|
-| Frontend | `http://localhost:3000` | Nginx SPA; images still come from `/assets/` |
+| Frontend | `http://localhost:3000` | Nginx SPA; API and media use same-origin proxies |
 | Backend | `http://localhost:8080/api/health` | Waits for Postgres and MinIO health |
 | Postgres | `localhost:5432` | Persistent `postgres-data` volume |
 | MinIO API | `http://localhost:9000` | Persistent `minio-data` volume |

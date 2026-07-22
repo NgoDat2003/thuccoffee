@@ -22,6 +22,7 @@ export interface PaginatedResult<T> {
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? '/api',
+  withCredentials: true,
   headers: { Accept: 'application/json' },
 });
 
@@ -65,6 +66,10 @@ function apiErrorFromAxios(error: AxiosError): ApiError {
 
 apiClient.interceptors.response.use(
   (response) => {
+    if (response.status === 204) {
+      return undefined as unknown as AxiosResponse;
+    }
+
     const payload: unknown = response.data;
     if (!isApiResponse(payload)) {
       throw new ApiError(
@@ -123,4 +128,21 @@ export async function apiGetPaginated<T>(
   }
 
   return { data: envelope.data, meta: envelope.meta };
+}
+
+export async function apiPost<T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
+): Promise<T> {
+  const envelope = await apiClient.post<unknown, SuccessEnvelope<T>>(url, data, config);
+  return envelope.data;
+}
+
+export async function apiPostNoContent(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
+): Promise<void> {
+  await apiClient.post<unknown, void>(url, data, config);
 }

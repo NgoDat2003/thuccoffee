@@ -26,9 +26,10 @@ then exits successfully; it is not a long-running service. The bucket is
 public-read for image downloads, while write operations still require MinIO
 credentials.
 
-The frontend remains intentionally independent: it bundles files from
-`src/assets/images/` and makes no request to MinIO. The bucket is preparation
-for a later content API/image URL migration.
+The frontend reads content images from MinIO using full object keys. In local
+development `VITE_MINIO_BASE_URL` can target `http://localhost:9000/thuccoffee`;
+the production Docker build uses same-origin `/media`, proxied by Nginx to the
+private MinIO service.
 
 ## Frontend Runtime Contract
 
@@ -41,13 +42,17 @@ for a later content API/image URL migration.
 | Container port | `80` |
 | Health endpoint | `/healthz` |
 | Persistent volume | None |
+| Build argument | `VITE_MINIO_BASE_URL=/media` |
 | Runtime environment variables | None |
 
-Nginx gives hashed Vite assets long-lived immutable caching. `index.html` is not cached, React Router deep links fall back to `index.html`, and missing static-looking files return `404`.
+Nginx proxies `/media/<object-key>` to MinIO, before static-file matching and
+the SPA fallback. Hashed Vite assets keep immutable caching, `index.html` is not
+cached, deep links fall back to `index.html`, and missing static files return `404`.
 
 ## Local Verification
 
 ```bash
+cp .env.example .env # first run; replace JWT_SECRET
 docker compose config --quiet
 docker compose up -d --build
 docker compose ps -a
@@ -85,7 +90,8 @@ as an observed snapshot; the two commands above are the durable verification.
 Verified on 2026-07-21: the corrected seed completed twice with `498 uploaded`
 and `0 skipped`; the bucket contained 498 objects and no emoji keys. JPEG/PNG
 content types were correct and a representative public object returned HTTP
-`200`. This verifies storage only; the frontend still reads bundled assets.
+`200`. On 2026-07-22 the image-key migration and Docker runtime were verified:
+all 561 DB/UI references resolved to the 498 bucket objects with zero missing keys.
 
 Expected architecture and checks:
 
@@ -98,8 +104,8 @@ Expected architecture and checks:
 - Application and deep routes return `200` and GET assertions find the SPA root.
 - Missing `/assets/...` and root static-looking files return `404`, not `index.html`.
 - A real hashed `/assets/...` file returns immutable one-year caching.
-- Browser network requests for the current frontend still use `/assets/...`,
-  not port `9000`.
+- Browser content-image requests use same-origin `/media/...`; MinIO port `9000`
+  is not exposed to production browsers.
 
 ## Dokploy Setup
 
@@ -156,6 +162,7 @@ Backend/seed environment contract:
 | `DATABASE_URL` | Postgres connection string; use the private service hostname |
 | `PORT` | Backend listen port, normally `8080` |
 | `NODE_ENV` | `development`, `test`, or `production` |
+| `JWT_SECRET` | At least 32 random characters; signs the 7-day admin JWT |
 | `MINIO_ENDPOINT` | MinIO hostname without protocol |
 | `MINIO_PORT` | MinIO API port |
 | `MINIO_ACCESS_KEY` | Write-capable access key |
@@ -215,8 +222,9 @@ After every production deployment:
 4. Open the homepage through HTTPS.
 5. Hard-refresh `/menu`, one product route, one blog route, and one store route.
 6. Confirm missing static files return `404`.
-7. Until the API migration, confirm frontend images still load from `/assets/`.
-8. Confirm the deployed commit matches the intended release.
+7. Confirm content images load from same-origin `/media/` with no image `404`.
+8. Confirm `/admin/login` rejects invalid credentials and login/logout work.
+9. Confirm the deployed commit matches the intended release.
 
 ## Rollback
 

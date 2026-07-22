@@ -16,6 +16,8 @@ import CookiePolicyPage from './pages/CookiePolicyPage';
 import DeliveryPage from './pages/DeliveryPage';
 import LoginPage from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
+import AdminHomePage from './pages/AdminHomePage';
+import AdminLoginPage from './pages/AdminLoginPage';
 import { isCategoryPath } from './data/category-paths';
 
 function MenuSlugDispatcher() {
@@ -52,4 +54,6 @@ export const router = createBrowserRouter([
       { path: '*', element: <NotFoundPage /> },
     ],
   },
+  { path: '/admin/login', element: <AdminLoginPage /> },
+  { path: '/admin', element: <AdminHomePage /> },
 ]);
