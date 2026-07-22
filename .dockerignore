@@ -8,7 +8,14 @@ node_modules
 dist
 coverage
 
-server
+# server/ phải nằm trong build context: frontend import type thẳng từ
+# server/src/modules/*/*.schemas.ts. `tsc` trong `npm run build` cần các file
+# schema NÀY và cả `server/node_modules` (schema import `zod`, tsc phải resolve
+# được dù chỉ type-only). Runtime stage (nginx) chỉ COPY /app/dist nên image
+# cuối KHÔNG chứa server/. Chỉ loại phần thật sự không cần.
+server/dist
+server/.env
+server/.env.*
 
 docs
 plans

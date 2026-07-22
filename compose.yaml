@@ -22,6 +22,12 @@ services:
     # Không tự bật lại; chỉ chạy sau lệnh docker compose up do người dùng cho phép.
     restart: "no"
 
+    # Nginx proxy /api tới service backend, nên đợi backend healthy trước khi lên
+    # (nginx resolve upstream lúc khởi động; backend chưa sẵn sàng sẽ lỗi proxy).
+    depends_on:
+      backend:
+        condition: service_healthy
+
     # Dockerfile đã có HEALTHCHECK sẵn; khai báo lại ở đây để thấy rõ
     # và để chỉnh thời gian mà không phải build lại image.
     healthcheck:
@@ -50,10 +56,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      postgres:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+      - postgres
+      - minio
     restart: "no"
 
   # Postgres cho backend local. Cổng 5432 được publish ra host để công cụ trên
