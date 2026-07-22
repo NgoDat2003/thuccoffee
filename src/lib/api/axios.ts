@@ -146,3 +146,29 @@ export async function apiPostNoContent(
 ): Promise<void> {
   await apiClient.post<unknown, void>(url, data, config);
 }
+
+export async function apiPostFormData<T>(
+  url: string,
+  data: FormData,
+  config?: AxiosRequestConfig,
+): Promise<T> {
+  const envelope = await apiClient.post<unknown, SuccessEnvelope<T>>(url, data, config);
+  return envelope.data;
+}
+export async function apiPut<T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
+): Promise<T> {
+  const envelope = await apiClient.put<unknown, SuccessEnvelope<T>>(url, data, config);
+  return envelope.data;
+}
+
+export async function apiPatch<T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
+): Promise<T> {
+  const envelope = await apiClient.patch<unknown, SuccessEnvelope<T>>(url, data, config);
+  return envelope.data;
+}

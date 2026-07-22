@@ -1,5 +1,5 @@
 /* oxlint-disable react/only-export-components -- URL-aware dispatchers intentionally live with route declarations. */
-import { createBrowserRouter, useParams } from 'react-router-dom';
+import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
 import MenuPage from './pages/MenuPage';
@@ -16,7 +16,11 @@ import CookiePolicyPage from './pages/CookiePolicyPage';
 import DeliveryPage from './pages/DeliveryPage';
 import LoginPage from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
-import AdminHomePage from './pages/AdminHomePage';
+import AdminLayout from './components/admin/AdminLayout';
+import AdminNotFound from './components/admin/AdminNotFound';
+import AdminProductsPage from './pages/admin/AdminProductsPage';
+import AdminProductFormPage from './pages/admin/AdminProductFormPage';
+import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import { isCategoryPath } from './data/category-paths';
 
@@ -55,5 +59,16 @@ export const router = createBrowserRouter([
     ],
   },
   { path: '/admin/login', element: <AdminLoginPage /> },
-  { path: '/admin', element: <AdminHomePage /> },
+  {
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      { index: true, element: <Navigate to="/admin/products" replace /> },
+      { path: 'products', element: <AdminProductsPage /> },
+      { path: 'products/new', element: <AdminProductFormPage /> },
+      { path: 'products/:id', element: <AdminProductFormPage /> },
+      { path: 'categories', element: <AdminCategoriesPage /> },
+      { path: '*', element: <AdminNotFound /> },
+    ],
+  },
 ]);
