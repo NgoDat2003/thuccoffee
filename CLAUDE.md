@@ -86,11 +86,13 @@ file-based. Trang mới phải khai báo ở đó. Slug tiếng Việt (`/chuyen
 **Nội dung nằm ở `src/data/*.ts`** dạng module có kiểu, không phải JSON hay CMS.
 Kiểu dữ liệu ở `src/data/types.ts`.
 
-**`src/data/index.ts` là ranh giới sẵn có với backend.** Mọi trang lấy dữ liệu
-qua hàm ở đây (`getProductBySlug`, `getBlogPage`, `getStoreBySlug`…), không đọc
-thẳng mảng. Khi có API, chỉ đổi ruột các hàm này từ `array.find()` sang `fetch()`
-— các trang không phải sửa. Đừng cho page import thẳng mảng dữ liệu, sẽ phá ranh
-giới này.
+**Data fetching phía frontend đi qua ba lớp.** `src/lib/api/` giữ axios client,
+unwrap `ApiResponse<T>` và chuẩn hoá `ApiError`; `src/services/*.service.ts` giữ
+`queryKeys`, type backend và hook TanStack Query theo tài nguyên;
+`src/providers/query-provider.tsx` giữ `QueryClient`. Page/component chỉ gọi hook
+và render, không gọi axios/`apiGet` trực tiếp. `src/data/*.ts` và
+`src/data/index.ts` còn tồn tại tạm thời cho tới khi từng page chuyển sang API;
+không tạo thêm nghiệp vụ data-fetching mới trong lớp tĩnh này.
 
 ## Backend: quy ước `server/`
 
@@ -139,8 +141,13 @@ và không phải asset mới fallback cho client-side routing. Gộp cả ba th
 
 ## Git
 
-**Không sửa trực tiếp trên `main`.** Mỗi việc mới rẽ một nhánh riêng, đặt tên
-theo loại việc:
+**Không làm bất cứ việc gì trực tiếp trên `main`.** Rẽ nhánh **trước khi chạm
+file đầu tiên** — áp dụng cho mọi thay đổi không trừ loại nào: code, tài liệu,
+plan, brainstorm, ghi chú. Kể cả việc chỉ tạo file trong `plans/` cũng phải nằm
+trên nhánh riêng, không để rơi trên `main`. Nếu lỡ bắt đầu trên `main` thì rẽ
+nhánh rồi mang thay đổi theo trước khi làm tiếp.
+
+Mỗi việc mới rẽ một nhánh riêng, đặt tên theo loại việc:
 
 | Tiền tố | Dùng khi |
 |---|---|
