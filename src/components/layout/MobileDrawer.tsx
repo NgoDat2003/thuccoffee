@@ -27,7 +27,7 @@ export default function MobileDrawer({ open, onClose, settings }: MobileDrawerPr
   const hotline = settings?.hotline ?? '1800 6230';
   const hotlineHref = `tel:${hotline.replace(/\s+/g, '')}`;
   const contactEmail = settings?.contactEmail ?? 'info.thuccoffee247@gmail.com';
-  const logoStorageKey = settings?.logoStorageKey ?? '151b6674_circlelogo-white-blue-jul2023.png';
+  const logoStorageKey = settings?.logoStorageKey ?? 'site/151b6674_circlelogo-white-blue-jul2023.png';
   const facebookUrl = settings?.facebookUrl ?? SOCIAL_LINKS.facebook;
   const instagramUrl = settings?.instagramUrl ?? SOCIAL_LINKS.instagram;
   const youtubeUrl = settings ? settings.youtubeUrl : SOCIAL_LINKS.youtube;

@@ -13,7 +13,9 @@
     "db:seed": "tsx src/db/seed.ts",
     "db:seed-images": "tsx src/db/seed-images.ts",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "typecheck:seed": "tsc --project tsconfig.seed.json --noEmit"
+    "typecheck:seed": "tsc --project tsconfig.seed.json --noEmit",
+    "smoke:images": "tsx scripts/smoke-images.ts",
+    "db:migrate-image-keys": "tsx src/db/migrate-image-object-keys.ts"
   },
   "dependencies": {
     "compression": "1.8.1",

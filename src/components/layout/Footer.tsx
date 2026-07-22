@@ -27,7 +27,7 @@ export default function Footer() {
       <Container>
         <div className="h-px w-full bg-[#ccc] text-center">
           <img
-            src={getImageUrl('icon-coffee.png')}
+            src={getImageUrl('site/icon-coffee.png')}
             alt=""
             className="relative top-[-14px] mx-auto bg-page px-[10px]"
           />

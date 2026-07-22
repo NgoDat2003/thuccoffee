@@ -1,8 +1,7 @@
-import memberBenefitsImage from '../assets/images/site/751cd7ba_2.png';
-import memberQrImage from '../assets/images/site/a030442e_4.png';
 import Container from '../components/ui/Container';
 import FaqAccordion from '../components/ui/FaqAccordion';
 import { pages } from '../data/pages';
+import { getImageUrl } from '../lib/image-url';
 import { usePageMeta } from '../lib/use-page-meta';
 
 export default function MembershipPage() {
@@ -17,10 +16,10 @@ export default function MembershipPage() {
           <p className="rounded border-l-4 border-primary bg-gray-50 p-4 font-medium">
             {pages.membership.pointRule}
           </p>
-          <img src={memberBenefitsImage} alt="Ưu đãi thành viên Thức Coffee" className="w-full rounded" />
+          <img src={getImageUrl('site/751cd7ba_2.png')} alt="Ưu đãi thành viên Thức Coffee" className="w-full rounded" />
         </div>
         <div>
-          <img src={memberQrImage} alt="Mã QR Thức Coffee" className="w-full rounded" />
+          <img src={getImageUrl('site/a030442e_4.png')} alt="Mã QR Thức Coffee" className="w-full rounded" />
           <p className="mt-3 text-center text-sm text-gray-600">{pages.membership.qrCaption}</p>
         </div>
       </div>

@@ -9,6 +9,7 @@ import { products as sourceProducts } from '../../../src/data/products.ts';
 import { stores as sourceStores } from '../../../src/data/stores.ts';
 import { parseVietnameseDate } from '../lib/parse-date.js';
 import { closeDatabase, db } from './client.js';
+import { createSourceImageObjectKeyResolver } from './source-image-object-key-resolver.js';
 import {
   banners,
   blogPosts,
@@ -23,15 +24,15 @@ import {
 
 const optionCatalog = ['Lạnh', 'Nóng', 'Size nhỏ', 'Size vừa', '1 Egg', '2 Eggs'];
 const bannerSeed = [
-  { type: 'slider', image: '3eb3f0f8_cover-2-.jpg', altText: 'Thức Coffee', linkUrl: null, sortOrder: 0 },
-  { type: 'slider', image: '446135be_cover-fb.jpg', altText: 'Thức Coffee', linkUrl: null, sortOrder: 1 },
-  { type: 'promotion', image: '2e94f8cc_cover-fb.jpg', altText: 'Ưu đãi khi đến với Thức', linkUrl: '/chuong-trinh-thanh-vien', sortOrder: 0 },
+  { type: 'slider', image: 'site/3eb3f0f8_cover-2-.jpg', altText: 'Thức Coffee', linkUrl: null, sortOrder: 0 },
+  { type: 'slider', image: 'site/446135be_cover-fb.jpg', altText: 'Thức Coffee', linkUrl: null, sortOrder: 1 },
+  { type: 'promotion', image: 'site/2e94f8cc_cover-fb.jpg', altText: 'Ưu đãi khi đến với Thức', linkUrl: '/chuong-trinh-thanh-vien', sortOrder: 0 },
 ] as const;
 const publicSiteSettings = [
   { key: 'site_title', value: 'Thức Coffee' },
   { key: 'brand_heading', value: 'THỨC COFFEE - OPEN 24/7' },
   { key: 'tagline', value: 'Nơi ngắm nhìn Sài Gòn chuyển mình trọn vẹn 24h.' },
-  { key: 'logo_storage_key', value: '151b6674_circlelogo-white-blue-jul2023.png' },
+  { key: 'logo_storage_key', value: 'site/151b6674_circlelogo-white-blue-jul2023.png' },
   { key: 'hotline', value: '1800 6230' },
   { key: 'contact_email', value: 'info.thuccoffee247@gmail.com' },
   { key: 'office_address', value: '40D Lý Tự Trọng, P.Sài Gòn, TP.HCM' },
@@ -42,6 +43,8 @@ const publicSiteSettings = [
 ] as const;
 
 async function seed(): Promise<void> {
+  const resolveImageKey = await createSourceImageObjectKeyResolver();
+
   await db.transaction(async (tx) => {
     const categoryIds = new Map<string, number>();
 
@@ -64,8 +67,8 @@ async function seed(): Promise<void> {
         slug: product.slug,
         price: product.price,
         priceEstimated: product.priceEstimated ?? false,
-        thumb: product.thumb,
-        image: product.image ?? product.thumb,
+        thumb: resolveImageKey(product.thumb),
+        image: resolveImageKey(product.image ?? product.thumb),
         description: product.description ?? null,
         isPublished: true,
         sortOrder,
@@ -90,12 +93,19 @@ async function seed(): Promise<void> {
     }
 
     for (const post of sourceBlogPosts) {
-      const content = blogContentBySlug[post.slug];
-      if (!content) throw new Error(`Bài viết không có nội dung seed: ${post.slug}`);
+      const rawContent = blogContentBySlug[post.slug];
+      if (!rawContent) throw new Error(`Bài viết không có nội dung seed: ${post.slug}`);
+      // Ảnh inline lưu dạng `blog-asset:<basename>`; resolve sang full object key
+      // (đa số `blog/`, nhưng có ngoại lệ như logo dùng chung ở `site/`) để frontend
+      // chỉ nối base URL, không tự đoán prefix theo vị trí.
+      const content = rawContent.replace(
+        /blog-asset:([^"']+)/g,
+        (_, filename: string) => `blog-asset:${resolveImageKey(filename)}`,
+      );
       const postValues = {
         title: post.title,
         slug: post.slug,
-        cover: post.cover,
+        cover: resolveImageKey(post.cover),
         summary: post.summary,
         content,
         publishedAt: parseVietnameseDate(post.date),
@@ -115,7 +125,7 @@ async function seed(): Promise<void> {
         address: store.address,
         phone: store.phone,
         hours: store.hours,
-        image: store.image,
+        image: resolveImageKey(store.image),
         region: null,
         isPublished: true,
         sortOrder,
@@ -136,7 +146,7 @@ async function seed(): Promise<void> {
         await tx.insert(mediaAttachments).values(store.gallery.map((storageKey, galleryOrder) => ({
           ownerType: 'store',
           ownerId: saved.id,
-          storageKey,
+          storageKey: resolveImageKey(storageKey, 'stores'),
           role: 'gallery',
           sortOrder: galleryOrder,
         })));
@@ -153,16 +163,20 @@ async function seed(): Promise<void> {
     await tx.delete(banners);
     await tx.insert(banners).values(bannerSeed.map((banner) => ({
       ...banner,
+      image: resolveImageKey(banner.image),
       isActive: true,
     })));
 
     for (const setting of publicSiteSettings) {
+      const value = setting.key === 'logo_storage_key'
+        ? resolveImageKey(setting.value)
+        : setting.value;
       await tx
         .insert(siteSettings)
-        .values(setting)
+        .values({ key: setting.key, value })
         .onConflictDoUpdate({
           target: siteSettings.key,
-          set: { value: setting.value, updatedAt: new Date() },
+          set: { value, updatedAt: new Date() },
         });
     }
   });

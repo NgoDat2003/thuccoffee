@@ -8,6 +8,8 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+ARG VITE_MINIO_BASE_URL=/media
+ENV VITE_MINIO_BASE_URL=$VITE_MINIO_BASE_URL
 RUN npm run build
 
 FROM nginx:1.29-alpine AS runtime
