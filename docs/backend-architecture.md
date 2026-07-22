@@ -19,14 +19,17 @@ vi giao diện so với site gốc.
 
 ## Trạng thái hiện tại
 
-Frontend là SPA tĩnh, đã gắn tag `v1.0.0`, deploy được. Nội dung vẫn nằm trong
-`src/data/*.ts` dưới dạng mảng TypeScript: 42 sản phẩm, 267 bài viết, 7 cửa hàng,
-10 danh mục. Frontend chưa gọi backend.
+Frontend từng là SPA tĩnh thuần (tag `v1.0.0`); nay mọi tài nguyên do backend
+quản lý đều đọc qua API. Sáu nhóm nội dung — sản phẩm, danh mục, blog, cửa hàng,
+banner, site settings — render từ hook TanStack Query, không còn đọc `src/data/*.ts`.
+Nhóm trang tĩnh nội dung ít đổi (About/Contact/Delivery/Cookie/FAQ + Careers/
+Membership) vẫn giữ trong `src/data/pages.ts` có chủ đích: backend chưa có endpoint
+`pages`, bảng `static_pages` cố ý để trống (xem mục dưới).
 
 Backend trong `server/` hiện chạy được, có middleware vận hành, health endpoint
 và chín endpoint đọc công khai cho categories, banners, site settings, stores,
 blog và products. Store detail trả gallery có thứ tự; store list không trả gallery.
-Auth, admin CRUD và việc từng page chuyển sang đọc API thuộc các giai đoạn sau.
+Auth và admin CRUD thuộc các giai đoạn sau.
 
 Hạ tầng ảnh MinIO đã có trong Compose: API `9000`, console local `9001`, volume
 `minio-data`, bucket `thuccoffee` public-read và lệnh seed
@@ -35,11 +38,12 @@ từ `src/assets/images/`. Snapshot hiện tại có 498 ảnh hợp lệ sau kh
 được đổi thành Unicode trong nội dung blog rồi xoá. Count kiểm chứng phải luôn
 tính động vì tập ảnh còn có thể thay đổi.
 
-Các page hiện vẫn lấy dữ liệu tĩnh qua hàm trong `src/data/index.ts`; chưa page
-nào gọi backend. Data layer bất đồng bộ đã dựng song song: axios client trong
-`src/lib/api/`, sáu service+hook TanStack Query trong `src/services/`, và
-`QueryProvider` trong `src/providers/`. Vòng sau chuyển từng page sang hook rồi
-mới xoá dần lớp dữ liệu tĩnh.
+Các page đọc nội dung DB đã chuyển hết sang hook TanStack Query: axios client
+trong `src/lib/api/` unwrap `ApiResponse<T>` và chuẩn hoá `ApiError`; sáu
+service+hook trong `src/services/` giữ query key và type import thẳng từ backend;
+`QueryProvider` trong `src/providers/` bọc router với cache mặc định năm phút.
+Barrel `src/data/index.ts` đã xoá; `src/data/*.ts` chỉ còn `pages.ts` (nhóm tĩnh)
+và `category-paths.ts` (routing/slug, không phải nội dung DB).
 
 ## Cấu trúc thư mục
 
@@ -330,10 +334,14 @@ Mỗi bước chạy được và kiểm chứng được trước khi sang bư�
    + script seed ảnh. Đã xong, từng phần kiểm chứng độc lập.
 2. **API đọc** — chín endpoint GET ở trên. Đã xong; `npm run smoke:api` kiểm
    chứng 9/9 endpoint, gallery cửa hàng, 404 slug sai và 400 query sai.
-3. **Frontend đọc từ API** — data layer service+hook đã dựng; chuyển từng page sang
-   hook, xử lý loading/error rồi xoá dần `src/data/index.ts` vẫn là bước kế tiếp.
+3. **Frontend đọc từ API** — Đã xong. Sáu nhóm nội dung DB (products, categories,
+   blog, stores, banners, site-settings) render từ hook TanStack Query với
+   loading/error; barrel `src/data/index.ts` đã xoá. Kiểm chứng runtime qua nginx
+   proxy `:3000/api/*` (200 + JSON thật, không rơi fallback), gallery cửa hàng,
+   phân trang blog 267 bài / 54 trang và 404 slug sai. Nhóm trang tĩnh giữ nguyên
+   có chủ đích (backend chưa có endpoint `pages`).
 4. **Đăng nhập** — bảng `users`, hash mật khẩu, session hoặc JWT, middleware
-   chặn `/api/admin/*`.
+   chặn `/api/admin/*`. Là bước kế tiếp.
 5. **Admin CRUD** — giao diện thêm/sửa/xoá nội dung.
 
 Bước 4 phải trước bước 5: có CRUD mà không có auth nghĩa là ai cũng sửa được dữ
