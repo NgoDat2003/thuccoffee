@@ -13,6 +13,11 @@ interface AdminTableProps<T> {
   rowKey: (row: T) => string | number;
   isLoading?: boolean;
   emptyText?: string;
+  pagination?: {
+    page: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+  };
 }
 
 export default function AdminTable<T>({
@@ -21,6 +26,7 @@ export default function AdminTable<T>({
   rowKey,
   isLoading = false,
   emptyText = 'Không có dữ liệu.',
+  pagination,
 }: AdminTableProps<T>) {
   const [sortKey, setSortKey] = useState('');
   const [descending, setDescending] = useState(false);
@@ -58,8 +64,9 @@ export default function AdminTable<T>({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-stone-200 text-sm">
+    <div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-stone-200 text-sm">
         <thead className="bg-stone-50">
           <tr>
             {columns.map((column) => (
@@ -88,7 +95,31 @@ export default function AdminTable<T>({
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
+      {pagination && pagination.totalPages > 1 && (
+        <nav aria-label="Phân trang" className="mt-5 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            disabled={pagination.page <= 1}
+            onClick={() => pagination.onPageChange(pagination.page - 1)}
+            className="rounded-lg border border-stone-300 px-3 py-2 text-sm disabled:opacity-40"
+          >
+            Trước
+          </button>
+          <span className="text-sm text-stone-600">
+            Trang {pagination.page} / {pagination.totalPages}
+          </span>
+          <button
+            type="button"
+            disabled={pagination.page >= pagination.totalPages}
+            onClick={() => pagination.onPageChange(pagination.page + 1)}
+            className="rounded-lg border border-stone-300 px-3 py-2 text-sm disabled:opacity-40"
+          >
+            Sau
+          </button>
+        </nav>
+      )}
     </div>
   );
 }

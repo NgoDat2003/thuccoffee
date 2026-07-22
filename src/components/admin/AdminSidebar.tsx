@@ -11,7 +11,7 @@ const links = [
   { to: '/admin/blog', label: 'Bài viết' },
   { to: '/admin/stores', label: 'Cửa hàng' },
   { to: '/admin/banners', label: 'Banner' },
-  { to: '/admin/site-settings', label: 'Cài đặt website' },
+  { to: '/admin/settings', label: 'Cài đặt website' },
 ];
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>

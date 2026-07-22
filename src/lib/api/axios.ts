@@ -172,3 +172,10 @@ export async function apiPatch<T>(
   const envelope = await apiClient.patch<unknown, SuccessEnvelope<T>>(url, data, config);
   return envelope.data;
 }
+
+export async function apiDelete(
+  url: string,
+  config?: AxiosRequestConfig,
+): Promise<void> {
+  await apiClient.delete<unknown, void>(url, config);
+}

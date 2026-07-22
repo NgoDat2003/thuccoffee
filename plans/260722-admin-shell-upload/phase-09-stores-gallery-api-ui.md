@@ -1,10 +1,11 @@
 ---
 phase: 9
-title: "Stores + gallery (API + UI)"
-status: pending
+title: Stores + gallery (API + UI)
+status: completed
 priority: P1
-effort: "1d"
-dependencies: [6]
+effort: 1d
+dependencies:
+  - 6
 ---
 
 # Phase 9: Stores + gallery — API + UI
@@ -79,10 +80,10 @@ body trùng storageKey → 400; cleanup SQL.
 
 ## Success Criteria
 
-- [ ] `smoke:admin-stores` XANH (kèm idempotency + 400 trùng key).
-- [ ] Gallery reorder phản ánh đúng thứ tự ở public store detail.
-- [ ] Publish/unpublish store phản ánh public list.
-- [ ] FE + server lint/build sạch.
+- [x] `smoke:admin-stores` XANH (kèm idempotency + 400 trùng key) — 5/5 cả :8080 lẫn :3000.
+- [x] Gallery reorder phản ánh đúng thứ tự ở public store detail (smoke assert 4 so cả public).
+- [x] Publish/unpublish store phản ánh public list (smoke assert 3).
+- [x] FE + server lint/build sạch.
 
 ## Risk Assessment
 

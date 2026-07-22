@@ -1,14 +1,24 @@
 ---
-title: "Admin full — shell, upload, CRUD 6 resource (API + UI)"
-description: "Một plan full admin: shell + upload nền, rồi CRUD products/categories/blog/stores/banners/settings cả API lẫn UI, vertical slice, 2 mốc verify Docker."
-status: in-progress
+title: 'Admin full — shell, upload, CRUD 6 resource (API + UI)'
+description: >-
+  Một plan full admin: shell + upload nền, rồi CRUD
+  products/categories/blog/stores/banners/settings cả API lẫn UI, vertical
+  slice, 2 mốc verify Docker.
+status: completed
 priority: P1
-branch: "feat/admin-shell-upload"
-tags: [admin, upload, minio, multer, crud, shell, tdd]
+branch: feat/admin-shell-upload
+tags:
+  - admin
+  - upload
+  - minio
+  - multer
+  - crud
+  - shell
+  - tdd
 blockedBy: []
 blocks: []
-created: "2026-07-22T13:03:22.787Z"
-createdBy: "ck:plan"
+created: '2026-07-22T13:03:22.787Z'
+createdBy: 'ck:plan'
 source: skill
 ---
 
@@ -53,17 +63,17 @@ schema.ts). Delete = unpublish, slug khóa, một admin — kế thừa, không 
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 1 | [Test-first: smoke upload contract](./phase-01-test-first-smoke-upload-contract.md) | Pending |
-| 2 | [Upload API backend multipart MinIO](./phase-02-upload-api-backend-multipart-minio.md) | Pending |
-| 3 | [Admin shell FE + route guard + ImageField](./phase-03-admin-shell-fe-route-guard-imagefield.md) | Pending |
-| 4 | [Admin API products + categories](./phase-04-admin-api-products-categories.md) | Pending |
-| 5 | [UI products + categories](./phase-05-ui-products-categories.md) | Pending |
-| 6 | [★ Mốc verify Docker 1](./phase-06-verify-docker-moc-1.md) | Pending |
-| 7 | [Admin API blog + sanitize](./phase-07-admin-api-blog-sanitize.md) | Pending |
-| 8 | [UI blog list + editor](./phase-08-ui-blog-list-editor.md) | Pending |
-| 9 | [Stores + gallery (API + UI)](./phase-09-stores-gallery-api-ui.md) | Pending |
-| 10 | [Banners + site settings (API + UI)](./phase-10-banners-site-settings-api-ui.md) | Pending |
-| 11 | [★ Mốc verify Docker 2 — toàn bộ](./phase-11-verify-docker-moc-2-toan-bo.md) | Pending |
+| 1 | [Test-first: smoke upload contract](./phase-01-test-first-smoke-upload-contract.md) | Completed |
+| 2 | [Upload API backend multipart MinIO](./phase-02-upload-api-backend-multipart-minio.md) | Completed |
+| 3 | [Admin shell FE + route guard + ImageField](./phase-03-admin-shell-fe-route-guard-imagefield.md) | Completed |
+| 4 | [Admin API products + categories](./phase-04-admin-api-products-categories.md) | Completed |
+| 5 | [UI products + categories](./phase-05-ui-products-categories.md) | Completed |
+| 6 | [★ Mốc verify Docker 1](./phase-06-verify-docker-moc-1.md) | Completed |
+| 7 | [Admin API blog + sanitize](./phase-07-admin-api-blog-sanitize.md) | Completed |
+| 8 | [UI blog list + editor](./phase-08-ui-blog-list-editor.md) | Completed |
+| 9 | [Stores + gallery (API + UI)](./phase-09-stores-gallery-api-ui.md) | Completed |
+| 10 | [Banners + site settings (API + UI)](./phase-10-banners-site-settings-api-ui.md) | Completed |
+| 11 | [★ Mốc verify Docker 2 — toàn bộ](./phase-11-verify-docker-moc-2-toan-bo.md) | Completed |
 
 ## Ranh giới chấp nhận
 
@@ -94,7 +104,7 @@ schema.ts). Delete = unpublish, slug khóa, một admin — kế thừa, không 
 | 6 | High | Unpublish product/blog/store đang được public FE cache TanStack — user public thấy 404 khi click từ list stale | Accept — behavior đúng (content đã gỡ), nhưng Phase 5/8/9 phải invalidate đúng public keys để list tự cập nhật |
 | 7 | Medium | `categories.key` là semantic key (routing FE `category-paths`) — cho sửa key sẽ vỡ URL public | Accept — Phase 4: category chỉ cho sửa `label` + `sortOrder`, KHÔNG cho sửa `key` (khớp report "MVP giới hạn") |
 | 8 | Medium | `banners.type` check 3 giá trị trong DB — Zod enum phải khớp `('promotion','right','slider')` không bịa thêm | Accept — Phase 10 ghi enum đúng theo schema.ts:123 |
-| 9 | Medium | Store gallery dùng uniqueIndex (owner,storage,role) — thêm trùng ảnh vào gallery sẽ nổ constraint 500 thay vì 4xx | Accept — Phase 9: transaction delete-reinsert theo sortOrder mới (idempotent, tránh xung đột unique) + map lỗi constraint → 400 |
+| 9 | Medium | Store gallery dùng uniqueIndex (owner,storage,role) — thêm trùng ảnh vào gallery sẽ nổ constraint 500 thay vì 4xx | Accept — Phase 9: transaction delete-reinsert idempotent + Zod refine chặn trùng key trước DB |
 | 10 | Low | Site settings 11 key public + có thể có key nội bộ — admin PUT phải allow-list key, không cho tạo key mới tùy ý | Accept — Phase 10 allow-list cố định |
 
 ## Dependencies

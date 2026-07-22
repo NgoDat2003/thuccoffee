@@ -1,7 +1,7 @@
 ---
 phase: 6
 title: "★ Mốc verify Docker 1"
-status: pending
+status: completed
 priority: P1
 effort: "3h"
 dependencies: [5]
@@ -54,10 +54,10 @@ sửa ở đây rẻ hơn sửa 6 chỗ.
 
 ## Success Criteria
 
-- [ ] 3 smoke xanh cả 2 origin; upload >1MB qua `:3000` không 413.
-- [ ] DOM: tạo/sửa/unpublish product end-to-end, phản ánh public không F5.
-- [ ] Public spot-check xanh.
-- [ ] Docker build sạch.
+- [x] 3 smoke xanh cả 2 origin; upload >1MB qua `:3000` không 413.
+- [x] DOM: tạo/sửa/unpublish product end-to-end, phản ánh public không F5.
+- [x] Public spot-check xanh.
+- [x] Docker build sạch.
 
 ## Risk Assessment
 

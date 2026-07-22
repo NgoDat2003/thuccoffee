@@ -18,13 +18,6 @@ const contentTypes: Record<AllowedImageExtension, string> = {
   '.gif': 'image/gif',
 };
 
-const expectedMimeTypes: Record<AllowedImageExtension, string> = {
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.webp': 'image/webp',
-  '.gif': 'image/gif',
-};
 
 function hasMagicBytes(buffer: Buffer, extension: AllowedImageExtension): boolean {
   if (extension === '.png') {
@@ -55,7 +48,7 @@ export function validateImage(
   }
 
   const validatedExtension = extension as AllowedImageExtension;
-  if (mimetype !== expectedMimeTypes[validatedExtension]) {
+  if (mimetype !== contentTypes[validatedExtension]) {
     throw ApiError.badRequest('MIME type không khớp với phần mở rộng file.');
   }
 

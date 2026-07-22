@@ -1,7 +1,7 @@
 ---
 phase: 8
 title: "UI blog list + editor"
-status: pending
+status: completed
 priority: P1
 effort: "1d"
 dependencies: [7]
@@ -78,12 +78,12 @@ blog/:id    → AdminBlogFormPage
 
 ## Success Criteria
 
-- [ ] List phân trang 267 bài + search hoạt động.
-- [ ] Preview render qua sanitizer — paste `<script>` vào textarea → preview
+- [x] List phân trang 267 bài + search hoạt động.
+- [x] Preview render qua sanitizer — paste `<script>` vào textarea → preview
       KHÔNG thực thi/hiển thị script.
-- [ ] Sửa bài thật, lưu → public render không đổi format; ảnh inline sống.
-- [ ] Unsaved guard chặn điều hướng khi dirty.
-- [ ] FE lint/build sạch.
+- [x] Sửa bài thật, lưu → public render không đổi format; ảnh inline sống.
+- [x] Unsaved guard chặn điều hướng khi dirty.
+- [x] FE lint/build sạch.
 
 ## Risk Assessment
 

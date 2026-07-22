@@ -1,10 +1,11 @@
 ---
 phase: 10
-title: "Banners + site settings (API + UI)"
-status: pending
+title: Banners + site settings (API + UI)
+status: completed
 priority: P1
-effort: "1d"
-dependencies: [6]
+effort: 1d
+dependencies:
+  - 6
 ---
 
 # Phase 10: Banners + site settings — API + UI
@@ -91,10 +92,10 @@ site-settings đổi; cleanup.
 
 ## Success Criteria
 
-- [ ] `smoke:admin-banners-settings` XANH.
-- [ ] Banner type enum khớp DB check; key settings lạ bị 400.
-- [ ] Đổi settings/banner phản ánh public (header/footer/home) không F5.
-- [ ] FE + server lint/build sạch.
+- [x] `smoke:admin-banners-settings` XANH — 5/5 cả :8080 lẫn :3000.
+- [x] Banner type enum khớp DB check; key settings lạ bị 400 (smoke assert 2, 5).
+- [x] Đổi settings/banner phản ánh public qua API (smoke assert 3, 5); DOM không-F5 verify ở phase 11.
+- [x] FE + server lint/build sạch.
 
 ## Risk Assessment
 

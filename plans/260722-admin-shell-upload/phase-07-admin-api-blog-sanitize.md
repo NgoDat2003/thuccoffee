@@ -1,7 +1,7 @@
 ---
 phase: 7
 title: "Admin API blog + sanitize"
-status: pending
+status: completed
 priority: P1
 effort: "1d"
 dependencies: [6]
@@ -88,12 +88,12 @@ PATCH  /api/admin/blog/:id/publish       → { isPublished }
 
 ## Success Criteria
 
-- [ ] `smoke:admin-blog` XANH.
-- [ ] Sanitize chặn script/onerror/javascript: URI; giữ nguyên 5 bài thật
+- [x] `smoke:admin-blog` XANH.
+- [x] Sanitize chặn script/onerror/javascript: URI; giữ nguyên 5 bài thật
       (diff rỗng).
-- [ ] Marker `blog-asset:` sống sót qua sanitize.
-- [ ] Pagination + search đúng meta.
-- [ ] Server lint/build sạch.
+- [x] Marker `blog-asset:` sống sót qua sanitize.
+- [x] Pagination + search đúng meta.
+- [x] Server lint/build sạch.
 
 ## Risk Assessment
 

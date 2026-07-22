@@ -1,10 +1,13 @@
 ---
 phase: 11
-title: "★ Mốc verify Docker 2 — toàn bộ"
-status: pending
+title: ★ Mốc verify Docker 2 — toàn bộ
+status: completed
 priority: P1
-effort: "4h"
-dependencies: [8, 9, 10]
+effort: 4h
+dependencies:
+  - 8
+  - 9
+  - 10
 ---
 
 # Phase 11: ★ Mốc verify Docker 2 — toàn bộ admin trên production path

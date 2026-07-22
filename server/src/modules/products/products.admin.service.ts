@@ -1,6 +1,7 @@
 import { asc, eq, sql, type SQL } from 'drizzle-orm';
 
 import { ApiError } from '../../common/api-error.js';
+import { isUniqueViolation } from '../../common/db-errors.js';
 import { db } from '../../db/client.js';
 import {
   categories,
@@ -87,18 +88,6 @@ function groupAdminProducts(rows: AdminProductRow[]): AdminProduct[] {
   }
 
   return [...grouped.values()];
-}
-
-function isUniqueViolation(cause: unknown): boolean {
-  let current = cause;
-
-  for (let depth = 0; depth < 3; depth += 1) {
-    if (typeof current !== 'object' || current === null) return false;
-    if ('code' in current && current.code === '23505') return true;
-    current = 'cause' in current ? current.cause : undefined;
-  }
-
-  return false;
 }
 
 async function requireAdminProduct(id: number): Promise<AdminProduct> {
