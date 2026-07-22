@@ -52,6 +52,7 @@ cached, deep links fall back to `index.html`, and missing static files return `4
 ## Local Verification
 
 ```bash
+cp .env.example .env # first run; replace JWT_SECRET
 docker compose config --quiet
 docker compose up -d --build
 docker compose ps -a
@@ -161,6 +162,7 @@ Backend/seed environment contract:
 | `DATABASE_URL` | Postgres connection string; use the private service hostname |
 | `PORT` | Backend listen port, normally `8080` |
 | `NODE_ENV` | `development`, `test`, or `production` |
+| `JWT_SECRET` | At least 32 random characters; signs the 7-day admin JWT |
 | `MINIO_ENDPOINT` | MinIO hostname without protocol |
 | `MINIO_PORT` | MinIO API port |
 | `MINIO_ACCESS_KEY` | Write-capable access key |
@@ -221,7 +223,8 @@ After every production deployment:
 5. Hard-refresh `/menu`, one product route, one blog route, and one store route.
 6. Confirm missing static files return `404`.
 7. Confirm content images load from same-origin `/media/` with no image `404`.
-8. Confirm the deployed commit matches the intended release.
+8. Confirm `/admin/login` rejects invalid credentials and login/logout work.
+9. Confirm the deployed commit matches the intended release.
 
 ## Rollback
 

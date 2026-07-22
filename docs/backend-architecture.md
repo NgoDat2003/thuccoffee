@@ -29,7 +29,7 @@ Membership) vẫn giữ trong `src/data/pages.ts` có chủ đích: backend chư
 Backend trong `server/` hiện chạy được, có middleware vận hành, health endpoint
 và chín endpoint đọc công khai cho categories, banners, site settings, stores,
 blog và products. Store detail trả gallery có thứ tự; store list không trả gallery.
-Auth và admin CRUD thuộc các giai đoạn sau.
+Auth foundation đã có JWT trong cookie httpOnly, Argon2, CLI bootstrap admin và guard `/api/admin/*`. Admin CRUD thuộc giai đoạn sau.
 
 Hạ tầng ảnh MinIO đã có trong Compose: API `9000`, console local `9001`, volume
 `minio-data`, bucket `thuccoffee` public-read và lệnh seed
@@ -268,6 +268,7 @@ Kết nối qua biến môi trường, không hardcode:
 DATABASE_URL=postgres://user:pass@host:5432/thuccoffee
 PORT=8080
 NODE_ENV=development
+JWT_SECRET=replace-with-at-least-32-random-characters
 MINIO_ENDPOINT=localhost
 MINIO_PORT=9000
 MINIO_ACCESS_KEY=minioadmin
@@ -316,8 +317,10 @@ GET    /api/stores/:slug
 GET    /api/banners               chỉ banner đang bật
 GET    /api/site-settings         đúng 11 key public, map camelCase
 
-POST   /api/auth/login
-POST   /api/auth/logout
+POST   /api/auth/login             đặt JWT 7 ngày vào cookie httpOnly
+GET    /api/auth/me                trả user hiện tại, cần cookie
+POST   /api/auth/logout            xóa cookie, trả 204
+GET    /api/admin/me               route guard mẫu, cần đăng nhập
 
 POST   /api/admin/products        các route /api/admin/* đều cần đăng nhập
 PUT    /api/admin/products/:id
@@ -340,8 +343,8 @@ Mỗi bước chạy được và kiểm chứng được trước khi sang bư�
    proxy `:3000/api/*` (200 + JSON thật, không rơi fallback), gallery cửa hàng,
    phân trang blog 267 bài / 54 trang và 404 slug sai. Nhóm trang tĩnh giữ nguyên
    có chủ đích (backend chưa có endpoint `pages`).
-4. **Đăng nhập** — bảng `users`, hash mật khẩu, session hoặc JWT, middleware
-   chặn `/api/admin/*`. Là bước kế tiếp.
+4. **Đăng nhập** — Đã xong: bảng `users`, Argon2, JWT cookie httpOnly, middleware
+   chặn `/api/admin/*`; `smoke:auth` kiểm chứng 8/8 qua backend và Nginx.
 5. **Admin CRUD** — giao diện thêm/sửa/xoá nội dung.
 
 Bước 4 phải trước bước 5: có CRUD mà không có auth nghĩa là ai cũng sửa được dữ
