@@ -1,6 +1,6 @@
 import deliveryImage from '../assets/images/blog/249fc9a9_post-17042023.png';
 import Container from '../components/ui/Container';
-import { pages } from '../data';
+import { pages } from '../data/pages';
 import { usePageMeta } from '../lib/use-page-meta';
 
 export default function DeliveryPage() {

@@ -3,6 +3,7 @@ import Container from '../ui/Container';
 import { NAV_LINKS, SOCIAL_LINKS } from './nav-links';
 import { FacebookIcon, InstagramIcon, YoutubeIcon } from '../ui/Icon';
 import { getImageUrl } from '../../lib/image-url';
+import { useSiteSettings } from '../../services/site-settings.service';
 
 const footerLinks = [
   { label: 'Trang chủ', to: '/' },
@@ -15,8 +16,14 @@ const socialLinkClass =
   'flex h-[35px] w-[35px] items-center justify-center rounded-full border border-[#cdcdcd] text-[#1c1c1c] transition-colors hover:bg-primary hover:text-white';
 
 export default function Footer() {
-  return (
-    <footer className="mt-[38px] pb-[30px]">
+  const { data: settings } = useSiteSettings();
+  const hotline = settings?.hotline ?? '1800 6230';
+  const instagramUrl = settings?.instagramUrl ?? SOCIAL_LINKS.instagram;
+  const facebookUrl = settings?.facebookUrl ?? SOCIAL_LINKS.facebook;
+  const youtubeUrl = settings ? settings.youtubeUrl : SOCIAL_LINKS.youtube;
+  const copyright = settings?.footerCopyright ?? '© 2018. All Right Reserved. Thức Coffee';
+
+  return (    <footer className="mt-[38px] pb-[30px]">
       <Container>
         <div className="h-px w-full bg-[#ccc] text-center">
           <img
@@ -33,18 +40,24 @@ export default function Footer() {
             <h2 className="mb-[10px] text-base font-semibold leading-[27px] text-text">
               THỨC COFFEE - OPEN 24/7
               <br />
-              Hotline: 1800 6230
+              Hotline: {hotline}
             </h2>
             <div className="flex gap-[5px]">
-              <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className={socialLinkClass}>
+              <a href={instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className={socialLinkClass}>
                 <InstagramIcon className="h-4 w-4" />
               </a>
-              <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className={socialLinkClass}>
+              <a href={facebookUrl} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className={socialLinkClass}>
                 <FacebookIcon className="h-4 w-4" />
               </a>
-              <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className={socialLinkClass}>
-                <YoutubeIcon className="h-4 w-4" />
-              </a>
+              {youtubeUrl ? (
+                <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className={socialLinkClass}>
+                  <YoutubeIcon className="h-4 w-4" />
+                </a>
+              ) : (
+                <span aria-label="YouTube chưa được cấu hình" className={`${socialLinkClass} cursor-default`}>
+                  <YoutubeIcon className="h-4 w-4" />
+                </span>
+              )}
             </div>
           </div>
 
@@ -85,7 +98,7 @@ export default function Footer() {
       </div>
 
       <Container className="mt-[35px] text-center md:mt-5">
-        <p className="m-0 text-base font-medium text-text">© 2018. All Right Reserved. Thức Coffee</p>
+        <p className="m-0 text-base font-medium text-text">{copyright}</p>
       </Container>
     </footer>
   );

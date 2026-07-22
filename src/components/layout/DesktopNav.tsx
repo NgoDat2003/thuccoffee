@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
+import { categoryHref } from '../../data/category-paths';
+import { useCategories } from '../../services/categories.service';
 import { NAV_LINKS } from './nav-links';
-import { categories, categoryHref } from '../../data';
 
 const rootLinkClass = (isActive: boolean) =>
   `whitespace-nowrap border-b-[3px] pb-[6px] text-[11px] font-normal uppercase leading-6 transition-colors lg:text-sm xl:text-base ${
@@ -10,6 +11,8 @@ const rootLinkClass = (isActive: boolean) =>
   }`;
 
 export default function DesktopNav() {
+  const { data: categories = [] } = useCategories();
+
   return (
     <nav className="hidden h-[35px] items-end gap-3 md:flex lg:gap-5 xl:gap-[35px]" aria-label="Điều hướng chính">
       {NAV_LINKS.map((link) =>

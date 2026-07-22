@@ -2,7 +2,7 @@ import memberBenefitsImage from '../assets/images/site/751cd7ba_2.png';
 import memberQrImage from '../assets/images/site/a030442e_4.png';
 import Container from '../components/ui/Container';
 import FaqAccordion from '../components/ui/FaqAccordion';
-import { pages } from '../data';
+import { pages } from '../data/pages';
 import { usePageMeta } from '../lib/use-page-meta';
 
 export default function MembershipPage() {

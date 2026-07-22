@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import type { Store } from '../../data';
-import { getImageUrl } from '../../lib/image-url';
+import type { Store } from '../../../server/src/modules/stores/stores.schemas';
 import { toTelHref } from '../../lib/format';
+import { getImageUrl } from '../../lib/image-url';
 
 interface StoreCardProps {
   store: Store;

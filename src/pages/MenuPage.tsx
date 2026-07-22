@@ -1,16 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Container from '../components/ui/Container';
-import SectionTitle from '../components/ui/SectionTitle';
-import ProductCard from '../components/ui/ProductCard';
-import CategorySidebar from '../components/menu/CategorySidebar';
 import CategoryDropdown from '../components/menu/CategoryDropdown';
-import {
-  categoryHref,
-  categoryKeyFromPath,
-  getProductsByCategory,
-} from '../data';
+import CategorySidebar from '../components/menu/CategorySidebar';
+import MenuSkeleton from '../components/menu/MenuSkeleton';
+import Container from '../components/ui/Container';
+import ProductCard from '../components/ui/ProductCard';
+import SectionTitle from '../components/ui/SectionTitle';
+import { categoryHref, categoryKeyFromPath } from '../data/category-paths';
 import { usePageMeta } from '../lib/use-page-meta';
+import { useProducts } from '../services/products.service';
 
 export default function MenuPage() {
   usePageMeta('Menu', 'Thực đơn thức uống Thức Coffee - cà phê, trà, milk tea, đá xay và bánh.');
@@ -20,7 +18,7 @@ export default function MenuPage() {
   const routeCategory = slug ? categoryKeyFromPath(slug) : undefined;
   const [selectedCategory, setSelectedCategory] = useState('san-pham-moi');
   const activeCategory = routeCategory ?? selectedCategory;
-  const products = getProductsByCategory(activeCategory);
+  const { data: products = [], isLoading, isError } = useProducts(activeCategory);
 
   const handleSelect = (categoryKey: string) => {
     if (routeCategory) {
@@ -45,7 +43,11 @@ export default function MenuPage() {
         </div>
 
         <div>
-          {products.length > 0 ? (
+          {isLoading ? (
+            <MenuSkeleton />
+          ) : isError ? (
+            <p className="text-gray-500">Không thể tải thực đơn. Vui lòng thử lại sau.</p>
+          ) : products.length > 0 ? (
             <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
               {products.map((product) => (
                 <ProductCard key={product.slug} product={product} />

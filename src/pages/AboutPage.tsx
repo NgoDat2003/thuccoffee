@@ -1,6 +1,6 @@
 import aboutImage from '../assets/images/stores/698435b6_thuc-duong41.jpg';
 import Container from '../components/ui/Container';
-import { pages } from '../data';
+import { pages } from '../data/pages';
 import { usePageMeta } from '../lib/use-page-meta';
 
 export default function AboutPage() {

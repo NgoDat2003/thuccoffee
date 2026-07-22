@@ -27,9 +27,7 @@ export default function CookieBanner() {
     <div className="fixed right-0 bottom-0 left-0 z-40 bg-[#292929] px-4 py-2.5 text-sm leading-[30px] text-white">
       <div className="mx-auto flex max-w-[1170px] flex-col items-center justify-center gap-2 text-center">
         <p className="m-0">
-          Trang web có sử dụng cookies. Nếu bạn tiếp tục, chúng tôi xem như bạn đã chấp nhận việc sử
-          dụng cookies.
-          {' '}
+          Trang web có sử dụng cookies. Nếu bạn tiếp tục, chúng tôi xem như bạn đã chấp nhận việc sử dụng cookies.
           <Link to="/chinh-sach" className="italic text-white hover:underline">
             {'Xem ch\u00ednh s\u00e1ch s\u1eed d\u1ee5ng cookie'}
           </Link>

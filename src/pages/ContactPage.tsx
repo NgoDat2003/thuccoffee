@@ -1,6 +1,6 @@
 import Container from '../components/ui/Container';
 import ContactForm from '../components/ui/ContactForm';
-import { pages } from '../data';
+import { pages } from '../data/pages';
 import { usePageMeta } from '../lib/use-page-meta';
 
 export default function ContactPage() {

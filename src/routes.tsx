@@ -16,7 +16,7 @@ import CookiePolicyPage from './pages/CookiePolicyPage';
 import DeliveryPage from './pages/DeliveryPage';
 import LoginPage from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
-import { isCategoryPath } from './data';
+import { isCategoryPath } from './data/category-paths';
 
 function MenuSlugDispatcher() {
   const { slug } = useParams<{ slug: string }>();

@@ -10,10 +10,12 @@ import {
   YoutubeIcon,
 } from '../ui/Icon';
 import { getImageUrl } from '../../lib/image-url';
+import type { PublicSiteSettings } from '../../../server/src/modules/site-settings/site-settings.schemas';
 
 interface MobileDrawerProps {
   open: boolean;
   onClose: () => void;
+  settings?: PublicSiteSettings;
 }
 
 const drawerLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -21,7 +23,14 @@ const drawerLinkClass = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'text-primary' : 'text-text hover:text-primary'
   }`;
 
-export default function MobileDrawer({ open, onClose }: MobileDrawerProps) {
+export default function MobileDrawer({ open, onClose, settings }: MobileDrawerProps) {
+  const hotline = settings?.hotline ?? '1800 6230';
+  const hotlineHref = `tel:${hotline.replace(/\s+/g, '')}`;
+  const contactEmail = settings?.contactEmail ?? 'info.thuccoffee247@gmail.com';
+  const logoStorageKey = settings?.logoStorageKey ?? '151b6674_circlelogo-white-blue-jul2023.png';
+  const facebookUrl = settings?.facebookUrl ?? SOCIAL_LINKS.facebook;
+  const instagramUrl = settings?.instagramUrl ?? SOCIAL_LINKS.instagram;
+  const youtubeUrl = settings ? settings.youtubeUrl : SOCIAL_LINKS.youtube;
   const location = useLocation();
 
   useEffect(() => {
@@ -65,7 +74,7 @@ export default function MobileDrawer({ open, onClose }: MobileDrawerProps) {
         <div className="flex items-center justify-between py-4">
           <NavLink to="/" aria-label="Thức Coffee - Trang chủ">
             <img
-              src={getImageUrl('151b6674_circlelogo-white-blue-jul2023.png')}
+              src={getImageUrl(logoStorageKey)}
               alt="Thức Coffee"
               className="h-[70px] w-[70px]"
             />
@@ -109,24 +118,30 @@ export default function MobileDrawer({ open, onClose }: MobileDrawerProps) {
         </nav>
 
         <div className="mt-6 space-y-2 text-sm font-medium">
-          <a href="tel:18006230" className="flex items-center gap-2 text-secondary">
-            <PhoneIcon /> 1800 6230
+          <a href={hotlineHref} className="flex items-center gap-2 text-secondary">
+            <PhoneIcon /> {hotline}
           </a>
-          <a href="mailto:info.thuccoffee247@gmail.com" className="block text-text hover:text-primary">
-            info.thuccoffee247@gmail.com
+          <a href={`mailto:${contactEmail}`} className="block text-text hover:text-primary">
+            {contactEmail}
           </a>
         </div>
 
         <div className="mt-6 flex gap-2">
-          <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="flex h-[35px] w-[35px] items-center justify-center rounded-full border border-[#cdcdcd] hover:bg-primary hover:text-white">
+          <a href={facebookUrl} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="flex h-[35px] w-[35px] items-center justify-center rounded-full border border-[#cdcdcd] hover:bg-primary hover:text-white">
             <FacebookIcon className="h-4 w-4" />
           </a>
-          <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex h-[35px] w-[35px] items-center justify-center rounded-full border border-[#cdcdcd] hover:bg-primary hover:text-white">
+          <a href={instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex h-[35px] w-[35px] items-center justify-center rounded-full border border-[#cdcdcd] hover:bg-primary hover:text-white">
             <InstagramIcon className="h-4 w-4" />
           </a>
-          <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="flex h-[35px] w-[35px] items-center justify-center rounded-full border border-[#cdcdcd] hover:bg-primary hover:text-white">
-            <YoutubeIcon className="h-4 w-4" />
-          </a>
+          {youtubeUrl ? (
+            <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="flex h-[35px] w-[35px] items-center justify-center rounded-full border border-[#cdcdcd] hover:bg-primary hover:text-white">
+              <YoutubeIcon className="h-4 w-4" />
+            </a>
+          ) : (
+            <span aria-label="YouTube chưa được cấu hình" className="flex h-[35px] w-[35px] cursor-default items-center justify-center rounded-full border border-[#cdcdcd]">
+              <YoutubeIcon className="h-4 w-4" />
+            </span>
+          )}
         </div>
       </div>
     </aside>

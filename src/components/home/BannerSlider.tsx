@@ -1,14 +1,23 @@
-import EmblaCarousel from '../ui/EmblaCarousel';
 import { getImageUrl } from '../../lib/image-url';
-
-const BANNER_IMAGES = ['3eb3f0f8_cover-2-.jpg', '446135be_cover-fb.jpg'];
+import { useBanners } from '../../services/banners.service';
+import EmblaCarousel from '../ui/EmblaCarousel';
 
 export default function BannerSlider() {
-  const slides = BANNER_IMAGES.map((filename) => (
+  const { data: banners = [], isLoading, isError } = useBanners();
+  const sliderBanners = banners
+    .filter((banner) => banner.type === 'slider')
+    .sort((left, right) => left.sortOrder - right.sortOrder);
+
+  if (isLoading) {
+    return <div className="-mx-2 aspect-[16/7] animate-pulse bg-gray-100 md:h-[calc(100vh-82px)]" />;
+  }
+  if (isError || sliderBanners.length === 0) return null;
+
+  const slides = sliderBanners.map((banner) => (
     <img
-      key={filename}
-      src={getImageUrl(filename)}
-      alt="Thức Coffee"
+      key={`${banner.image}-${banner.sortOrder}`}
+      src={getImageUrl(banner.image)}
+      alt={banner.altText}
       className="block h-auto w-full object-cover md:h-[calc(100vh-82px)]"
     />
   ));
