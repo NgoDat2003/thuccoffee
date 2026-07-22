@@ -1,12 +1,18 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { stores } from '../../data';
-import { getImageUrl } from '../../lib/image-url';
 import { toTelHref } from '../../lib/format';
+import { getImageUrl } from '../../lib/image-url';
+import { useStores } from '../../services/stores.service';
 
 export default function StoreLocator() {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const selected = stores[selectedIndex];
+  const { data: stores = [], isLoading, isError } = useStores();
+  const selected = stores[selectedIndex] ?? stores[0];
+
+  if (isLoading) {
+    return <div className="h-[480px] animate-pulse rounded bg-accent/80" aria-label="Đang tải cửa hàng" />;
+  }
+  if (isError || !selected) return null;
 
   return (
     <div className="rounded bg-accent p-6 text-white md:p-10">
@@ -34,12 +40,12 @@ export default function StoreLocator() {
         </div>
 
         <ul className="flex flex-col gap-2">
-          {stores.map((store, i) => (
+          {stores.map((store, index) => (
             <li key={store.slug}>
               <button
-                onClick={() => setSelectedIndex(i)}
+                onClick={() => setSelectedIndex(index)}
                 className={`w-full rounded px-3 py-2 text-left text-sm font-medium ${
-                  i === selectedIndex ? 'bg-white text-accent' : 'hover:bg-white/10'
+                  index === selectedIndex ? 'bg-white text-accent' : 'hover:bg-white/10'
                 }`}
               >
                 {store.name}

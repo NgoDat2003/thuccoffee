@@ -1,5 +1,5 @@
 import Container from '../components/ui/Container';
-import { pages } from '../data';
+import { pages } from '../data/pages';
 import { usePageMeta } from '../lib/use-page-meta';
 
 export default function CookiePolicyPage() {

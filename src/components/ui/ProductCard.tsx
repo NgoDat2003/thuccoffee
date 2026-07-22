@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { Product } from '../../data';
+import type { Product } from '../../../server/src/modules/products/products.schemas';
 import { getImageUrl } from '../../lib/image-url';
 import { formatPrice } from '../../lib/format';
 

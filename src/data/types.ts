@@ -1,15 +1,3 @@
-export interface Product {
-  name: string;
-  slug: string;
-  price: number;
-  priceEstimated?: boolean;
-  categories: string[];
-  thumb: string;
-  /** Full-resolution source asset used by product detail views. */
-  image?: string;
-  description?: string;
-}
-
 export interface BlogPost {
   title: string;
   slug: string;

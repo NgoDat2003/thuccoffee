@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom';
-import type { Store } from '../../data';
+import { useStores } from '../../services/stores.service';
 
 interface BranchSelectorProps {
   activeSlug: string;
-  stores: Store[];
 }
 
-export default function BranchSelector({ activeSlug, stores }: BranchSelectorProps) {
+export default function BranchSelector({ activeSlug }: BranchSelectorProps) {
+  const { data: stores = [], isError } = useStores();
+
+  if (isError || stores.length === 0) return null;
+
   return (
     <nav aria-label="Chọn cửa hàng" className="mt-10">
       <h2 className="mb-4 text-xl font-bold text-primary">Hệ thống cửa hàng</h2>

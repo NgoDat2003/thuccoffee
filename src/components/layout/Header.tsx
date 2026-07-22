@@ -5,9 +5,14 @@ import DesktopNav from './DesktopNav';
 import MobileDrawer from './MobileDrawer';
 import { HamburgerIcon, PhoneIcon, SearchIcon } from '../ui/Icon';
 import { getImageUrl } from '../../lib/image-url';
+import { useSiteSettings } from '../../services/site-settings.service';
 
 export default function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { data: settings } = useSiteSettings();
+  const hotline = settings?.hotline ?? '1800 6230';
+  const hotlineHref = `tel:${hotline.replace(/\s+/g, '')}`;
+  const logoStorageKey = settings?.logoStorageKey ?? '151b6674_circlelogo-white-blue-jul2023.png';
   const openDrawer = useCallback(() => setDrawerOpen(true), []);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 
@@ -39,7 +44,7 @@ export default function Header() {
       <Container className="hidden h-[82px] items-stretch md:flex">
         <Link to="/" className="flex w-[100px] shrink-0 items-center" aria-label="Thức Coffee - Trang chủ">
           <img
-            src={getImageUrl('151b6674_circlelogo-white-blue-jul2023.png')}
+            src={getImageUrl(logoStorageKey)}
             alt="Thức Coffee"
             className="max-h-[70px] w-auto max-w-full"
           />
@@ -47,8 +52,8 @@ export default function Header() {
 
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex h-[35px] items-center justify-end pt-[7px]">
-            <a href="tel:18006230" className="flex items-center gap-2 font-medium text-text">
-              <PhoneIcon /> 1800 6230
+            <a href={hotlineHref} className="flex items-center gap-2 font-medium text-text">
+              <PhoneIcon /> {hotline}
             </a>
           </div>
           <div className="flex min-h-0 flex-1 items-start justify-end">
@@ -64,7 +69,7 @@ export default function Header() {
         </div>
       </Container>
 
-      <MobileDrawer open={drawerOpen} onClose={closeDrawer} />
+      <MobileDrawer open={drawerOpen} onClose={closeDrawer} settings={settings} />
     </header>
   );
 }

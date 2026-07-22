@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { categories, categoryHref } from '../../data';
+import { categoryHref } from '../../data/category-paths';
+import { useCategories } from '../../services/categories.service';
 
 interface CategorySidebarProps {
   activeKey: string;
@@ -12,26 +13,28 @@ export default function CategorySidebar({
   clientSideSelection,
   onSelect,
 }: CategorySidebarProps) {
+  const { data: categories = [] } = useCategories();
+
   return (
     <ul className="hidden flex-col gap-1 md:flex">
-      {categories.map((cat) => (
-        <li key={cat.key}>
+      {categories.map((category) => (
+        <li key={category.key}>
           <Link
-            to={categoryHref(cat.key)}
+            to={categoryHref(category.key)}
             onClick={(event) => {
               if (clientSideSelection) {
                 event.preventDefault();
-                onSelect(cat.key);
+                onSelect(category.key);
               }
             }}
             className={
               'block w-full rounded px-3 py-2 text-left text-sm font-medium uppercase ' +
-              (cat.key === activeKey
+              (category.key === activeKey
                 ? 'bg-primary text-white'
                 : 'text-gray-700 hover:bg-gray-50')
             }
           >
-            {cat.label}
+            {category.label}
           </Link>
         </li>
       ))}

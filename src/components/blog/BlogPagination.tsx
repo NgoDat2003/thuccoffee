@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
-import { BLOG_PAGE_COUNT } from '../../data';
 
 interface BlogPaginationProps {
   currentPage: number;
+  totalPages: number;
 }
 
-export default function BlogPagination({ currentPage }: BlogPaginationProps) {
+export default function BlogPagination({ currentPage, totalPages }: BlogPaginationProps) {
   const pageLink = (page: number) => '/chuyen-cua-thuc/t1p' + page;
 
   return (
@@ -19,7 +19,7 @@ export default function BlogPagination({ currentPage }: BlogPaginationProps) {
         </Link>
       )}
 
-      {Array.from({ length: BLOG_PAGE_COUNT }, (_, index) => index + 1).map((page) =>
+      {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) =>
         page === currentPage ? (
           <span
             key={page}
@@ -39,7 +39,7 @@ export default function BlogPagination({ currentPage }: BlogPaginationProps) {
         ),
       )}
 
-      {currentPage < BLOG_PAGE_COUNT && (
+      {currentPage < totalPages && (
         <Link
           to={pageLink(currentPage + 1)}
           className="rounded border border-gray-300 px-3 py-2 text-sm hover:border-primary hover:text-primary"

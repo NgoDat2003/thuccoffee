@@ -1,12 +1,22 @@
 import { Link } from 'react-router-dom';
 import { getImageUrl } from '../../lib/image-url';
+import { useBanners } from '../../services/banners.service';
 
 export default function PromoBanner() {
+  const { data: banners = [], isLoading, isError } = useBanners();
+  const promotion = banners.find((banner) => banner.type === 'promotion');
+
+  if (isLoading) return <div className="aspect-[16/7] animate-pulse rounded bg-gray-100" />;
+  if (isError || !promotion) return null;
+
   return (
-    <Link to="/chuong-trinh-thanh-vien" className="block overflow-hidden rounded">
+    <Link
+      to={promotion.linkUrl ?? '/chuong-trinh-thanh-vien'}
+      className="block overflow-hidden rounded"
+    >
       <img
-        src={getImageUrl('2e94f8cc_cover-fb.jpg')}
-        alt="Ưu đãi khi đến với Thức"
+        src={getImageUrl(promotion.image)}
+        alt={promotion.altText}
         className="w-full object-cover"
       />
     </Link>
