@@ -11,7 +11,7 @@ Schema và lý do đằng sau nó: @database-design.md
 |---|---|
 | `docs/database-design.md` | 14 bảng, ràng buộc, quy tắc slug, những thứ cố ý không làm |
 | `src/data/types.ts` | Kiểu dữ liệu hiện tại — gần như là schema |
-| `src/data/index.ts` | Lớp truy cập dữ liệu sẽ được thay ruột |
+| `src/lib/api/`, `src/services/`, `src/providers/` | Data layer FE mới; page chưa chuyển sang hook |
 
 Đọc thêm `docs/deployment.md` và `docs/local-environment-and-ci.md` khi sửa
 container hoặc CI. `docs/deviations-from-original.md` chỉ cần khi thay đổi hành
@@ -26,7 +26,7 @@ Frontend là SPA tĩnh, đã gắn tag `v1.0.0`, deploy được. Nội dung v�
 Backend trong `server/` hiện chạy được, có middleware vận hành, health endpoint
 và chín endpoint đọc công khai cho categories, banners, site settings, stores,
 blog và products. Store detail trả gallery có thứ tự; store list không trả gallery.
-Auth, admin CRUD và việc frontend chuyển sang đọc API thuộc các giai đoạn sau.
+Auth, admin CRUD và việc từng page chuyển sang đọc API thuộc các giai đoạn sau.
 
 Hạ tầng ảnh MinIO đã có trong Compose: API `9000`, console local `9001`, volume
 `minio-data`, bucket `thuccoffee` public-read và lệnh seed
@@ -35,19 +35,20 @@ từ `src/assets/images/`. Snapshot hiện tại có 498 ảnh hợp lệ sau kh
 được đổi thành Unicode trong nội dung blog rồi xoá. Count kiểm chứng phải luôn
 tính động vì tập ảnh còn có thể thay đổi.
 
-Mọi trang đều lấy dữ liệu qua hàm trong `src/data/index.ts` —
-`getProductBySlug()`, `getBlogPage()`, `getStoreBySlug()`. Không trang nào đọc
-thẳng mảng dữ liệu.
-
-Đây là điểm quan trọng nhất: **lớp `index.ts` là ranh giới sẵn có**. Khi có API,
-chỉ cần đổi ruột các hàm này từ `array.find()` sang `fetch()`. Các trang không
-phải sửa.
+Các page hiện vẫn lấy dữ liệu tĩnh qua hàm trong `src/data/index.ts`; chưa page
+nào gọi backend. Data layer bất đồng bộ đã dựng song song: axios client trong
+`src/lib/api/`, sáu service+hook TanStack Query trong `src/services/`, và
+`QueryProvider` trong `src/providers/`. Vòng sau chuyển từng page sang hook rồi
+mới xoá dần lớp dữ liệu tĩnh.
 
 ## Cấu trúc thư mục
 
 ```
 thuccoffee/
 ├── src/                         frontend React + nguồn ảnh local
+│   ├── lib/api/                 axios client + chuẩn hoá response/error
+│   ├── providers/               TanStack Query provider
+│   └── services/                query keys + hook theo tài nguyên
 ├── server/
 │   ├── Dockerfile               image backend Node 22
 │   ├── .env.example             hợp đồng env local
@@ -224,7 +225,7 @@ thay vì quên nhánh lỗi.
 Frontend import thẳng kiểu từ module backend tương ứng:
 
 ```ts
-import type { Product } from '../../server/src/modules/products/schemas';
+import type { Product } from '../../server/src/modules/products/products.schemas';
 ```
 
 Sửa schema ở backend thì frontend báo lỗi ngay trong editor, không qua bước sinh
@@ -329,7 +330,8 @@ Mỗi bước chạy được và kiểm chứng được trước khi sang bư�
    + script seed ảnh. Đã xong, từng phần kiểm chứng độc lập.
 2. **API đọc** — chín endpoint GET ở trên. Đã xong; `npm run smoke:api` kiểm
    chứng 9/9 endpoint, gallery cửa hàng, 404 slug sai và 400 query sai.
-3. **Frontend đọc từ API** — đổi ruột `src/data/index.ts`. Các trang không sửa.
+3. **Frontend đọc từ API** — data layer service+hook đã dựng; chuyển từng page sang
+   hook, xử lý loading/error rồi xoá dần `src/data/index.ts` vẫn là bước kế tiếp.
 4. **Đăng nhập** — bảng `users`, hash mật khẩu, session hoặc JWT, middleware
    chặn `/api/admin/*`.
 5. **Admin CRUD** — giao diện thêm/sửa/xoá nội dung.
@@ -347,11 +349,13 @@ phase frontend/media sau; script ảnh không cập nhật `media_attachments`.
 
 Ba thay đổi không tránh được:
 
-**Dữ liệu trở thành bất đồng bộ.** Các hàm trong `src/data/index.ts` hiện trả
-kết quả ngay; sau khi dùng `fetch` chúng trả Promise. Các trang cần trạng thái
-đang tải và trạng thái lỗi. Dùng TanStack Query ngay từ bước này thay vì tự viết
-`useState`/`useEffect` — trang admin ở giai đoạn sau cần invalidate cache sau mỗi
-lần sửa, và viết lại lúc đó tốn hơn.
+**Data layer bất đồng bộ đã có, page chưa dùng.** `src/lib/api/axios.ts` dùng
+axios interceptor để giữ `{ data, meta? }`, chuẩn hoá lỗi thành `ApiError`, và
+proxy `/api` qua Vite khi dev. Sáu file `src/services/*.service.ts` giữ query key,
+type import từ backend và hook `useQuery`; `QueryProvider` bọc router với cache
+mặc định năm phút. Vòng chuyển page phải render đủ loading/error/data, không tự
+viết fetch trong component. `src/data/*.ts` vẫn là nguồn đang chạy tới khi page
+cuối cùng chuyển xong.
 
 **Phân trang blog đã dùng đủ dữ liệu tĩnh.** `src/data/blog.ts` chứa 267 bản ghi
 metadata cho danh sách. HTML đầy đủ đã làm sạch nằm trong
