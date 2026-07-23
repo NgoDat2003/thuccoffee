@@ -82,12 +82,58 @@ export default function AdminTable<T>({
         </table>
       </div>
       {activePagination && activePagination.totalPages > 1 && (
-        <nav aria-label="Phân trang" className="mt-6 flex items-center justify-center gap-5 border-t border-admin-border pt-5">
-          <button type="button" disabled={activePagination.page <= 1} onClick={() => activePagination.onPageChange(activePagination.page - 1)} className="min-h-11 text-[13px] font-bold text-admin-ink disabled:opacity-35">← Trước</button>
-          <span className="text-[13px] text-admin-muted-2">Trang {activePagination.page} / {activePagination.totalPages}</span>
-          <button type="button" disabled={activePagination.page >= activePagination.totalPages} onClick={() => activePagination.onPageChange(activePagination.page + 1)} className="min-h-11 text-[13px] font-bold text-admin-ink disabled:opacity-35">Sau →</button>
-        </nav>
+        <Pagination
+          page={activePagination.page}
+          totalPages={activePagination.totalPages}
+          onPageChange={activePagination.onPageChange}
+        />
       )}
     </div>
+  );
+}
+
+// Dãy trang kiểu Ant Design: 1 … 4 [5] 6 … 20 — luôn có trang đầu/cuối,
+// cửa sổ ±1 quanh trang hiện tại, chấm lửng thay khoảng trống.
+function pageItems(page: number, totalPages: number): Array<number | '…'> {
+  if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1);
+  const window = [page - 1, page, page + 1].filter((value) => value > 1 && value < totalPages);
+  const items: Array<number | '…'> = [1];
+  if ((window[0] ?? totalPages) > 2) items.push('…');
+  items.push(...window);
+  if ((window[window.length - 1] ?? 1) < totalPages - 1) items.push('…');
+  items.push(totalPages);
+  return items;
+}
+
+export function Pagination({ page, totalPages, onPageChange }: {
+  page: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}) {
+  const arrowClass = 'flex size-8 items-center justify-center rounded-[8px] border border-admin-border text-[13px] text-admin-ink transition-colors hover:border-admin-accent hover:text-admin-accent disabled:opacity-35 disabled:hover:border-admin-border disabled:hover:text-admin-ink';
+  return (
+    <nav aria-label="Phân trang" className="mt-5 flex items-center justify-end gap-1.5 pt-1">
+      <button type="button" aria-label="Trang trước" disabled={page <= 1} onClick={() => onPageChange(page - 1)} className={arrowClass}>‹</button>
+      {pageItems(page, totalPages).map((item, index) => item === '…' ? (
+        <span key={'gap-' + index} className="flex size-8 items-end justify-center pb-1 text-[13px] text-admin-muted-2" aria-hidden="true">…</span>
+      ) : (
+        <button
+          key={item}
+          type="button"
+          aria-label={'Trang ' + item}
+          aria-current={item === page ? 'page' : undefined}
+          onClick={() => onPageChange(item)}
+          className={[
+            'flex size-8 items-center justify-center rounded-[8px] border text-[13px] font-semibold transition-colors',
+            item === page
+              ? 'border-admin-accent bg-admin-accent text-white'
+              : 'border-admin-border text-admin-ink hover:border-admin-accent hover:text-admin-accent',
+          ].join(' ')}
+        >
+          {item}
+        </button>
+      ))}
+      <button type="button" aria-label="Trang sau" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)} className={arrowClass}>›</button>
+    </nav>
   );
 }

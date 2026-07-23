@@ -19,15 +19,22 @@ const categoryKeysByPath = new Map<CategoryPath, CategoryPathKey>(
   Object.entries(categoryPaths).map(([key, path]) => [path, key as CategoryPathKey]),
 );
 
-export function isCategoryPath(slug: string): slug is CategoryPath {
-  return categoryKeysByPath.has(slug as CategoryPath);
+// Product slug luôn mang hậu tố -s<id>t<n> cào từ site gốc; category tạo mới
+// từ admin dùng key trần (không hậu tố). Dispatcher dựa vào đó để phân biệt
+// mà không cần map tĩnh phủ hết.
+const productSlugPattern = /-s\d+t\d+$/;
+
+export function isCategoryPath(slug: string): boolean {
+  return categoryKeysByPath.has(slug as CategoryPath) || !productSlugPattern.test(slug);
 }
 
-export function categoryKeyFromPath(slug: string): CategoryPathKey | undefined {
-  return categoryKeysByPath.get(slug as CategoryPath);
+export function categoryKeyFromPath(slug: string): string | undefined {
+  return categoryKeysByPath.get(slug as CategoryPath)
+    ?? (productSlugPattern.test(slug) ? undefined : slug);
 }
 
 export function categoryHref(categoryKey: string): string {
   const path = categoryPaths[categoryKey as CategoryPathKey];
-  return path ? '/menu/' + path : '/menu';
+  // Category legacy giữ URL có hậu tố khớp site gốc; category mới dùng key trần.
+  return '/menu/' + (path ?? categoryKey);
 }

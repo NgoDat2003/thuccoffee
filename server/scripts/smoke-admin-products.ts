@@ -258,6 +258,30 @@ try {
       expectError(attempted, 400, 'BAD_REQUEST');
     }
   });
+
+  await check('8. category create/delete with product-link guard', async () => {
+    // Tạo mới: key tự sinh từ label có dấu tiếng Việt.
+    const created = expectSuccess(await jsonRequest<AdminCategory>(
+      'POST',
+      '/api/admin/categories',
+      { label: 'Món Smoke Thử ' + Date.now(), sortOrder: 9999 },
+    ), 201);
+    assert(/^mon-smoke-thu-\d+$/.test(created.key), 'Generated key mismatch: ' + created.key);
+
+    // Gắn sản phẩm smoke vào danh mục mới → xóa phải bị 409.
+    assert(productId, 'Product was not created');
+    await pool.query(
+      'INSERT INTO product_categories (product_id, category_id) VALUES ($1, $2)',
+      [productId, created.id],
+    );
+    expectError(await jsonRequest('DELETE', '/api/admin/categories/' + created.id), 409, 'CONFLICT');
+
+    // Gỡ liên kết → xóa 204; xóa lần hai → 404.
+    await pool.query('DELETE FROM product_categories WHERE category_id = $1', [created.id]);
+    const removed = await jsonRequest('DELETE', '/api/admin/categories/' + created.id);
+    assert(removed.status === 204, 'Expected 204, received ' + removed.status);
+    expectError(await jsonRequest('DELETE', '/api/admin/categories/' + created.id), 404, 'NOT_FOUND');
+  });
 } finally {
   if (categoryToRestore) {
     await pool.query(
@@ -270,8 +294,8 @@ try {
 }
 
 if (failures > 0) {
-  console.error('Smoke admin products failed: ' + failures + '/7 checks failed.');
+  console.error('Smoke admin products failed: ' + failures + '/8 checks failed.');
   process.exitCode = 1;
 } else {
-  console.log('Smoke admin products passed: 7/7 checks at ' + baseUrl + '.');
+  console.log('Smoke admin products passed: 8/8 checks at ' + baseUrl + '.');
 }

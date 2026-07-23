@@ -9,24 +9,27 @@
   --color-accent: #79a3b1;
   --color-text: #292929;
   --color-page: #f5f5f5;
-  --color-admin-ink: #241c15;
-  --color-admin-ink-soft: #3a2f24;
-  --color-admin-muted: #7d7364;
-  --color-admin-muted-2: #a8a08f;
-  --color-admin-bg: #f7f2ea;
-  --color-admin-surface: #fffdf9;
-  --color-admin-border: #e4dbcb;
-  --color-admin-border-soft: #eee6d8;
-  --color-admin-border-input: #d8cdb8;
-  --color-admin-sidebar: #1c150f;
-  --color-admin-sidebar-hover: #2b2219;
-  --color-admin-sidebar-muted: #6b5f4f;
-  --color-admin-sidebar-text: #b7ac98;
-  --color-admin-accent: #c8793a;
-  --color-admin-accent-strong: #b5652d;
-  --color-admin-success: #4f7a5a;
-  --color-admin-field: #5c5346;
-  --color-admin-danger: #a94438;
+  /* Palette admin "navy chuyên nghiệp" — sidebar navy đậm, nền xám xanh nhạt,
+     accent xanh dương brand (#0c5278 là primary của site public, kéo sáng hơn
+     một nấc cho nút/link admin). Green chỉ còn ở dot trạng thái. */
+  --color-admin-ink: #17212e;
+  --color-admin-ink-soft: #2c3a4d;
+  --color-admin-muted: #5d6b7e;
+  --color-admin-muted-2: #8d99a9;
+  --color-admin-bg: #f4f6f8;
+  --color-admin-surface: #ffffff;
+  --color-admin-border: #dbe1e8;
+  --color-admin-border-soft: #e8ecf1;
+  --color-admin-border-input: #c6cfda;
+  --color-admin-sidebar: #16233a;
+  --color-admin-sidebar-hover: #22334f;
+  --color-admin-sidebar-muted: #5a6b85;
+  --color-admin-sidebar-text: #9fb0c7;
+  --color-admin-accent: #1373a8;
+  --color-admin-accent-strong: #0c5278;
+  --color-admin-success: #2e7d4f;
+  --color-admin-field: #3f4c5e;
+  --color-admin-danger: #b4372d;
   --font-sans: Roboto, system-ui, sans-serif;
   --container-max: 1170px;
 }
@@ -42,6 +45,17 @@ body {
   font-size: 16px;
   font-weight: 400;
   line-height: 24px;
+}
+
+/* Tailwind v4 bỏ cursor-pointer mặc định của button — admin trả lại con trỏ
+   cho mọi element tương tác (góp ý #3). */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+select:not(:disabled),
+input[type="checkbox"]:not(:disabled),
+label:has(> input[type="checkbox"]:not(:disabled)),
+summary {
+  cursor: pointer;
 }
 
 .admin-drawer {

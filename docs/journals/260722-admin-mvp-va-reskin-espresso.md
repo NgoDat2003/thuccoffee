@@ -50,6 +50,33 @@ sang vòng sau:
 - Codex để **duplicate key** trong package.json scripts (thêm 2 lần chèn giữa)
   — JSON không báo lỗi, chỉ thấy khi đọc lại.
 
+## Vòng bổ sung cùng ngày — navy polish + CRUD danh mục (nhánh `feat/admin-navy-polish`)
+
+User duyệt reskin xong vẫn chưa ưng, liệt kê 5 điểm → xử lý trong một vòng:
+
+1. **Đảo palette lần 2**: bỏ hẳn tông espresso (vừa làm buổi chiều) sang
+   "navy chuyên nghiệp" — sidebar `#16233a`, nền `#f4f6f8`, accent xanh brand.
+   Kiến trúc token trả công: đổi 18 giá trị là xong toàn bộ admin, cấu trúc
+   layout/drawer giữ nguyên. Bài học: chốt "high-fidelity theo design" không
+   đồng nghĩa user sẽ ưng palette khi thấy thật — token hóa từ đầu là bảo hiểm.
+2. **Pagination kiểu Ant** (`‹ 1 … 4 5 6 … 20 ›` căn phải) — component chung
+   export từ AdminTable, 4 list dùng chung.
+3. **cursor-pointer global** — Tailwind v4 bỏ mặc định trên button, phải tự trả.
+4. **CRUD danh mục đầy đủ** (đảo quyết định "MVP giới hạn" cũ): POST sinh key
+   từ label bỏ dấu tiếng Việt, DELETE chặn 409 khi còn sản phẩm; dispatcher
+   public nhận key trần (product slug luôn có hậu tố `-s<id>t<n>` nên phân
+   biệt được) → danh mục mới sống đầy đủ trên `/menu/<key>`. UI danh mục làm
+   lại 2 lần: bản 1 (mỗi dòng là input) bị chê "xấu, không cân, tràn màn" —
+   bản 2 chuyển AdminTable 5 cột + edit inline mới đạt. Bài học: trang quản
+   lý là để ĐỌC, input chỉ hiện khi cần sửa.
+5. **Input box thống nhất** thay underline mỏng (focus ring xanh, 16px chống
+   zoom mobile).
+
+Sự cố lặp: password admin test bị đổi 2 lần giữa các lần verify (`updated_at`
+DB là bằng chứng) — ai đó/tiến trình khác chạy `create-admin` song song; mỗi
+lần verify phải reset trước. Smoke products lên 8 assert (thêm create/delete
+category + guard 409).
+
 ## Nợ còn treo (trước go-live)
 
 - **Seed lifecycle**: `db:seed` vẫn upsert+delete-recreate — chạy lại sau khi

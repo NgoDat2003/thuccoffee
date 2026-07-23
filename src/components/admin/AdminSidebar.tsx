@@ -78,7 +78,7 @@ export default function AdminSidebar({ open, onClose, user }: AdminSidebarProps)
             <p className="mt-px text-[16px] font-bold text-admin-bg">Quản trị</p>
           </div>
         </div>
-        <nav aria-label="Điều hướng quản trị" className="flex flex-1 flex-col gap-[22px] overflow-y-auto">
+        <nav aria-label="Điều hướng quản trị" className="flex min-h-0 flex-1 flex-col gap-[22px]">
           {groups.map((group) => (
             <div key={group.label}>
               <p className="mb-2 px-[10px] text-[10.5px] font-bold uppercase tracking-[0.1em] text-admin-sidebar-muted">{group.label}</p>

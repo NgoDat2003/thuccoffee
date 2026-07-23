@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { AdminStoreListItem } from '../../../server/src/modules/stores/stores.admin.schemas';
 import StoreForm from '../../components/admin/forms/StoreForm';
 import AdminDrawer from '../../components/admin/ui/AdminDrawer';
+import { Pagination } from '../../components/admin/ui/AdminTable';
 import ConfirmDialog from '../../components/admin/ui/ConfirmDialog';
 import PublishSwitch from '../../components/admin/ui/PublishSwitch';
 import StatusBadge from '../../components/admin/ui/StatusBadge';
@@ -57,7 +58,7 @@ function StoresContent() {
         </div>
       )}
 
-      {totalPages > 1 && <nav aria-label="Phân trang cửa hàng" className="mt-6 flex items-center justify-center gap-5 border-t border-admin-border pt-5"><button type="button" disabled={page <= 1} onClick={() => setPage((value) => value - 1)} className="min-h-11 text-[13px] font-bold disabled:opacity-35">← Trước</button><span className="text-[13px] text-admin-muted-2">Trang {page} / {totalPages}</span><button type="button" disabled={page >= totalPages} onClick={() => setPage((value) => value + 1)} className="min-h-11 text-[13px] font-bold disabled:opacity-35">Sau →</button></nav>}
+      {totalPages > 1 && <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />}
 
       <AdminDrawer open={drawerStore !== undefined} title={drawerStore === null ? 'Thêm cửa hàng' : 'Sửa cửa hàng'} onClose={() => setDrawerStore(undefined)}>{drawerStore !== undefined && <StoreForm key={drawerStore ?? 'new'} storeId={drawerStore ?? undefined} onDone={() => setDrawerStore(undefined)} />}</AdminDrawer>
       <ConfirmDialog open={Boolean(pendingUnpublish)} title="Ẩn cửa hàng?" message="Cửa hàng sẽ biến mất khỏi trang công khai nhưng dữ liệu vẫn được giữ." confirmLabel="Ẩn cửa hàng" pending={publishStore.isPending} onCancel={() => setPendingUnpublish(undefined)} onConfirm={() => { if (!pendingUnpublish) return; publishStore.mutate({ id: pendingUnpublish.id, input: { isPublished: false } }, { onSuccess: () => { setPendingUnpublish(undefined); showToast('Đã ẩn cửa hàng.'); }, onError: (error) => showToast(error.message, 'error') }); }} />
