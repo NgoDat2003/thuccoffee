@@ -17,7 +17,12 @@
     "smoke:images": "tsx scripts/smoke-images.ts",
     "db:migrate-image-keys": "tsx src/db/migrate-image-object-keys.ts",
     "smoke:auth": "tsx scripts/smoke-auth.ts",
-    "create-admin": "tsx scripts/create-admin.ts"
+    "create-admin": "tsx scripts/create-admin.ts",
+    "smoke:upload": "tsx scripts/smoke-upload.ts",
+    "smoke:admin-products": "tsx scripts/smoke-admin-products.ts",
+    "smoke:admin-blog": "tsx scripts/smoke-admin-blog.ts",
+    "smoke:admin-stores": "tsx scripts/smoke-admin-stores.ts",
+    "smoke:admin-banners-settings": "tsx scripts/smoke-admin-banners-settings.ts"
   },
   "dependencies": {
     "argon2": "^0.45.1",
@@ -30,9 +35,11 @@
     "helmet": "8.0.0",
     "jsonwebtoken": "^9.0.3",
     "minio": "^8.0.7",
+    "multer": "^2.2.0",
     "pg": "^8.22.0",
     "pino": "9.5.0",
     "pino-http": "10.3.0",
+    "sanitize-html": "^2.17.6",
     "zod": "3.24.1"
   },
   "devDependencies": {
@@ -41,8 +48,10 @@
     "@types/cors": "2.8.17",
     "@types/express": "5.0.0",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.2.0",
     "@types/node": "22.10.5",
     "@types/pg": "^8.20.0",
+    "@types/sanitize-html": "^2.16.1",
     "drizzle-kit": "^0.31.10",
     "oxlint": "1.71.0",
     "tsx": "4.19.2",

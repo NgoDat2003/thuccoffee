@@ -322,10 +322,21 @@ GET    /api/auth/me                trả user hiện tại, cần cookie
 POST   /api/auth/logout            xóa cookie, trả 204
 GET    /api/admin/me               route guard mẫu, cần đăng nhập
 
-POST   /api/admin/products        các route /api/admin/* đều cần đăng nhập
-PUT    /api/admin/products/:id
-DELETE /api/admin/products/:id
+POST   /api/admin/uploads          multipart, validate 3 lớp, trả object key
+GET/POST/PUT/PATCH /api/admin/products[...]   CRUD + publish, M:N categories,
+                                   slug khóa sau tạo, 409 slug trùng
+GET/PUT /api/admin/categories[...]  chỉ label + sortOrder, key bất biến
+GET/POST/PUT/PATCH /api/admin/blog[...]  pagination server, content sanitize
+                                   allow-list; POST /api/admin/blog/preview
+GET/POST/PUT/PATCH /api/admin/stores[...]  + PUT /:id/gallery replace toàn bộ
+GET/POST/PUT/PATCH/DELETE /api/admin/banners[...]  DELETE 204 (ngoại lệ duy
+                                   nhất của policy unpublish-thay-delete)
+GET/PUT /api/admin/site-settings   allow-list 11 key public, key lạ 400
 ```
+
+Mọi route `/api/admin/*` sau guard `requireAuth`. Mỗi resource có smoke script
+riêng (`smoke:upload`, `smoke:admin-products`, `smoke:admin-blog`,
+`smoke:admin-stores`, `smoke:admin-banners-settings`).
 
 Endpoint công khai chỉ trả bản ghi có `is_published = true`.
 
@@ -345,10 +356,20 @@ Mỗi bước chạy được và kiểm chứng được trước khi sang bư�
    có chủ đích (backend chưa có endpoint `pages`).
 4. **Đăng nhập** — Đã xong: bảng `users`, Argon2, JWT cookie httpOnly, middleware
    chặn `/api/admin/*`; `smoke:auth` kiểm chứng 8/8 qua backend và Nginx.
-5. **Admin CRUD** — giao diện thêm/sửa/xoá nội dung.
+5. **Admin CRUD** — Đã xong: shell admin (`/admin/*`, guard qua `useMe`), upload
+   ảnh multipart lên MinIO, CRUD đầy đủ 6 resource (products+categories, blog
+   với sanitize HTML + preview an toàn, stores+gallery, banners, site-settings).
+   Kiểm chứng: 8 smoke suite xanh qua cả backend lẫn Nginx, DOM 6 resource
+   mutation phản ánh public không cần F5.
 
 Bước 4 phải trước bước 5: có CRUD mà không có auth nghĩa là ai cũng sửa được dữ
 liệu.
+
+**Cảnh báo seed lifecycle (bắt buộc xử lý trước go-live):** `npm run db:seed`
+hiện vẫn upsert + delete-recreate — chạy lại sau khi admin sửa nội dung sẽ GHI
+ĐÈ dữ liệu admin. Trước khi vận hành thật phải tách seed thành các lệnh riêng
+(migration / bootstrap-once / dev-reset), không chạy `db:seed` trên DB có dữ
+liệu admin.
 
 MinIO và seed ảnh đã có, nhưng **upload runtime/admin vẫn ngoài danh sách này**.
 Nguồn ảnh hiện vẫn commit trong repo; seed upload theo đường dẫn tương đối, còn

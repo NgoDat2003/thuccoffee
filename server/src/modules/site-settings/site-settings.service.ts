@@ -7,7 +7,9 @@ import {
   type PublicSiteSettings,
 } from './site-settings.schemas.js';
 
-const publicSettingKeys = [
+// Admin PUT dùng lại đúng allow-list này — key ngoài danh sách bị 400,
+// không cho tạo key mới tùy ý qua API.
+export const publicSettingKeys = [
   'site_title',
   'brand_heading',
   'tagline',

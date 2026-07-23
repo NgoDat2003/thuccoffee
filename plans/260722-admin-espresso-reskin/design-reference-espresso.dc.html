@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+    body { margin:0; font-family:Roboto,system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+    ::-webkit-scrollbar { width:10px; height:10px; }
+    ::-webkit-scrollbar-thumb { background:#3a3128; border-radius:8px; }
+  </style>
+</helmet>
+
+<div style="min-height:100vh;background:#f7f2ea;color:#241c15;display:flex">
+
+  <aside style="width:232px;flex-shrink:0;background:#1c150f;padding:28px 14px;display:flex;flex-direction:column;gap:30px;position:sticky;top:0;height:100vh">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 10px">
+      <div style="width:34px;height:34px;border-radius:9999px;background:#c8793a;display:flex;align-items:center;justify-content:center;color:#1c150f;font-weight:900;font-size:15px;flex-shrink:0">T</div>
+      <div>
+        <p style="margin:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.16em;color:#c8793a">Thức Coffee</p>
+        <p style="margin:1px 0 0;font-size:16px;font-weight:700;color:#f7f2ea">Quản trị</p>
+      </div>
+    </div>
+
+    <nav style="display:flex;flex-direction:column;gap:22px;flex:1;overflow-y:auto">
+      <div>
+        <p style="margin:0 0 8px;padding:0 10px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b5f4f">Nội dung</p>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <button onClick="{{ goToDashboard }}" style="display:flex;align-items:center;gap:11px;border:none;border-radius:9px;padding:10px 10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left;background:{{ navDashboardBg }};color:{{ navDashboardColor }}">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="flex-shrink:0"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+            Tổng quan
+          </button>
+          <button onClick="{{ goToProducts }}" style="display:flex;align-items:center;gap:11px;border:none;border-radius:9px;padding:10px 10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left;background:{{ navProductsBg }};color:{{ navProductsColor }}">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="flex-shrink:0"><rect x="4" y="8" width="13" height="10" rx="2"></rect><path d="M17 10h2a2.5 2.5 0 010 5h-2"></path><line x1="4" y1="21" x2="17" y2="21"></line></svg>
+            Sản phẩm
+          </button>
+          <button onClick="{{ goToCategories }}" style="display:flex;align-items:center;gap:11px;border:none;border-radius:9px;padding:10px 10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left;background:{{ navCategoriesBg }};color:{{ navCategoriesColor }}">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="flex-shrink:0"><rect x="4" y="4" width="9" height="6" rx="1.5"></rect><rect x="7.5" y="9" width="9" height="6" rx="1.5"></rect><rect x="11" y="14" width="9" height="6" rx="1.5"></rect></svg>
+            Danh mục
+          </button>
+          <button onClick="{{ goToBlog }}" style="display:flex;align-items:center;gap:11px;border:none;border-radius:9px;padding:10px 10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left;background:{{ navBlogBg }};color:{{ navBlogColor }}">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="flex-shrink:0"><rect x="5" y="3" width="14" height="18" rx="2"></rect><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="13" y2="16"></line></svg>
+            Bài viết
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <p style="margin:0 0 8px;padding:0 10px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b5f4f">Vận hành</p>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <button onClick="{{ goToStores }}" style="display:flex;align-items:center;gap:11px;border:none;border-radius:9px;padding:10px 10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left;background:{{ navStoresBg }};color:{{ navStoresColor }}">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="flex-shrink:0"><circle cx="12" cy="10" r="6"></circle><circle cx="12" cy="10" r="2" fill="currentColor" stroke="none"></circle><line x1="12" y1="16" x2="12" y2="21"></line></svg>
+            Cửa hàng
+          </button>
+          <button onClick="{{ goToBanners }}" style="display:flex;align-items:center;gap:11px;border:none;border-radius:9px;padding:10px 10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left;background:{{ navBannersBg }};color:{{ navBannersColor }}">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="flex-shrink:0"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="8.5" cy="10" r="1.8"></circle><path d="M3 16l5-4 4 3 4-5 5 6"></path></svg>
+            Banner
+          </button>
+          <button onClick="{{ goToSiteSettings }}" style="display:flex;align-items:center;gap:11px;border:none;border-radius:9px;padding:10px 10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left;background:{{ navSettingsBg }};color:{{ navSettingsColor }}">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="flex-shrink:0"><line x1="4" y1="6" x2="20" y2="6"></line><circle cx="9" cy="6" r="2" fill="#1c150f"></circle><line x1="4" y1="12" x2="20" y2="12"></line><circle cx="15" cy="12" r="2" fill="#1c150f"></circle><line x1="4" y1="18" x2="20" y2="18"></line><circle cx="11" cy="18" r="2" fill="#1c150f"></circle></svg>
+            Cài đặt website
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div style="border-top:1px solid #2b2219;padding-top:16px;display:flex;align-items:center;gap:10px">
+      <div style="width:30px;height:30px;border-radius:9999px;background:#2b2219;color:#c8793a;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;flex-shrink:0">A</div>
+      <div style="min-width:0;flex:1">
+        <p style="margin:0;font-size:12.5px;font-weight:600;color:#f7f2ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">admin@thuccoffee.com.vn</p>
+        <p style="margin:0;font-size:11.5px;color:#6b5f4f">Quản trị viên</p>
+      </div>
+      <button title="Đăng xuất" style="width:26px;height:26px;border-radius:7px;border:1px solid #2b2219;background:transparent;display:flex;align-items:center;justify-content:center;color:#8a7f6f;cursor:pointer;flex-shrink:0">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </button>
+    </div>
+  </aside>
+
+  <div style="flex:1;min-width:0">
+    <main style="padding:44px 48px 70px;max-width:1180px">
+
+      <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <p style="margin:0;font-size:13px;font-weight:600;color:#b5652d">{{ today }}</p>
+          <h1 style="margin:4px 0 32px;font-size:34px;font-weight:900;letter-spacing:-0.02em;color:#241c15">Tổng quan</h1>
+
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid #e4dbcb;border-bottom:1px solid #e4dbcb;margin-bottom:40px">
+            <div style="padding:22px 22px 22px 0;border-right:1px solid #e4dbcb">
+              <p style="margin:0;font-size:32px;font-weight:900;color:#241c15;letter-spacing:-0.02em">{{ stats.publishedProducts }}</p>
+              <p style="margin:4px 0 0;font-size:13px;color:#7d7364">Sản phẩm đang bán</p>
+            </div>
+            <div style="padding:22px;border-right:1px solid #e4dbcb">
+              <p style="margin:0;font-size:32px;font-weight:900;color:#241c15;letter-spacing:-0.02em">{{ stats.hiddenProducts }}</p>
+              <p style="margin:4px 0 0;font-size:13px;color:#7d7364">Sản phẩm đã ẩn</p>
+            </div>
+            <div style="padding:22px;border-right:1px solid #e4dbcb">
+              <p style="margin:0;font-size:32px;font-weight:900;color:#241c15;letter-spacing:-0.02em">{{ stats.publishedPosts }}</p>
+              <p style="margin:4px 0 0;font-size:13px;color:#7d7364">Bài viết đã đăng</p>
+            </div>
+            <div style="padding:22px 0 22px 22px">
+              <p style="margin:0;font-size:32px;font-weight:900;color:#241c15;letter-spacing:-0.02em">{{ stats.categories }}</p>
+              <p style="margin:4px 0 0;font-size:13px;color:#7d7364">Danh mục</p>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:48px;align-items:start">
+            <div>
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px">
+                <p style="margin:0;font-size:18px;font-weight:700;color:#241c15">Sản phẩm mới cập nhật</p>
+                <button onClick="{{ goToProducts }}" style="border:none;background:none;color:#b5652d;font-size:13px;font-weight:700;cursor:pointer">Xem tất cả →</button>
+              </div>
+              <div>
+                <sc-for list="{{ recentProducts }}" as="p" hint-placeholder-count="5">
+                  <div style="display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid #eee6d8">
+                    <img src="{{ p.img }}" alt="" style="width:42px;height:42px;border-radius:8px;object-fit:cover;flex-shrink:0" />
+                    <div style="flex:1;min-width:0">
+                      <p style="margin:0;font-size:14.5px;font-weight:600;color:#241c15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</p>
+                      <p style="margin:0;font-size:12px;color:#a8a08f">{{ p.category }}</p>
+                    </div>
+                    <span style="flex-shrink:0;font-size:12px;font-weight:700;color:{{ p.statusColor }}">● {{ p.statusLabel }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px">
+                <p style="margin:0;font-size:18px;font-weight:700;color:#241c15">Bài viết gần đây</p>
+                <button onClick="{{ goToBlog }}" style="border:none;background:none;color:#b5652d;font-size:13px;font-weight:700;cursor:pointer">Xem tất cả →</button>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:16px">
+                <sc-for list="{{ blogPosts }}" as="post" hint-placeholder-count="4">
+                  <div style="display:flex;gap:13px">
+                    <img src="{{ post.cover }}" alt="" style="width:60px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0" />
+                    <div style="min-width:0">
+                      <p style="margin:0;font-size:13.5px;font-weight:600;color:#241c15;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ post.title }}</p>
+                      <p style="margin:4px 0 0;font-size:11.5px;color:#a8a08f">{{ post.publishedAt }}</p>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isProducts }}" hint-placeholder-val="{{ true }}">
+        <section>
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:8px">
+            <div>
+              <p style="margin:0;font-size:13px;font-weight:600;color:#b5652d">Quản trị</p>
+              <h1 style="margin:4px 0 0;font-size:34px;font-weight:900;letter-spacing:-0.02em;color:#241c15">Sản phẩm</h1>
+            </div>
+            <button onClick="{{ openNewProduct }}" style="display:inline-flex;align-items:center;gap:8px;border-radius:9999px;background:#241c15;color:#f7f2ea;border:none;padding:12px 22px;font-size:14px;font-weight:700;cursor:pointer">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Thêm sản phẩm
+            </button>
+          </div>
+          <p style="margin:0 0 26px;font-size:14px;color:#7d7364">Quản lý nội dung hiển thị trên menu.</p>
+
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px">
+            <input placeholder="Tìm tên hoặc slug" style="border:none;border-bottom:1px solid #d8cdb8;background:transparent;padding:9px 4px;font-size:14px;font-family:inherit;flex:1;min-width:200px" />
+            <select style="border:1px solid #d8cdb8;border-radius:9999px;padding:9px 16px;font-size:13px;font-family:inherit;background:transparent"><option>Tất cả danh mục</option></select>
+            <select style="border:1px solid #d8cdb8;border-radius:9999px;padding:9px 16px;font-size:13px;font-family:inherit;background:transparent"><option>Tất cả trạng thái</option></select>
+          </div>
+
+          <sc-if value="{{ selectedCount }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:12px;background:#241c15;border-radius:9999px;padding:10px 20px;margin-bottom:16px">
+              <span style="font-size:13px;font-weight:600;color:#f7f2ea">Đã chọn {{ selectedCount }} sản phẩm</span>
+              <button style="margin-left:auto;border:none;background:#3a2f24;color:#f7f2ea;border-radius:9999px;padding:6px 14px;font-size:12.5px;font-weight:600;cursor:pointer">Hiển thị</button>
+              <button style="border:none;background:#3a2f24;color:#f7f2ea;border-radius:9999px;padding:6px 14px;font-size:12.5px;font-weight:600;cursor:pointer">Ẩn</button>
+            </div>
+          </sc-if>
+
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <thead>
+              <tr style="border-bottom:1px solid #e4dbcb">
+                <th style="padding:0 12px 12px 0;width:30px;text-align:left"><input type="checkbox" checked="{{ allSelected }}" onChange="{{ toggleSelectAll }}" /></th>
+                <th style="padding:0 16px 12px 0;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Sản phẩm</th>
+                <th style="padding:0 16px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Giá</th>
+                <th style="padding:0 16px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Danh mục</th>
+                <th style="padding:0 16px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Trạng thái</th>
+                <th style="padding:0 16px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Thứ tự</th>
+                <th style="padding:0 0 12px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ products }}" as="p" hint-placeholder-count="8">
+                <tr>
+                  <td style="padding:16px 12px 16px 0;border-bottom:1px solid #eee6d8"><input type="checkbox" checked="{{ p.selected }}" onChange="{{ p.onToggle }}" /></td>
+                  <td style="padding:16px 16px 16px 0;border-bottom:1px solid #eee6d8">
+                    <div style="display:flex;align-items:center;gap:13px">
+                      <img src="{{ p.img }}" alt="" style="width:46px;height:46px;border-radius:9px;object-fit:cover;flex-shrink:0" />
+                      <div>
+                        <p style="margin:0;font-size:14.5px;font-weight:600;color:#241c15">{{ p.name }}</p>
+                        <p style="margin:1px 0 0;font-size:12px;color:#a8a08f">{{ p.slug }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td style="padding:16px;border-bottom:1px solid #eee6d8;color:#3a2f24;font-weight:600">{{ p.price }}</td>
+                  <td style="padding:16px;border-bottom:1px solid #eee6d8;color:#7d7364">{{ p.category }}</td>
+                  <td style="padding:16px;border-bottom:1px solid #eee6d8">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <button onClick="{{ p.onTogglePublish }}" style="position:relative;height:22px;width:38px;border-radius:9999px;border:none;cursor:pointer;background:{{ p.switchBg }}">
+                        <span style="position:absolute;top:3px;height:16px;width:16px;border-radius:9999px;background:#fff;left:{{ p.switchLeft }};transition:left .15s"></span>
+                      </button>
+                      <span style="font-size:12.5px;font-weight:600;color:{{ p.statusColor }}">{{ p.statusLabel }}</span>
+                    </div>
+                  </td>
+                  <td style="padding:16px;border-bottom:1px solid #eee6d8;color:#a8a08f">{{ p.sortOrder }}</td>
+                  <td style="padding:16px 0;border-bottom:1px solid #eee6d8">
+                    <div style="display:flex;justify-content:flex-end;gap:16px">
+                      <button onClick="{{ p.onEdit }}" style="border:none;background:none;color:#b5652d;font-weight:600;font-size:13px;cursor:pointer">Sửa</button>
+                      <button style="border:none;background:none;color:#a8a08f;font-weight:600;font-size:13px;cursor:pointer">Xem</button>
+                    </div>
+                  </td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isCategories }}" hint-placeholder-val="{{ true }}">
+        <section>
+          <p style="margin:0;font-size:13px;font-weight:600;color:#b5652d">Quản trị</p>
+          <h1 style="margin:4px 0 8px;font-size:34px;font-weight:900;letter-spacing:-0.02em;color:#241c15">Danh mục</h1>
+          <p style="margin:0 0 28px;font-size:14px;color:#7d7364">Key được khóa để không làm hỏng URL và bộ lọc menu công khai.</p>
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <thead>
+              <tr style="border-bottom:1px solid #e4dbcb">
+                <th style="padding:0 16px 12px 0;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Key cố định</th>
+                <th style="padding:0 16px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Tên hiển thị</th>
+                <th style="padding:0 16px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Thứ tự</th>
+                <th style="padding:0 0 12px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ categories }}" as="c" hint-placeholder-count="6">
+                <tr>
+                  <td style="padding:16px 16px 16px 0;border-bottom:1px solid #eee6d8"><code style="background:#eee6d8;border-radius:6px;padding:3px 8px;font-size:12px;color:#5c5346">{{ c.key }}</code></td>
+                  <td style="padding:16px;border-bottom:1px solid #eee6d8"><input defaultValue="{{ c.label }}" style="min-width:180px;border:none;border-bottom:1px solid #d8cdb8;background:transparent;padding:6px 2px;font-size:14px;font-family:inherit" /></td>
+                  <td style="padding:16px;border-bottom:1px solid #eee6d8"><input type="number" defaultValue="{{ c.sortOrder }}" style="width:60px;border:none;border-bottom:1px solid #d8cdb8;background:transparent;padding:6px 2px;font-size:14px;font-family:inherit" /></td>
+                  <td style="padding:16px 0;border-bottom:1px solid #eee6d8;text-align:right"><button style="border-radius:9999px;background:#241c15;color:#f7f2ea;border:none;padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer">Lưu</button></td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isBlog }}" hint-placeholder-val="{{ true }}">
+        <section>
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:8px">
+            <div>
+              <p style="margin:0;font-size:13px;font-weight:600;color:#b5652d">Quản trị</p>
+              <h1 style="margin:4px 0 0;font-size:34px;font-weight:900;letter-spacing:-0.02em;color:#241c15">Bài viết</h1>
+            </div>
+            <button onClick="{{ openNewBlog }}" style="display:inline-flex;align-items:center;gap:8px;border-radius:9999px;background:#241c15;color:#f7f2ea;border:none;padding:12px 22px;font-size:14px;font-weight:700;cursor:pointer">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Thêm bài viết
+            </button>
+          </div>
+          <p style="margin:0 0 20px;font-size:14px;color:#7d7364">Quản lý nội dung Chuyện của Thức.</p>
+          <input placeholder="Tìm tiêu đề hoặc slug" style="width:100%;max-width:340px;border:none;border-bottom:1px solid #d8cdb8;background:transparent;padding:9px 4px;font-size:14px;font-family:inherit;margin-bottom:24px" />
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <thead>
+              <tr style="border-bottom:1px solid #e4dbcb">
+                <th style="padding:0 16px 12px 0;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Bài viết</th>
+                <th style="padding:0 16px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Ngày đăng</th>
+                <th style="padding:0 16px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Trạng thái</th>
+                <th style="padding:0 16px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Cập nhật</th>
+                <th style="padding:0 0 12px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a8a08f">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ blogPosts }}" as="post" hint-placeholder-count="4">
+                <tr>
+                  <td style="padding:14px 16px 14px 0;border-bottom:1px solid #eee6d8">
+                    <div style="display:flex;align-items:center;gap:13px">
+                      <img src="{{ post.cover }}" alt="" style="width:62px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0" />
+                      <div><p style="margin:0;font-size:14.5px;font-weight:600;color:#241c15">{{ post.title }}</p><p style="margin:1px 0 0;font-size:12px;color:#a8a08f">{{ post.slug }}</p></div>
+                    </div>
+                  </td>
+                  <td style="padding:14px 16px;border-bottom:1px solid #eee6d8;color:#7d7364">{{ post.publishedAt }}</td>
+                  <td style="padding:14px 16px;border-bottom:1px solid #eee6d8">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <button onClick="{{ post.onTogglePublish }}" style="position:relative;height:22px;width:38px;border-radius:9999px;border:none;cursor:pointer;background:{{ post.switchBg }}">
+                        <span style="position:absolute;top:3px;height:16px;width:16px;border-radius:9999px;background:#fff;left:{{ post.switchLeft }};transition:left .15s"></span>
+                      </button>
+                      <span style="font-size:12.5px;font-weight:600;color:{{ post.statusColor }}">{{ post.statusLabel }}</span>
+                    </div>
+                  </td>
+                  <td style="padding:14px 16px;border-bottom:1px solid #eee6d8;color:#a8a08f">{{ post.updatedAt }}</td>
+                  <td style="padding:14px 0;border-bottom:1px solid #eee6d8">
+                    <div style="display:flex;justify-content:flex-end;gap:16px">
+                      <button onClick="{{ post.onEdit }}" style="border:none;background:none;color:#b5652d;font-weight:600;font-size:13px;cursor:pointer">Sửa</button>
+                      <button style="border:none;background:none;color:#a8a08f;font-weight:600;font-size:13px;cursor:pointer">Xem</button>
+                    </div>
+                  </td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+          <nav style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:24px">
+            <button style="border:none;background:none;font-size:13px;font-weight:700;color:#241c15;cursor:pointer">← Trước</button>
+            <span style="font-size:13px;color:#a8a08f">Trang 1 / 12</span>
+            <button style="border:none;background:none;font-size:13px;font-weight:700;color:#241c15;cursor:pointer">Sau →</button>
+          </nav>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isProductForm }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:32px">
+            <button onClick="{{ goToProducts }}" style="border:none;background:none;color:#7d7364;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="11 6 5 12 11 18"></polyline></svg>Danh sách sản phẩm</button>
+          </div>
+          <h1 style="margin:0 0 32px;font-size:34px;font-weight:900;letter-spacing:-0.02em;color:#241c15">{{ productFormTitle }}</h1>
+
+          <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:56px;align-items:start">
+            <div>
+              <p style="margin:0 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#a8a08f">Thông tin cơ bản</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:14px">
+                <div><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Tên sản phẩm *</label><input defaultValue="{{ productDraft.name }}" style="width:100%;border:none;border-bottom:1.5px solid #d8cdb8;padding:8px 2px;font-size:15px;font-family:inherit;box-sizing:border-box;background:transparent" /></div>
+                <div><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Slug *</label><input defaultValue="{{ productDraft.slug }}" style="width:100%;border:none;border-bottom:1.5px solid #d8cdb8;padding:8px 2px;font-size:15px;font-family:inherit;box-sizing:border-box;background:transparent" /></div>
+                <div><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Giá (đ) *</label><input type="number" defaultValue="{{ productDraft.price }}" style="width:100%;border:none;border-bottom:1.5px solid #d8cdb8;padding:8px 2px;font-size:15px;font-family:inherit;box-sizing:border-box;background:transparent" /></div>
+                <div><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Thứ tự *</label><input type="number" defaultValue="{{ productDraft.sortOrder }}" style="width:100%;border:none;border-bottom:1.5px solid #d8cdb8;padding:8px 2px;font-size:15px;font-family:inherit;box-sizing:border-box;background:transparent" /></div>
+              </div>
+              <label style="display:flex;align-items:center;gap:10px;margin-top:22px;font-size:13.5px;font-weight:600;color:#5c5346;cursor:pointer">
+                <input type="checkbox" checked="{{ productDraft.priceEstimated }}" onChange="{{ togglePriceEstimated }}" />
+                Giá ước tính (hiển thị “Từ …đ”)
+              </label>
+              <div style="margin-top:22px">
+                <label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Mô tả</label>
+                <textarea rows="4" defaultValue="{{ productDraft.description }}" style="width:100%;border:1px solid #d8cdb8;border-radius:10px;padding:12px 14px;font-size:14px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#fffdf9"></textarea>
+              </div>
+
+              <p style="margin:32px 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#a8a08f">Danh mục</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+                <sc-for list="{{ categories }}" as="c" hint-placeholder-count="6">
+                  <label style="display:flex;align-items:center;gap:10px;border:1px solid #e4dbcb;border-radius:9999px;padding:9px 14px;font-size:13.5px;color:#3a2f24;cursor:pointer">
+                    <input type="checkbox" defaultChecked="{{ c.checkedInDraft }}" />
+                    {{ c.label }}
+                  </label>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:28px">
+              <div>
+                <p style="margin:0 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#a8a08f">Ảnh thumbnail *</p>
+                <sc-if value="{{ productDraft.thumb }}" hint-placeholder-val="{{ true }}">
+                  <img src="{{ productDraft.thumb }}" alt="" style="width:100%;height:170px;border-radius:14px;object-fit:cover;margin-bottom:12px" />
+                </sc-if>
+                <div style="border:1.5px dashed #d8cdb8;border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#a8a08f;cursor:pointer">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg>
+                  <span style="font-size:12.5px;text-align:center">Kéo thả hoặc chọn ảnh<br/>PNG, JPEG, WebP · tối đa 5MB</span>
+                </div>
+              </div>
+              <div>
+                <p style="margin:0 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#a8a08f">Ảnh chi tiết</p>
+                <div style="border:1.5px dashed #d8cdb8;border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#a8a08f;cursor:pointer">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg>
+                  <span style="font-size:12.5px;text-align:center">Kéo thả hoặc chọn ảnh</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="position:sticky;bottom:24px;background:#241c15;border-radius:9999px;padding:14px 20px 14px 28px;margin-top:36px;display:flex;align-items:center;justify-content:flex-end;gap:14px;max-width:520px;margin-left:auto">
+            <button onClick="{{ goToProducts }}" style="border:none;background:none;color:#a8a08f;padding:8px 6px;font-size:14px;font-weight:600;cursor:pointer">Hủy</button>
+            <button style="border-radius:9999px;background:#c8793a;color:#1c150f;border:none;padding:11px 26px;font-size:14px;font-weight:700;cursor:pointer">Lưu sản phẩm</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isBlogForm }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <button onClick="{{ goToBlog }}" style="border:none;background:none;color:#7d7364;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;margin-bottom:28px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="11 6 5 12 11 18"></polyline></svg>Danh sách bài viết</button>
+          <h1 style="margin:0 0 32px;font-size:34px;font-weight:900;letter-spacing:-0.02em;color:#241c15">{{ blogFormTitle }}</h1>
+
+          <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:56px;align-items:start">
+            <div>
+              <div><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Tiêu đề *</label><input defaultValue="{{ blogDraft.title }}" style="width:100%;border:none;border-bottom:1.5px solid #d8cdb8;padding:8px 2px;font-size:15px;font-family:inherit;box-sizing:border-box;background:transparent" /></div>
+              <div style="margin-top:20px"><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Slug *</label><input defaultValue="{{ blogDraft.slug }}" style="width:100%;border:none;border-bottom:1.5px solid #d8cdb8;padding:8px 2px;font-size:15px;font-family:inherit;box-sizing:border-box;background:transparent" /></div>
+              <div style="margin-top:20px"><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Tóm tắt</label><textarea rows="2" defaultValue="{{ blogDraft.excerpt }}" style="width:100%;border:1px solid #d8cdb8;border-radius:10px;padding:10px 14px;font-size:14px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#fffdf9"></textarea></div>
+              <div style="margin-top:20px"><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Nội dung</label><textarea rows="10" defaultValue="{{ blogDraft.content }}" style="width:100%;border:1px solid #d8cdb8;border-radius:10px;padding:10px 14px;font-size:14px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#fffdf9"></textarea></div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:28px">
+              <div>
+                <p style="margin:0 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#a8a08f">Ảnh bìa</p>
+                <sc-if value="{{ blogDraft.cover }}" hint-placeholder-val="{{ true }}">
+                  <img src="{{ blogDraft.cover }}" alt="" style="width:100%;height:150px;border-radius:14px;object-fit:cover;margin-bottom:12px" />
+                </sc-if>
+                <div style="border:1.5px dashed #d8cdb8;border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#a8a08f;cursor:pointer">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg>
+                  <span style="font-size:12.5px;text-align:center">Kéo thả hoặc chọn ảnh</span>
+                </div>
+              </div>
+              <div>
+                <p style="margin:0 0 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#a8a08f">Xuất bản</p>
+                <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+                  <span style="font-size:13.5px;font-weight:600;color:#3a2f24">Hiển thị công khai</span>
+                  <button onClick="{{ toggleBlogPublish }}" style="position:relative;height:22px;width:38px;border-radius:9999px;border:none;cursor:pointer;background:{{ blogDraft.switchBg }}">
+                    <span style="position:absolute;top:3px;height:16px;width:16px;border-radius:9999px;background:#fff;left:{{ blogDraft.switchLeft }};transition:left .15s"></span>
+                  </button>
+                </label>
+                <div style="margin-top:16px"><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Ngày đăng</label><input type="date" defaultValue="{{ blogDraft.publishedAtInput }}" style="width:100%;border:1px solid #d8cdb8;border-radius:9999px;padding:8px 14px;font-size:14px;font-family:inherit;box-sizing:border-box;background:#fffdf9" /></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="position:sticky;bottom:24px;background:#241c15;border-radius:9999px;padding:14px 20px 14px 28px;margin-top:36px;display:flex;align-items:center;justify-content:flex-end;gap:14px;max-width:520px;margin-left:auto">
+            <button onClick="{{ goToBlog }}" style="border:none;background:none;color:#a8a08f;padding:8px 6px;font-size:14px;font-weight:600;cursor:pointer">Hủy</button>
+            <button style="border-radius:9999px;background:#c8793a;color:#1c150f;border:none;padding:11px 26px;font-size:14px;font-weight:700;cursor:pointer">Lưu bài viết</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isStores }}" hint-placeholder-val="{{ false }}">
+        <section>
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:8px">
+            <div>
+              <p style="margin:0;font-size:13px;font-weight:600;color:#b5652d">Quản trị</p>
+              <h1 style="margin:4px 0 0;font-size:34px;font-weight:900;letter-spacing:-0.02em;color:#241c15">Cửa hàng</h1>
+            </div>
+            <button style="display:inline-flex;align-items:center;gap:8px;border-radius:9999px;background:#241c15;color:#f7f2ea;border:none;padding:12px 22px;font-size:14px;font-weight:700;cursor:pointer">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Thêm cửa hàng
+            </button>
+          </div>
+          <p style="margin:0 0 28px;font-size:14px;color:#7d7364">Quản lý danh sách chi nhánh hiển thị ở trang “Cửa hàng”.</p>
+
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:28px">
+            <sc-for list="{{ stores }}" as="s" hint-placeholder-count="4">
+              <div style="display:flex;gap:16px;border-bottom:1px solid #e4dbcb;padding-bottom:24px">
+                <img src="{{ s.image }}" alt="" style="width:140px;height:104px;border-radius:12px;object-fit:cover;flex-shrink:0" />
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+                    <p style="margin:0;font-size:16px;font-weight:700;color:#241c15">{{ s.name }}</p>
+                    <button style="border:none;background:none;color:#b5652d;font-weight:600;font-size:13px;cursor:pointer;flex-shrink:0">Sửa</button>
+                  </div>
+                  <p style="margin:6px 0 0;font-size:13px;color:#7d7364;line-height:1.4">{{ s.address }}</p>
+                  <div style="display:flex;align-items:center;gap:14px;margin-top:10px">
+                    <span style="font-size:12.5px;color:#a8a08f">{{ s.phone }}</span>
+                    <span style="font-size:12.5px;color:#4f7a5a;font-weight:600">● {{ s.hours }}</span>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isBanners }}" hint-placeholder-val="{{ false }}">
+        <section>
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:8px">
+            <div>
+              <p style="margin:0;font-size:13px;font-weight:600;color:#b5652d">Quản trị</p>
+              <h1 style="margin:4px 0 0;font-size:34px;font-weight:900;letter-spacing:-0.02em;color:#241c15">Banner</h1>
+            </div>
+            <button style="display:inline-flex;align-items:center;gap:8px;border-radius:9999px;background:#241c15;color:#f7f2ea;border:none;padding:12px 22px;font-size:14px;font-weight:700;cursor:pointer">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Thêm banner
+            </button>
+          </div>
+          <p style="margin:0 0 28px;font-size:14px;color:#7d7364">Quản lý ảnh trình chiếu ở đầu trang chủ.</p>
+
+          <div style="display:flex;flex-direction:column;gap:0">
+            <sc-for list="{{ banners }}" as="b" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:18px;padding:18px 0;border-bottom:1px solid #eee6d8">
+                <img src="{{ b.image }}" alt="" style="width:150px;height:66px;border-radius:10px;object-fit:cover;flex-shrink:0" />
+                <div style="flex:1;min-width:0">
+                  <p style="margin:0;font-size:14.5px;font-weight:600;color:#241c15">{{ b.altText }}</p>
+                  <p style="margin:2px 0 0;font-size:12.5px;color:#a8a08f">{{ b.type }} · Thứ tự {{ b.sortOrder }}</p>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <button onClick="{{ b.onTogglePublish }}" style="position:relative;height:22px;width:38px;border-radius:9999px;border:none;cursor:pointer;background:{{ b.switchBg }}">
+                    <span style="position:absolute;top:3px;height:16px;width:16px;border-radius:9999px;background:#fff;left:{{ b.switchLeft }};transition:left .15s"></span>
+                  </button>
+                  <span style="font-size:12.5px;font-weight:600;color:{{ b.statusColor }};width:78px">{{ b.statusLabel }}</span>
+                </div>
+                <button style="border:none;background:none;color:#b5652d;font-weight:600;font-size:13px;cursor:pointer;flex-shrink:0">Sửa</button>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isSiteSettings }}" hint-placeholder-val="{{ false }}">
+        <section>
+          <p style="margin:0;font-size:13px;font-weight:600;color:#b5652d">Quản trị</p>
+          <h1 style="margin:4px 0 8px;font-size:34px;font-weight:900;letter-spacing:-0.02em;color:#241c15">Cài đặt website</h1>
+          <p style="margin:0 0 32px;font-size:14px;color:#7d7364">Thông tin chung hiển thị ở footer, trang liên hệ và SEO.</p>
+
+          <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:56px;align-items:start">
+            <div>
+              <p style="margin:0 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#a8a08f">Thông tin chung</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:14px">
+                <div><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Tên website</label><input defaultValue="Thức Coffee" style="width:100%;border:none;border-bottom:1.5px solid #d8cdb8;padding:8px 2px;font-size:15px;font-family:inherit;box-sizing:border-box;background:transparent" /></div>
+                <div><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Hotline</label><input defaultValue="1900 6106" style="width:100%;border:none;border-bottom:1.5px solid #d8cdb8;padding:8px 2px;font-size:15px;font-family:inherit;box-sizing:border-box;background:transparent" /></div>
+                <div style="grid-column:1 / -1"><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Địa chỉ trụ sở</label><input defaultValue="40D Lý Tự Trọng, P.Bến Nghé, Q.1, TP.HCM" style="width:100%;border:none;border-bottom:1.5px solid #d8cdb8;padding:8px 2px;font-size:15px;font-family:inherit;box-sizing:border-box;background:transparent" /></div>
+              </div>
+              <div style="margin-top:22px">
+                <label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Mô tả SEO (meta description)</label>
+                <textarea rows="3" defaultValue="Thức Coffee — chuỗi cà phê take-away 24/7 tại TP.HCM." style="width:100%;border:1px solid #d8cdb8;border-radius:10px;padding:12px 14px;font-size:14px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#fffdf9"></textarea>
+              </div>
+
+              <p style="margin:32px 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#a8a08f">Mạng xã hội</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:14px">
+                <div><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Facebook</label><input defaultValue="facebook.com/thuccoffee" style="width:100%;border:none;border-bottom:1.5px solid #d8cdb8;padding:8px 2px;font-size:15px;font-family:inherit;box-sizing:border-box;background:transparent" /></div>
+                <div><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Instagram</label><input defaultValue="instagram.com/thuc.coffee" style="width:100%;border:none;border-bottom:1.5px solid #d8cdb8;padding:8px 2px;font-size:15px;font-family:inherit;box-sizing:border-box;background:transparent" /></div>
+                <div><label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:#5c5346">Zalo OA</label><input defaultValue="zalo.me/thuccoffee" style="width:100%;border:none;border-bottom:1.5px solid #d8cdb8;padding:8px 2px;font-size:15px;font-family:inherit;box-sizing:border-box;background:transparent" /></div>
+              </div>
+            </div>
+
+            <div>
+              <p style="margin:0 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#a8a08f">Logo</p>
+              <div style="border:1.5px dashed #d8cdb8;border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#a8a08f;cursor:pointer;margin-bottom:24px">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg>
+                <span style="font-size:12.5px;text-align:center">Kéo thả hoặc chọn logo</span>
+              </div>
+              <p style="margin:0 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#a8a08f">Favicon</p>
+              <div style="border:1.5px dashed #d8cdb8;border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#a8a08f;cursor:pointer">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg>
+                <span style="font-size:12.5px;text-align:center">Kéo thả hoặc chọn favicon</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="position:sticky;bottom:24px;background:#241c15;border-radius:9999px;padding:14px 20px 14px 28px;margin-top:36px;display:flex;align-items:center;justify-content:flex-end;gap:14px;max-width:400px;margin-left:auto">
+            <button style="border:none;background:none;color:#a8a08f;padding:8px 6px;font-size:14px;font-weight:600;cursor:pointer">Hủy</button>
+            <button style="border-radius:9999px;background:#c8793a;color:#1c150f;border:none;padding:11px 26px;font-size:14px;font-weight:700;cursor:pointer">Lưu cài đặt</button>
+          </div>
+        </section>
+      </sc-if>
+
+    </main>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PRODUCT_SEED = [
+  { id: 1, name: 'Cà Phê Đen', slug: 'ca-phe-den', img: 'assets/products/black-coffee.jpg', price: 29000, category: 'Cà phê', sortOrder: 1, published: true },
+  { id: 2, name: 'Americano', slug: 'americano', img: 'assets/products/americano.jpg', price: 35000, category: 'Cà phê', sortOrder: 2, published: true },
+  { id: 3, name: 'Espresso', slug: 'espresso', img: 'assets/products/espresso.jpg', price: 29000, category: 'Cà phê', sortOrder: 3, published: true },
+  { id: 4, name: 'Coco Latte', slug: 'coco-latte', img: 'assets/products/coco-latte.jpg', price: 45000, category: 'Cà phê sữa', sortOrder: 4, published: false },
+  { id: 5, name: 'Matcha Tea Latte', slug: 'matcha-tea-latte', img: 'assets/products/matcha-tea-latte.jpg', price: 49000, category: 'Trà sữa', sortOrder: 5, published: true },
+  { id: 6, name: 'Oolong Bubble Milk Tea', slug: 'oolong-bubble-milk-tea', img: 'assets/products/oolong-bubble-milk-tea.jpg', price: 45000, category: 'Trà sữa', sortOrder: 6, published: true },
+  { id: 7, name: 'Golden Berry Passion Tea', slug: 'golden-berry-passion-tea', img: 'assets/products/golden-berry-passion-tea.jpg', price: 49000, category: 'Trà trái cây', sortOrder: 7, published: true },
+  { id: 8, name: 'Tiramisu Choco', slug: 'tiramisu-choco', img: 'assets/products/tiramisu-choco.jpg', price: 55000, category: 'Đá xay', sortOrder: 8, published: false },
+];
+
+const CATEGORY_SEED = [
+  { id: 1, key: 'ca-phe', label: 'Cà phê', sortOrder: 1 },
+  { id: 2, key: 'ca-phe-sua', label: 'Cà phê sữa', sortOrder: 2 },
+  { id: 3, key: 'tra-sua', label: 'Trà sữa', sortOrder: 3 },
+  { id: 4, key: 'tra-trai-cay', label: 'Trà trái cây', sortOrder: 4 },
+  { id: 5, key: 'da-xay', label: 'Đá xay', sortOrder: 5 },
+  { id: 6, key: 'khac', label: 'Khác', sortOrder: 6 },
+];
+
+const STORE_SEED = [
+  { name: 'Thức Coffee - 40D Lý Tự Trọng', address: '40D Lý Tự Trọng, P.Bến Nghé, Q.1, TP.HCM', phone: '028 3822 1081', hours: 'Mở cửa 24/7', image: 'assets/stores/ly-tu-trong.jpg' },
+  { name: 'Thức Coffee - Đường 41', address: 'Số 2, đường số 41, Phường 6, Quận 4, TP.HCM', phone: '028 6275 4531', hours: 'Mở cửa 24/7', image: 'assets/stores/duong-41.jpg' },
+  { name: 'Thức Coffee - 42 Cống Quỳnh', address: '42 Cống Quỳnh, P.Nguyễn Cư Trinh, Q.1, TP.HCM', phone: '028 6291 0488', hours: 'Mở cửa 24/7', image: 'assets/stores/cong-quynh.jpg' },
+  { name: 'Thức Coffee - 42 Hoa Phượng', address: '42 Hoa Phượng, P.2, Q.Phú Nhuận, TP.HCM', phone: '028 3517 8199', hours: 'Mở cửa 24/7', image: 'assets/stores/hoa-phuong.jpg' },
+];
+
+const BANNER_SEED = [
+  { id: 1, altText: 'Banner trang chủ — bộ sưu tập mùa hè', type: 'Trang chủ', sortOrder: 1, image: 'assets/blog/luc-tra-sau-dua.jpg', published: true },
+  { id: 2, altText: 'Khuyến mãi — mua 1 tặng 1 thứ Tư', type: 'Khuyến mãi', sortOrder: 2, image: 'assets/blog/booth-post.jpg', published: true },
+  { id: 3, altText: 'Ra mắt Trà Sen Lá Nếp', type: 'Trang chủ', sortOrder: 3, image: 'assets/blog/tra-sen-la-nep.jpg', published: false },
+];
+
+const BLOG_SEED = [
+  { id: 1, title: 'Lục Trà Sâu Riêng — hương vị mùa hè mới', slug: 'luc-tra-sau-rieng', cover: 'assets/blog/luc-tra-sau-dua.jpg', publishedAt: '18/07/2026', updatedAt: '20/07/2026', published: true },
+  { id: 2, title: 'Ghé thăm booth Thức Coffee tại sự kiện cuối tuần', slug: 'booth-cuoi-tuan', cover: 'assets/blog/booth-post.jpg', publishedAt: '12/07/2026', updatedAt: '15/07/2026', published: true },
+  { id: 3, title: 'Lục Trà Me Mãng Cầu — vị chua ngọt đúng điệu', slug: 'luc-tra-me-mang-cau', cover: 'assets/blog/luc-tra-me-mang-cau.jpg', publishedAt: '05/07/2026', updatedAt: '05/07/2026', published: true },
+  { id: 4, title: 'Trà Sen Lá Nếp — bản giới hạn tháng 7', slug: 'tra-sen-la-nep', cover: 'assets/blog/tra-sen-la-nep.jpg', publishedAt: '28/06/2026', updatedAt: '01/07/2026', published: false },
+];
+
+class Component extends DCLogic {
+  state = {
+    screen: 'dashboard',
+    products: PRODUCT_SEED.map((p) => ({ ...p, selected: false })),
+    blogPosts: BLOG_SEED.map((p) => ({ ...p })),
+    banners: BANNER_SEED.map((b) => ({ ...b })),
+    productDraft: null,
+    blogDraft: null,
+  };
+
+  goTo(screen) { this.setState({ screen }); }
+
+  openNewProduct() {
+    this.setState({
+      screen: 'productForm',
+      productDraft: { name: '', slug: '', price: 0, sortOrder: this.state.products.length + 1, priceEstimated: false, thumb: '', description: '', categoryIds: [] },
+    });
+  }
+
+  openEditProduct(p) {
+    this.setState({ screen: 'productForm', productDraft: { ...p, categoryIds: [] } });
+  }
+
+  togglePriceEstimated() {
+    this.setState((s) => ({ productDraft: { ...s.productDraft, priceEstimated: !s.productDraft.priceEstimated } }));
+  }
+
+  toggleProductPublish(id) {
+    this.setState((s) => ({ products: s.products.map((p) => p.id === id ? { ...p, published: !p.published } : p) }));
+  }
+
+  toggleProductSelect(id) {
+    this.setState((s) => ({ products: s.products.map((p) => p.id === id ? { ...p, selected: !p.selected } : p) }));
+  }
+
+  toggleSelectAll() {
+    const allSelected = this.state.products.every((p) => p.selected);
+    this.setState((s) => ({ products: s.products.map((p) => ({ ...p, selected: !allSelected })) }));
+  }
+
+  openNewBlog() {
+    this.setState({ screen: 'blogForm', blogDraft: { title: '', slug: '', excerpt: '', content: '', cover: '', published: false, publishedAtInput: '' } });
+  }
+
+  openEditBlog(post) {
+    this.setState({ screen: 'blogForm', blogDraft: { ...post, excerpt: '', content: '', publishedAtInput: '' } });
+  }
+
+  toggleBlogPublish() {
+    this.setState((s) => ({ blogDraft: { ...s.blogDraft, published: !s.blogDraft.published } }));
+  }
+
+  toggleBlogListPublish(id) {
+    this.setState((s) => ({ blogPosts: s.blogPosts.map((p) => p.id === id ? { ...p, published: !p.published } : p) }));
+  }
+
+  toggleBannerPublish(id) {
+    this.setState((s) => ({ banners: s.banners.map((b) => b.id === id ? { ...b, published: !b.published } : b) }));
+  }
+
+  renderVals() {
+    const { screen, products, blogPosts, banners, productDraft, blogDraft } = this.state;
+
+    const navBg = (name) => screen === name ? '#2b2219' : 'transparent';
+    const navColor = (name) => screen === name ? '#c8793a' : '#b7ac98';
+
+    const decorateStatus = (published) => ({
+      statusColor: published ? '#4f7a5a' : '#a8a08f',
+      statusLabel: published ? 'Đang hiển thị' : 'Đã ẩn',
+      switchBg: published ? '#4f7a5a' : '#d8cdb8',
+      switchLeft: published ? '19px' : '3px',
+    });
+
+    const decoratedProducts = products.map((p) => ({
+      ...p,
+      ...decorateStatus(p.published),
+      price: p.price.toLocaleString('vi-VN') + 'đ',
+      onTogglePublish: () => this.toggleProductPublish(p.id),
+      onToggle: () => this.toggleProductSelect(p.id),
+      onEdit: () => this.openEditProduct(p),
+    }));
+
+    const selectedCount = products.filter((p) => p.selected).length;
+    const allSelected = products.length > 0 && products.every((p) => p.selected);
+
+    const decoratedBlogPosts = blogPosts.map((post) => ({
+      ...post,
+      ...decorateStatus(post.published),
+      onTogglePublish: () => this.toggleBlogListPublish(post.id),
+      onEdit: () => this.openEditBlog(post),
+    }));
+
+    const decoratedCategories = CATEGORY_SEED.map((c) => ({ ...c, checkedInDraft: productDraft?.categoryIds?.includes(c.id) ?? false }));
+
+    const decoratedBanners = banners.map((b) => ({
+      ...b,
+      ...decorateStatus(b.published),
+      onTogglePublish: () => this.toggleBannerPublish(b.id),
+    }));
+
+    const stats = {
+      publishedProducts: products.filter((p) => p.published).length,
+      hiddenProducts: products.filter((p) => !p.published).length,
+      publishedPosts: blogPosts.filter((p) => p.published).length,
+      categories: CATEGORY_SEED.length,
+    };
+
+    const pageTitleMap = {
+      productForm: productDraft?.id ? 'Sửa sản phẩm' : 'Thêm sản phẩm',
+      blogForm: blogDraft?.id ? 'Sửa bài viết' : 'Thêm bài viết',
+    };
+
+    return {
+      isDashboard: screen === 'dashboard',
+      isProducts: screen === 'products',
+      isCategories: screen === 'categories',
+      isBlog: screen === 'blog',
+      isProductForm: screen === 'productForm',
+      isBlogForm: screen === 'blogForm',
+      isStores: screen === 'stores',
+      isBanners: screen === 'banners',
+      isSiteSettings: screen === 'siteSettings',
+      today: 'Thứ Tư, 22 Tháng 7 2026',
+
+      navDashboardBg: navBg('dashboard'), navDashboardColor: navColor('dashboard'),
+      navProductsBg: navBg('products'), navProductsColor: navColor('products'),
+      navCategoriesBg: navBg('categories'), navCategoriesColor: navColor('categories'),
+      navBlogBg: navBg('blog'), navBlogColor: navColor('blog'),
+      navStoresBg: navBg('stores'), navStoresColor: navColor('stores'),
+      navBannersBg: navBg('banners'), navBannersColor: navColor('banners'),
+      navSettingsBg: navBg('siteSettings'), navSettingsColor: navColor('siteSettings'),
+
+      goToDashboard: () => this.goTo('dashboard'),
+      goToProducts: () => this.goTo('products'),
+      goToCategories: () => this.goTo('categories'),
+      goToBlog: () => this.goTo('blog'),
+      goToStores: () => this.goTo('stores'),
+      goToBanners: () => this.goTo('banners'),
+      goToSiteSettings: () => this.goTo('siteSettings'),
+      openNewProduct: () => this.openNewProduct(),
+      openNewBlog: () => this.openNewBlog(),
+      togglePriceEstimated: () => this.togglePriceEstimated(),
+      toggleSelectAll: () => this.toggleSelectAll(),
+      toggleBlogPublish: () => this.toggleBlogPublish(),
+
+      products: decoratedProducts,
+      recentProducts: decoratedProducts.slice(0, 5),
+      selectedCount,
+      allSelected,
+      categories: decoratedCategories,
+      blogPosts: decoratedBlogPosts,
+      stores: STORE_SEED,
+      banners: decoratedBanners,
+      stats,
+
+      productFormTitle: pageTitleMap.productForm,
+      productDraft: productDraft ?? {},
+      blogFormTitle: pageTitleMap.blogForm,
+      blogDraft: blogDraft ? { ...blogDraft, switchBg: blogDraft.published ? '#4f7a5a' : '#d8cdb8', switchLeft: blogDraft.published ? '19px' : '3px' } : {},
+    };
+  }
+}
+</script>
+</body>
+</html>

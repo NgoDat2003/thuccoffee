@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import { MulterError } from 'multer';
 import { ZodError } from 'zod';
 
 import { ApiError } from './api-error.js';
@@ -27,6 +28,14 @@ export function errorHandler(
   res: Response,
   _next: NextFunction,
 ): void {
+  if (err instanceof MulterError) {
+    const message = err.code === 'LIMIT_FILE_SIZE'
+      ? 'File vượt quá 5MB.'
+      : 'Dữ liệu upload không hợp lệ.';
+    res.status(400).json(errorBody('BAD_REQUEST', message));
+    return;
+  }
+
   if (err instanceof ApiError) {
     res
       .status(err.statusCode)
