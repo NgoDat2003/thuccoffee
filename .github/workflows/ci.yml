@@ -34,6 +34,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Backend co package-lock rieng. Phai cai TRUOC buoc Build frontend:
+      # tsc cua frontend di theo import type vao server/src/**/*.schemas.ts,
+      # cac file do import zod/drizzle-orm nen can server/node_modules de resolve.
+      - name: Install server dependencies
+        working-directory: server
+        run: npm ci
+
       # Chay lint — bao do neu co loi
       - name: Lint
         run: npm run lint
@@ -41,11 +48,6 @@ jobs:
       # Build production — bao do neu TypeScript hoac Vite loi
       - name: Build
         run: npm run build
-
-      # Backend co package-lock rieng, nen cai va kiem tra trong server/.
-      - name: Install server dependencies
-        working-directory: server
-        run: npm ci
 
       - name: Lint server
         working-directory: server
