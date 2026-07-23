@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { AdminBanner, BannerType } from '../../../server/src/modules/banners/banners.admin.schemas';
 import BannerForm from '../../components/admin/forms/BannerForm';
 import AdminDrawer from '../../components/admin/ui/AdminDrawer';
+import { Pagination } from '../../components/admin/ui/AdminTable';
 import ConfirmDialog from '../../components/admin/ui/ConfirmDialog';
 import PublishSwitch from '../../components/admin/ui/PublishSwitch';
 import StatusBadge from '../../components/admin/ui/StatusBadge';
@@ -46,7 +47,7 @@ function BannersContent() {
           <button type="button" onClick={() => setPendingDelete(banner)} className="shrink-0 text-[13px] font-semibold text-admin-danger">Xóa</button>
         </article>
       ))}</div>}
-      {totalPages > 1 && <nav aria-label="Phân trang banner" className="mt-6 flex items-center justify-center gap-5 border-t border-admin-border pt-5"><button type="button" disabled={page <= 1} onClick={() => setPage((value) => value - 1)} className="min-h-11 text-[13px] font-bold disabled:opacity-35">← Trước</button><span className="text-[13px] text-admin-muted-2">Trang {page} / {totalPages}</span><button type="button" disabled={page >= totalPages} onClick={() => setPage((value) => value + 1)} className="min-h-11 text-[13px] font-bold disabled:opacity-35">Sau →</button></nav>}
+      {totalPages > 1 && <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />}
 
       <AdminDrawer open={drawerBanner !== undefined} title={drawerBanner === null ? 'Thêm banner' : 'Sửa banner'} onClose={() => setDrawerBanner(undefined)}>{drawerBanner !== undefined && <BannerForm key={drawerBanner ?? 'new'} bannerId={drawerBanner ?? undefined} onDone={() => setDrawerBanner(undefined)} />}</AdminDrawer>
       <ConfirmDialog open={Boolean(pendingDelete)} title="Xóa banner?" message="Banner sẽ bị xóa vĩnh viễn — banner không được nội dung nào tham chiếu nên thao tác này an toàn." confirmLabel="Xóa banner" pending={deleteBanner.isPending} onCancel={() => setPendingDelete(undefined)} onConfirm={() => { if (!pendingDelete) return; deleteBanner.mutate(pendingDelete.id, { onSuccess: () => { setPendingDelete(undefined); showToast('Đã xóa banner.'); }, onError: (error) => showToast(error.message, 'error') }); }} />
