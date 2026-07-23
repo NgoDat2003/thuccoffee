@@ -9,6 +9,24 @@
   --color-accent: #79a3b1;
   --color-text: #292929;
   --color-page: #f5f5f5;
+  --color-admin-ink: #241c15;
+  --color-admin-ink-soft: #3a2f24;
+  --color-admin-muted: #7d7364;
+  --color-admin-muted-2: #a8a08f;
+  --color-admin-bg: #f7f2ea;
+  --color-admin-surface: #fffdf9;
+  --color-admin-border: #e4dbcb;
+  --color-admin-border-soft: #eee6d8;
+  --color-admin-border-input: #d8cdb8;
+  --color-admin-sidebar: #1c150f;
+  --color-admin-sidebar-hover: #2b2219;
+  --color-admin-sidebar-muted: #6b5f4f;
+  --color-admin-sidebar-text: #b7ac98;
+  --color-admin-accent: #c8793a;
+  --color-admin-accent-strong: #b5652d;
+  --color-admin-success: #4f7a5a;
+  --color-admin-field: #5c5346;
+  --color-admin-danger: #a94438;
   --font-sans: Roboto, system-ui, sans-serif;
   --container-max: 1170px;
 }
@@ -24,4 +42,21 @@ body {
   font-size: 16px;
   font-weight: 400;
   line-height: 24px;
+}
+
+.admin-drawer {
+  transform: translateX(0);
+  transition: transform 220ms ease;
+}
+
+@starting-style {
+  .admin-drawer[open] {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-drawer {
+    transition: none;
+  }
 }

@@ -17,13 +17,13 @@ export default function PublishSwitch({
       disabled={disabled}
       onClick={() => onChange(!active)}
       className={[
-        'relative h-7 w-12 rounded-full transition disabled:opacity-50',
-        active ? 'bg-emerald-600' : 'bg-stone-300',
+        'relative h-[22px] w-[38px] rounded-full transition-colors disabled:opacity-50',
+        active ? 'bg-admin-success' : 'bg-admin-border-input',
       ].join(' ')}
     >
       <span className={[
-        'absolute top-1 h-5 w-5 rounded-full bg-white shadow transition',
-        active ? 'left-6' : 'left-1',
+        'absolute top-[3px] size-4 rounded-full bg-admin-surface transition-[left]',
+        active ? 'left-[19px]' : 'left-[3px]',
       ].join(' ')} />
       <span className="sr-only">{active ? 'Ẩn khỏi website' : 'Hiển thị trên website'}</span>
     </button>

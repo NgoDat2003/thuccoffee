@@ -24,10 +24,7 @@ const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<ToastMessage>();
-
-  const showToast = useCallback((text: string, kind: ToastKind = 'success') => {
-    setToast({ text, kind });
-  }, []);
+  const showToast = useCallback((text: string, kind: ToastKind = 'success') => setToast({ text, kind }), []);
 
   useEffect(() => {
     if (!toast) return;
@@ -41,15 +38,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       {toast && (
-        <div
-          role="status"
-          className={[
-            'fixed bottom-5 right-5 z-50 max-w-sm rounded-xl px-4 py-3 text-sm font-medium text-white shadow-lg',
-            toast.kind === 'success' ? 'bg-emerald-700' : 'bg-red-700',
-          ].join(' ')}
-        >
-          {toast.text}
-        </div>
+        <div role="status" className={[
+          'fixed right-5 bottom-5 z-50 max-w-sm rounded-full border px-5 py-3 text-[13px] font-semibold shadow-lg',
+          toast.kind === 'success'
+            ? 'border-admin-ink-soft bg-admin-ink text-admin-bg'
+            : 'border-admin-danger bg-admin-danger text-admin-surface',
+        ].join(' ')}>{toast.text}</div>
       )}
     </ToastContext.Provider>
   );

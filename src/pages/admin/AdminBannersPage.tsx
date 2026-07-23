@@ -1,27 +1,18 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { AdminBanner, BannerType } from '../../../server/src/modules/banners/banners.admin.schemas';
-import AdminTable, {
-  type AdminTableColumn,
-} from '../../components/admin/ui/AdminTable';
+import BannerForm from '../../components/admin/forms/BannerForm';
+import AdminDrawer from '../../components/admin/ui/AdminDrawer';
 import ConfirmDialog from '../../components/admin/ui/ConfirmDialog';
 import PublishSwitch from '../../components/admin/ui/PublishSwitch';
 import StatusBadge from '../../components/admin/ui/StatusBadge';
 import { ToastProvider, useToast } from '../../components/admin/ui/Toast';
 import { getImageUrl } from '../../lib/image-url';
 import { usePageMeta } from '../../lib/use-page-meta';
-import {
-  useActivateBanner,
-  useAdminBanners,
-  useDeleteBanner,
-} from '../../services/admin/banners.service';
+import { useActivateBanner, useAdminBanners, useDeleteBanner } from '../../services/admin/banners.service';
 
-const bannerTabs: Array<{ type: BannerType; label: string }> = [
-  { type: 'slider', label: 'Slider trang chủ' },
-  { type: 'promotion', label: 'Khuyến mãi' },
-  { type: 'right', label: 'Cột phải' },
-];
+const pageSize = 10;
+const typeLabels: Record<BannerType, string> = { slider: 'Slider trang chủ', promotion: 'Khuyến mãi', right: 'Cột phải' };
 
 function BannersContent() {
   usePageMeta('Quản lý banner');
@@ -29,132 +20,36 @@ function BannersContent() {
   const activateBanner = useActivateBanner();
   const deleteBanner = useDeleteBanner();
   const { showToast } = useToast();
-  const [activeTab, setActiveTab] = useState<BannerType>('slider');
   const [pendingDelete, setPendingDelete] = useState<AdminBanner>();
-
-  const tabBanners = useMemo(
-    () => (banners.data ?? []).filter((banner) => banner.type === activeTab),
-    [banners.data, activeTab],
-  );
-
-  const columns: Array<AdminTableColumn<AdminBanner>> = [
-    {
-      key: 'image',
-      label: 'Ảnh',
-      render: (banner) => (
-        <img src={getImageUrl(banner.image)} alt={banner.altText} className="h-12 w-24 rounded-lg object-cover" />
-      ),
-    },
-    { key: 'altText', label: 'Mô tả', render: (banner) => banner.altText },
-    {
-      key: 'linkUrl',
-      label: 'Liên kết',
-      render: (banner) => banner.linkUrl
-        ? <span className="block max-w-48 truncate text-xs text-stone-500">{banner.linkUrl}</span>
-        : '—',
-    },
-    {
-      key: 'status',
-      label: 'Trạng thái',
-      render: (banner) => (
-        <div className="flex items-center gap-3">
-          <StatusBadge active={banner.isActive} />
-          <PublishSwitch
-            active={banner.isActive}
-            disabled={activateBanner.isPending}
-            onChange={(next) => activateBanner.mutate(
-              { id: banner.id, input: { isActive: next } },
-              {
-                onSuccess: () => showToast(next ? 'Đã bật banner.' : 'Đã tắt banner.'),
-                onError: (error) => showToast(error.message, 'error'),
-              },
-            )}
-          />
-        </div>
-      ),
-    },
-    {
-      key: 'sortOrder',
-      label: 'Thứ tự',
-      sortValue: (banner) => banner.sortOrder,
-      render: (banner) => banner.sortOrder,
-    },
-    {
-      key: 'actions',
-      label: 'Thao tác',
-      render: (banner) => (
-        <div className="flex gap-3">
-          <Link className="font-medium text-primary" to={'/admin/banners/' + banner.id}>Sửa</Link>
-          <button type="button" onClick={() => setPendingDelete(banner)} className="text-red-700">Xóa</button>
-        </div>
-      ),
-    },
-  ];
+  const [drawerBanner, setDrawerBanner] = useState<number | null>();
+  const [page, setPage] = useState(1);
+  const orderedBanners = useMemo(() => [...(banners.data ?? [])].sort((a, b) => a.type.localeCompare(b.type) || a.sortOrder - b.sortOrder), [banners.data]);
+  const totalPages = Math.max(1, Math.ceil(orderedBanners.length / pageSize));
+  const visibleBanners = orderedBanners.slice((page - 1) * pageSize, page * pageSize);
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
 
   return (
-    <section className="rounded-2xl bg-white p-5 shadow-sm lg:p-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-stone-900">Banner</h1>
-          <p className="mt-1 text-sm text-stone-600">Quản lý banner theo vị trí hiển thị.</p>
-        </div>
-        <Link to="/admin/banners/new" className="rounded-lg bg-primary px-4 py-2.5 font-semibold text-white">
-          Thêm banner
-        </Link>
-      </div>
+    <section>
+      <header className="mb-2 flex flex-wrap items-end justify-between gap-4">
+        <div><p className="text-[13px] font-semibold text-admin-accent-strong">Quản trị</p><h1 className="mt-1 text-[34px] font-black tracking-[-0.02em]">Banner</h1></div>
+        <button type="button" onClick={() => setDrawerBanner(null)} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-admin-ink px-[22px] text-[14px] font-bold text-admin-bg"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>Thêm banner</button>
+      </header>
+      <p className="mb-7 text-[14px] text-admin-muted">Quản lý ảnh trình chiếu và banner theo vị trí hiển thị.</p>
+      {banners.isPending && <p className="py-10 text-center text-admin-muted">Đang tải dữ liệu…</p>}
+      {banners.isError && <p role="alert" className="py-8 text-admin-danger">{banners.error.message}</p>}
+      {!banners.isPending && !banners.isError && <div>{visibleBanners.map((banner) => (
+        <article key={banner.id} className="flex flex-wrap items-center gap-[18px] border-b border-admin-border-soft py-[18px]">
+          <img src={getImageUrl(banner.image)} alt={banner.altText} className="h-[66px] w-[150px] shrink-0 rounded-[10px] object-cover" />
+          <div className="min-w-[180px] flex-1"><h2 className="text-[14.5px] font-semibold text-admin-ink">{banner.altText}</h2><p className="mt-0.5 text-[12.5px] text-admin-muted-2">{typeLabels[banner.type]} · Thứ tự {banner.sortOrder}</p></div>
+          <div className="flex shrink-0 items-center gap-2.5"><PublishSwitch active={banner.isActive} disabled={activateBanner.isPending} onChange={(next) => activateBanner.mutate({ id: banner.id, input: { isActive: next } }, { onSuccess: () => showToast(next ? 'Đã bật banner.' : 'Đã tắt banner.'), onError: (error) => showToast(error.message, 'error') })} /><StatusBadge active={banner.isActive} /></div>
+          <button type="button" onClick={() => setDrawerBanner(banner.id)} className="shrink-0 text-[13px] font-semibold text-admin-accent-strong">Sửa</button>
+          <button type="button" onClick={() => setPendingDelete(banner)} className="shrink-0 text-[13px] font-semibold text-admin-danger">Xóa</button>
+        </article>
+      ))}</div>}
+      {totalPages > 1 && <nav aria-label="Phân trang banner" className="mt-6 flex items-center justify-center gap-5 border-t border-admin-border pt-5"><button type="button" disabled={page <= 1} onClick={() => setPage((value) => value - 1)} className="min-h-11 text-[13px] font-bold disabled:opacity-35">← Trước</button><span className="text-[13px] text-admin-muted-2">Trang {page} / {totalPages}</span><button type="button" disabled={page >= totalPages} onClick={() => setPage((value) => value + 1)} className="min-h-11 text-[13px] font-bold disabled:opacity-35">Sau →</button></nav>}
 
-      <div role="tablist" aria-label="Loại banner" className="mt-6 flex gap-2 border-b border-stone-200">
-        {bannerTabs.map((tab) => (
-          <button
-            key={tab.type}
-            type="button"
-            role="tab"
-            aria-selected={activeTab === tab.type}
-            onClick={() => setActiveTab(tab.type)}
-            className={[
-              'px-4 py-2.5 text-sm font-medium',
-              activeTab === tab.type
-                ? 'border-b-2 border-primary text-primary'
-                : 'text-stone-600 hover:text-stone-900',
-            ].join(' ')}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-4">
-        {banners.isError ? (
-          <p role="alert" className="py-8 text-red-700">{banners.error.message}</p>
-        ) : (
-          <AdminTable
-            rows={tabBanners}
-            columns={columns}
-            rowKey={(banner) => banner.id}
-            isLoading={banners.isPending}
-            emptyText="Chưa có banner nào ở vị trí này."
-          />
-        )}
-      </div>
-
-      <ConfirmDialog
-        open={Boolean(pendingDelete)}
-        title="Xóa banner?"
-        message="Banner sẽ bị xóa vĩnh viễn — banner không được nội dung nào tham chiếu nên thao tác này an toàn."
-        confirmLabel="Xóa banner"
-        pending={deleteBanner.isPending}
-        onCancel={() => setPendingDelete(undefined)}
-        onConfirm={() => {
-          if (!pendingDelete) return;
-          deleteBanner.mutate(pendingDelete.id, {
-            onSuccess: () => {
-              setPendingDelete(undefined);
-              showToast('Đã xóa banner.');
-            },
-            onError: (error) => showToast(error.message, 'error'),
-          });
-        }}
-      />
+      <AdminDrawer open={drawerBanner !== undefined} title={drawerBanner === null ? 'Thêm banner' : 'Sửa banner'} onClose={() => setDrawerBanner(undefined)}>{drawerBanner !== undefined && <BannerForm key={drawerBanner ?? 'new'} bannerId={drawerBanner ?? undefined} onDone={() => setDrawerBanner(undefined)} />}</AdminDrawer>
+      <ConfirmDialog open={Boolean(pendingDelete)} title="Xóa banner?" message="Banner sẽ bị xóa vĩnh viễn — banner không được nội dung nào tham chiếu nên thao tác này an toàn." confirmLabel="Xóa banner" pending={deleteBanner.isPending} onCancel={() => setPendingDelete(undefined)} onConfirm={() => { if (!pendingDelete) return; deleteBanner.mutate(pendingDelete.id, { onSuccess: () => { setPendingDelete(undefined); showToast('Đã xóa banner.'); }, onError: (error) => showToast(error.message, 'error') }); }} />
     </section>
   );
 }
