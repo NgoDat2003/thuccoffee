@@ -57,53 +57,21 @@ jobs:
         working-directory: server
         run: npm run build
 
-  # --- Job 2: kiem tra Docker image chay duoc ---
+  # --- Job 2: kiem tra ca hai Docker image build duoc tren may sach ---
+  # Chi build, khong chay container: nginx cua frontend proxy /api va /media
+  # toi service "backend"/"minio" trong mang compose, nen container FE dung
+  # mot minh se chet ngay luc khoi dong (host not found in upstream). Kiem tra
+  # runtime end-to-end la viec cua `docker compose up` khi deploy that.
   docker:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Build image tu Dockerfile, chi lay stage "runtime" (nginx)
-      - name: Build image
+      # Build image frontend tu Dockerfile goc, chi lay stage "runtime" (nginx)
+      - name: Build frontend image
         run: docker build --target runtime -t thuccoffee:ci .
 
-      # Chay container, dua cong 80 trong container ra cong 8080 cua may ao
-      - name: Run container
-        run: docker run -d --name thuccoffee-ci -p 8080:80 thuccoffee:ci
-
-      # Cho container bao "healthy" (Dockerfile co HEALTHCHECK goi /healthz)
-      - name: Wait for healthy
-        run: |
-          for i in $(seq 1 20); do
-            status=$(docker inspect --format '{{.State.Health.Status}}' thuccoffee-ci)
-            echo "[$i] health: $status"
-            [ "$status" = "healthy" ] && exit 0
-            sleep 3
-          done
-          echo "Container khong healthy sau 60s"
-          docker logs thuccoffee-ci
-          exit 1
-
-      # Kiem tra hanh vi thuc: giong cac lenh curl ban da chay tay luc verify
-      - name: Verify HTTP behavior
-        run: |
-          set -e
-          # /healthz phai tra 200 va body "ok"
-          body=$(curl -fsS http://127.0.0.1:8080/healthz)
-          [ "$body" = "ok" ] || { echo "healthz body sai: $body"; exit 1; }
-
-          # Deep route /menu phai tra 200 (SPA fallback ve index.html)
-          code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/menu)
-          [ "$code" = "200" ] || { echo "/menu tra $code, mong 200"; exit 1; }
-
-          # Asset khong ton tai phai tra 404, KHONG duoc roi vao index.html
-          code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/assets/khong-ton-tai.js)
-          [ "$code" = "404" ] || { echo "asset thieu tra $code, mong 404"; exit 1; }
-
-          echo "Tat ca kiem tra HTTP deu pass"
-
-      # Don dep — luon chay du buoc truoc that bai
-      - name: Cleanup
-        if: always()
-        run: docker rm -f thuccoffee-ci
+      # Build image backend tu server/Dockerfile — bat loi tsc/deps tren may sach
+      - name: Build backend image
+        run: docker build --target runtime -t thuccoffee-backend:ci ./server
