@@ -22,6 +22,7 @@ const adminStoreSelect = {
   hours: stores.hours,
   image: stores.image,
   region: stores.region,
+  mapEmbedUrl: stores.mapEmbedUrl,
   isPublished: stores.isPublished,
   sortOrder: stores.sortOrder,
   createdAt: stores.createdAt,
@@ -37,6 +38,7 @@ type AdminStoreRow = {
   hours: string;
   image: string;
   region: string | null;
+  mapEmbedUrl: string | null;
   isPublished: boolean;
   sortOrder: number;
   createdAt: Date;
@@ -119,6 +121,7 @@ export async function createAdminStore(
         hours: input.hours,
         image: input.image,
         region: input.region,
+        mapEmbedUrl: input.mapEmbedUrl,
         sortOrder: input.sortOrder,
       })
       .returning({ id: stores.id });
@@ -145,6 +148,7 @@ export async function updateAdminStore(
       hours: input.hours,
       image: input.image,
       region: input.region,
+      mapEmbedUrl: input.mapEmbedUrl,
       sortOrder: input.sortOrder,
       updatedAt: new Date(),
     })

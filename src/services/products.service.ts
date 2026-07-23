@@ -3,21 +3,32 @@ import { useQuery } from '@tanstack/react-query';
 import type { Product } from '../../server/src/modules/products/products.schemas';
 import { apiGet } from '../lib/api';
 
+export interface ProductListFilter {
+  category?: string;
+  featured?: boolean;
+  home?: boolean;
+}
+
 export const productKeys = {
   all: ['products'] as const,
-  list: (category?: string) => [
+  list: (filter: ProductListFilter = {}) => [
     ...productKeys.all,
     'list',
-    { category },
+    filter,
   ] as const,
   detail: (slug: string) => [...productKeys.all, 'detail', slug] as const,
 };
 
-export function useProducts(category?: string) {
+export function useProducts(filter: ProductListFilter = {}) {
+  const params: Record<string, string> = {};
+  if (filter.category) params.category = filter.category;
+  if (filter.featured) params.featured = 'true';
+  if (filter.home) params.home = 'true';
+
   return useQuery({
-    queryKey: productKeys.list(category),
+    queryKey: productKeys.list(filter),
     queryFn: () => apiGet<Product[]>('/products', {
-      params: category ? { category } : undefined,
+      params: Object.keys(params).length > 0 ? params : undefined,
     }),
   });
 }

@@ -11,6 +11,8 @@ export const storeSchema = z.object({
   phone: z.string(),
   hours: z.string(),
   image: z.string(),
+  // Google Maps embed URL do admin cấu hình; null thì FE suy từ address.
+  mapEmbedUrl: z.string().nullable().default(null),
 });
 
 export const storeDetailSchema = storeSchema.extend({

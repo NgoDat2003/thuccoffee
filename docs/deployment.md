@@ -226,6 +226,13 @@ After every production deployment:
 8. Confirm `/admin/login` rejects invalid credentials and login/logout work.
 9. Confirm the deployed commit matches the intended release.
 
+**Pre-exposure requirement — rate limiting.** `POST /api/submissions/contact`
+and `POST /api/submissions/newsletter` are unauthenticated write endpoints with
+only a honeypot guard. Before opening any environment to the public internet,
+add a rate limiter (e.g. `express-rate-limit`) on `/api/submissions` and
+consider one on `/api/search`. This is intentionally deferred while the stack
+is local-only.
+
 ## Rollback
 
 Rollback depends on the release mode:

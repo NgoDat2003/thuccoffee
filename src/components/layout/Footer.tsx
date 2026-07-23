@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Container from '../ui/Container';
+import NewsletterForm from './NewsletterForm';
 import { NAV_LINKS, SOCIAL_LINKS } from './nav-links';
 import { FacebookIcon, InstagramIcon, YoutubeIcon } from '../ui/Icon';
 import { getImageUrl } from '../../lib/image-url';
@@ -73,27 +74,7 @@ export default function Footer() {
             ))}
           </nav>
 
-          <form onSubmit={(event) => event.preventDefault()}>
-            <div className="relative h-[35px] w-full">
-              <label htmlFor="footer-email" className="sr-only">
-                Nhập địa chỉ email
-              </label>
-              <input
-                id="footer-email"
-                type="email"
-                placeholder="Nhập địa chỉ email"
-                className="h-[35px] w-full rounded border border-[#d7dbdb] bg-white px-[10px] pr-[50px] text-sm outline-none focus:border-primary"
-              />
-              <button
-                type="submit"
-                aria-label="Đăng ký nhận tin"
-                className="absolute right-0 top-0 flex h-[35px] w-[40px] items-center justify-center text-[17px] text-[#696969] hover:text-primary"
-              >
-                →
-              </button>
-            </div>
-            <p className="mb-0 mt-3 font-medium italic">Nhận tin khuyến mãi của Thức</p>
-          </form>
+          <NewsletterForm />
         </Container>
       </div>
 

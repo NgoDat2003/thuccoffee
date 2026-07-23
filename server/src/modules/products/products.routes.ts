@@ -17,8 +17,8 @@ productsRoutes.get(
   '/',
   validateQuery(listProductsQuerySchema),
   async (_req, res) => {
-    const { category } = res.locals.validatedQuery as ListProductsQuery;
-    res.json(ok(await listProducts(category)));
+    const { category, featured, home } = res.locals.validatedQuery as ListProductsQuery;
+    res.json(ok(await listProducts({ categoryKey: category, featured, home })));
   },
 );
 

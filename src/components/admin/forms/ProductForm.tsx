@@ -12,8 +12,10 @@ import {
   useUpdateProduct,
 } from '../../../services/admin/products.service';
 import ImageField from '../ImageField';
+import FormActionBar from '../ui/FormActionBar';
 import FormField from '../ui/FormField';
 import { useToast } from '../ui/Toast';
+import ProductOptionsStickerFields, { type OptionLinkDraft } from './ProductOptionsStickerFields';
 
 interface ProductFormProps {
   productId?: number;
@@ -29,12 +31,18 @@ interface ProductFormState {
   image: string;
   description: string;
   sortOrder: string;
+  isFeatured: boolean;
+  showOnHome: boolean;
+  homePriority: string;
   categoryIds: number[];
+  optionLinks: OptionLinkDraft[];
+  stickerIds: number[];
 }
 
 const emptyForm: ProductFormState = {
   name: '', slug: '', price: '0', priceEstimated: false, thumb: '', image: '',
-  description: '', sortOrder: '0', categoryIds: [],
+  description: '', sortOrder: '0', isFeatured: false, showOnHome: false,
+  homePriority: '0', categoryIds: [], optionLinks: [], stickerIds: [],
 };
 
 function fieldErrors(error: unknown): Record<string, string> {
@@ -73,7 +81,15 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
       image: product.data.image ?? '',
       description: product.data.description ?? '',
       sortOrder: String(product.data.sortOrder),
+      isFeatured: product.data.isFeatured,
+      showOnHome: product.data.showOnHome,
+      homePriority: String(product.data.homePriority),
       categoryIds: product.data.categories.map((category) => category.id),
+      optionLinks: product.data.optionLinks.map((link) => ({
+        optionId: link.optionId,
+        price: String(link.price),
+      })),
+      stickerIds: product.data.stickers.map((sticker) => sticker.id),
     });
   }, [isEdit, product.data]);
 
@@ -99,7 +115,15 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
       image: form.image || null,
       description: form.description || null,
       sortOrder: Number(form.sortOrder),
+      isFeatured: form.isFeatured,
+      showOnHome: form.showOnHome,
+      homePriority: Number(form.homePriority),
       categoryIds: form.categoryIds,
+      optionLinks: form.optionLinks.map((link) => ({
+        optionId: link.optionId,
+        price: Number(link.price),
+      })),
+      stickerIds: form.stickerIds,
     };
     const onSuccess = () => {
       showToast(isEdit ? 'Đã cập nhật sản phẩm.' : 'Đã tạo sản phẩm.');
@@ -114,7 +138,7 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
   if (isEdit && product.isError) return <p role="alert" className="rounded-[10px] border border-admin-danger/20 p-4 text-admin-danger">{product.error.message}</p>;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-7 pb-28">
+    <form onSubmit={handleSubmit} className="space-y-7">
       <div>
         <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.08em] text-admin-muted-2">Thông tin cơ bản</p>
         <div className="grid gap-5 sm:grid-cols-2">
@@ -124,6 +148,15 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
           <FormField label="Thứ tự" htmlFor="product-order" error={errors.sortOrder} required><input id="product-order" type="number" value={form.sortOrder} onChange={(event) => updateField('sortOrder', event.target.value)} required /></FormField>
         </div>
         <label className="mt-5 flex items-center gap-2.5 text-[13.5px] font-semibold text-admin-field"><input type="checkbox" checked={form.priceEstimated} onChange={(event) => updateField('priceEstimated', event.target.checked)} />Giá ước tính</label>
+      </div>
+
+      <div>
+        <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.08em] text-admin-muted-2">Hiển thị trang chủ</p>
+        <div className="flex flex-wrap items-center gap-6">
+          <label className="flex items-center gap-2.5 text-[13.5px] font-semibold text-admin-field"><input type="checkbox" checked={form.isFeatured} onChange={(event) => updateField('isFeatured', event.target.checked)} />Yêu thích nhất</label>
+          <label className="flex items-center gap-2.5 text-[13.5px] font-semibold text-admin-field"><input type="checkbox" checked={form.showOnHome} onChange={(event) => updateField('showOnHome', event.target.checked)} />Hiện ở trang chủ</label>
+          <FormField label="Ưu tiên trang chủ" htmlFor="product-home-priority" error={errors.homePriority}><input id="product-home-priority" type="number" value={form.homePriority} onChange={(event) => updateField('homePriority', event.target.value)} /></FormField>
+        </div>
       </div>
 
       <FormField label="Mô tả" htmlFor="product-description" error={errors.description} variant="box"><textarea id="product-description" rows={4} value={form.description} onChange={(event) => updateField('description', event.target.value)} /></FormField>
@@ -142,15 +175,24 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
         {errors.categoryIds && <p role="alert" className="mt-1.5 text-[13px] text-admin-danger">{errors.categoryIds}</p>}
       </fieldset>
 
+      <ProductOptionsStickerFields
+        optionLinks={form.optionLinks}
+        stickerIds={form.stickerIds}
+        onOptionLinksChange={(optionLinks) => updateField('optionLinks', optionLinks)}
+        onToggleSticker={(id) => setForm((current) => ({
+          ...current,
+          stickerIds: current.stickerIds.includes(id)
+            ? current.stickerIds.filter((value) => value !== id)
+            : [...current.stickerIds, id],
+        }))}
+      />
+
       <div className="grid gap-6 sm:grid-cols-2">
         <div><ImageField kind="products" value={form.thumb} onChange={(value) => updateField('thumb', value)} label="Ảnh thumbnail *" />{errors.thumb && <p role="alert" className="mt-1.5 text-[13px] text-admin-danger">{errors.thumb}</p>}</div>
         <ImageField kind="products" value={form.image} onChange={(value) => updateField('image', value)} label="Ảnh chi tiết" />
       </div>
 
-      <div className="sticky bottom-0 ml-auto flex max-w-[520px] items-center justify-end gap-3 rounded-full bg-admin-ink px-5 py-3.5">
-        <button type="button" onClick={onDone} className="min-h-11 px-2 text-[14px] font-semibold text-admin-muted-2">Hủy</button>
-        <button type="submit" disabled={mutation.isPending} className="min-h-11 rounded-full bg-admin-accent px-6 text-[14px] font-bold text-admin-sidebar disabled:opacity-60">{mutation.isPending ? 'Đang lưu…' : 'Lưu sản phẩm'}</button>
-      </div>
+      <FormActionBar submitLabel="Lưu sản phẩm" pending={mutation.isPending} onCancel={onDone} />
     </form>
   );
 }

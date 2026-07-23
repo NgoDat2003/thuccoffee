@@ -8,7 +8,7 @@ interface RelatedProductsProps {
 }
 
 export default function RelatedProducts({ categoryKey, currentSlug }: RelatedProductsProps) {
-  const { data: products = [] } = useProducts(categoryKey);
+  const { data: products = [] } = useProducts({ category: categoryKey });
   const related = products
     .filter((product) => product.slug !== currentSlug)
     .slice(0, 4);

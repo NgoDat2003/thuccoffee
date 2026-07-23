@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { NAV_LINKS, SOCIAL_LINKS } from './nav-links';
 import {
   CloseIcon,
@@ -32,6 +32,18 @@ export default function MobileDrawer({ open, onClose, settings }: MobileDrawerPr
   const instagramUrl = settings?.instagramUrl ?? SOCIAL_LINKS.instagram;
   const youtubeUrl = settings ? settings.youtubeUrl : SOCIAL_LINKS.youtube;
   const location = useLocation();
+  const navigate = useNavigate();
+  const [searchKeyword, setSearchKeyword] = useState('');
+
+  const onSearchSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const keyword = searchKeyword.trim();
+    if (!keyword) return;
+    // URL khớp dạng nguồn: /search/p1/?type=Product&keyword=...
+    navigate(`/search/p1/?type=Product&keyword=${encodeURIComponent(keyword)}`);
+    setSearchKeyword('');
+    onClose();
+  };
 
   useEffect(() => {
     if (open) onClose();
@@ -84,13 +96,15 @@ export default function MobileDrawer({ open, onClose, settings }: MobileDrawerPr
           </button>
         </div>
 
-        <form className="relative mb-4" role="search" onSubmit={(event) => event.preventDefault()}>
+        <form className="relative mb-4" role="search" onSubmit={onSearchSubmit}>
           <label htmlFor="mobile-search" className="sr-only">
             Tìm kiếm
           </label>
           <input
             id="mobile-search"
             type="search"
+            value={searchKeyword}
+            onChange={(event) => setSearchKeyword(event.target.value)}
             placeholder="Tìm kiếm"
             className="h-[40px] w-full border border-[#b5b5b5] bg-white px-3 pr-10 text-sm outline-none focus:border-primary"
           />

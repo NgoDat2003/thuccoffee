@@ -4,12 +4,32 @@ import type { BannerType, CreateAdminBannerInput } from '../../../../server/src/
 import { ApiError } from '../../../lib/api';
 import { useAdminBanners, useCreateBanner, useUpdateBanner } from '../../../services/admin/banners.service';
 import ImageField from '../ImageField';
+import FormActionBar from '../ui/FormActionBar';
 import FormField from '../ui/FormField';
 import { useToast } from '../ui/Toast';
 
 interface BannerFormProps { bannerId?: number; onDone: () => void; }
-interface BannerFormState { type: BannerType; image: string; altText: string; linkUrl: string; sortOrder: string; }
-const emptyForm: BannerFormState = { type: 'slider', image: '', altText: '', linkUrl: '', sortOrder: '0' };
+interface BannerFormState {
+  type: BannerType; image: string; altText: string; linkUrl: string;
+  buttonLabel: string; openInNewTab: boolean; startsAt: string; endsAt: string;
+  sortOrder: string;
+}
+const emptyForm: BannerFormState = {
+  type: 'slider', image: '', altText: '', linkUrl: '',
+  buttonLabel: '', openInNewTab: false, startsAt: '', endsAt: '', sortOrder: '0',
+};
+
+// Input datetime-local (YYYY-MM-DDTHH:mm) ↔ ISO string với offset.
+function toLocalInput(iso: string | null): string {
+  if (!iso) return '';
+  const date = new Date(iso);
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function toIsoOrNull(local: string): string | null {
+  return local ? new Date(local).toISOString() : null;
+}
 const placementOptions: Array<{ type: BannerType; label: string; detail: string; ratio: string }> = [
   { type: 'slider', label: 'Slider trang chủ', detail: 'Mỗi banner đang bật là một slide riêng.', ratio: '21:9' },
   { type: 'promotion', label: 'Khuyến mãi', detail: 'Trang công khai hiện lấy mục đang bật đầu tiên.', ratio: '16:7' },
@@ -45,6 +65,10 @@ export default function BannerForm({ bannerId, onDone }: BannerFormProps) {
       image: banner.image,
       altText: banner.altText,
       linkUrl: banner.linkUrl ?? '',
+      buttonLabel: banner.buttonLabel ?? '',
+      openInNewTab: banner.openInNewTab,
+      startsAt: toLocalInput(banner.startsAt),
+      endsAt: toLocalInput(banner.endsAt),
       sortOrder: String(banner.sortOrder),
     });
   }, [banner, isEdit]);
@@ -60,6 +84,10 @@ export default function BannerForm({ bannerId, onDone }: BannerFormProps) {
       image: form.image,
       altText: form.altText,
       linkUrl: form.linkUrl || null,
+      buttonLabel: form.buttonLabel || null,
+      openInNewTab: form.openInNewTab,
+      startsAt: toIsoOrNull(form.startsAt),
+      endsAt: toIsoOrNull(form.endsAt),
       sortOrder: Number(form.sortOrder),
     };
     const onSuccess = () => {
@@ -77,7 +105,7 @@ export default function BannerForm({ bannerId, onDone }: BannerFormProps) {
   const selectedPlacement = placementOptions.find((option) => option.type === form.type);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 pb-28">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <fieldset className="rounded-[14px] border border-admin-border bg-admin-surface p-5">
         <legend className="px-2 text-[11px] font-black uppercase tracking-[0.08em] text-admin-accent-strong">Vị trí hiển thị</legend>
         <div className="grid gap-3 sm:grid-cols-3">
@@ -109,8 +137,17 @@ export default function BannerForm({ bannerId, onDone }: BannerFormProps) {
           <FormField label="Mô tả (alt text)" htmlFor="banner-alt" error={errors.altText} required><input id="banner-alt" value={form.altText} onChange={(event) => updateField('altText', event.target.value)} required /></FormField>
           <FormField label="Thứ tự" htmlFor="banner-order" error={errors.sortOrder} required><input id="banner-order" type="number" value={form.sortOrder} onChange={(event) => updateField('sortOrder', event.target.value)} required /></FormField>
         </div>
-        <div className="mt-5">
+        <div className="mt-5 grid gap-5 sm:grid-cols-2">
           <FormField label="Liên kết khi bấm (tùy chọn)" htmlFor="banner-link" error={errors.linkUrl}><input id="banner-link" value={form.linkUrl} onChange={(event) => updateField('linkUrl', event.target.value)} /></FormField>
+          <FormField label="Nhãn nút CTA (tùy chọn)" htmlFor="banner-button" error={errors.buttonLabel}><input id="banner-button" value={form.buttonLabel} onChange={(event) => updateField('buttonLabel', event.target.value)} /></FormField>
+        </div>
+        <label className="mt-4 flex items-center gap-2.5 text-[13.5px] font-semibold text-admin-field">
+          <input type="checkbox" checked={form.openInNewTab} onChange={(event) => updateField('openInNewTab', event.target.checked)} />
+          Mở liên kết trong tab mới
+        </label>
+        <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          <FormField label="Hiển thị từ (tùy chọn)" htmlFor="banner-starts" error={errors.startsAt}><input id="banner-starts" type="datetime-local" value={form.startsAt} onChange={(event) => updateField('startsAt', event.target.value)} /></FormField>
+          <FormField label="Ẩn sau (tùy chọn)" htmlFor="banner-ends" error={errors.endsAt}><input id="banner-ends" type="datetime-local" value={form.endsAt} onChange={(event) => updateField('endsAt', event.target.value)} /></FormField>
         </div>
         <div className="mt-5">
           <ImageField kind="banners" value={form.image} onChange={(value) => updateField('image', value)} label="Ảnh banner *" />
@@ -118,10 +155,7 @@ export default function BannerForm({ bannerId, onDone }: BannerFormProps) {
         </div>
       </section>
 
-      <div className="sticky bottom-0 ml-auto flex max-w-[520px] items-center justify-end gap-3 rounded-full bg-admin-ink px-5 py-3.5">
-        <button type="button" onClick={onDone} className="min-h-11 px-2 text-[14px] font-semibold text-admin-muted-2">Hủy</button>
-        <button type="submit" disabled={mutation.isPending} className="min-h-11 rounded-full bg-admin-accent px-6 text-[14px] font-bold text-admin-sidebar disabled:opacity-60">{mutation.isPending ? 'Đang lưu…' : 'Lưu banner'}</button>
-      </div>
+      <FormActionBar submitLabel="Lưu banner" pending={mutation.isPending} onCancel={onDone} />
     </form>
   );
 }

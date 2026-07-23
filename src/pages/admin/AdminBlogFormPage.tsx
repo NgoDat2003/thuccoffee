@@ -6,6 +6,7 @@ import ImageField from '../../components/admin/ImageField';
 import BlogContentEditor from '../../components/admin/blog-editor/BlogContentEditor';
 import { classifyBlogHtmlForVisual } from '../../components/admin/blog-editor/blog-editor-compatibility';
 import ConfirmDialog from '../../components/admin/ui/ConfirmDialog';
+import FormActionBar from '../../components/admin/ui/FormActionBar';
 import FormField from '../../components/admin/ui/FormField';
 import PublishSwitch from '../../components/admin/ui/PublishSwitch';
 import StatusBadge from '../../components/admin/ui/StatusBadge';
@@ -29,9 +30,10 @@ interface BlogFormState {
   summary: string;
   content: string;
   publishedAt: string;
+  priority: string;
 }
 
-const emptyForm: BlogFormState = { title: '', slug: '', cover: '', summary: '', content: '', publishedAt: '' };
+const emptyForm: BlogFormState = { title: '', slug: '', cover: '', summary: '', content: '', publishedAt: '', priority: '0' };
 
 function fieldErrors(error: unknown): Record<string, string> {
   if (!(error instanceof ApiError) || !Array.isArray(error.details)) return {};
@@ -56,7 +58,8 @@ function hasMetadataChanges(current: BlogFormState, original: BlogFormState): bo
     || current.slug !== original.slug
     || current.cover !== original.cover
     || current.summary !== original.summary
-    || current.publishedAt !== original.publishedAt;
+    || current.publishedAt !== original.publishedAt
+    || current.priority !== original.priority;
 }
 
 function BlogFormContent() {
@@ -94,6 +97,7 @@ function BlogFormContent() {
       summary: post.data.summary,
       content: post.data.content,
       publishedAt: post.data.publishedAt.slice(0, 10),
+      priority: String(post.data.priority),
     };
     originalRawHtml.current = post.data.content;
     setContentEdited(false);
@@ -137,6 +141,7 @@ function BlogFormContent() {
       summary: saved.summary,
       content: saved.content,
       publishedAt: saved.publishedAt.slice(0, 10),
+      priority: String(saved.priority),
     };
     originalRawHtml.current = saved.content;
     setForm(savedForm);
@@ -152,6 +157,7 @@ function BlogFormContent() {
       summary: form.summary,
       content: contentEdited ? form.content : originalRawHtml.current,
       publishedAt: form.publishedAt,
+      priority: Number(form.priority),
     };
     const onSuccess = (saved: Awaited<ReturnType<typeof createPost.mutateAsync>>) => {
       hydrateSavedPost(saved);
@@ -227,14 +233,16 @@ function BlogFormContent() {
                 <label htmlFor="blog-date" className="mb-1.5 block text-[13px] font-semibold text-admin-field">Ngày đăng *</label>
                 <input id="blog-date" type="date" value={form.publishedAt} onChange={(event) => updateField('publishedAt', event.target.value)} required className="w-full rounded-full border border-admin-border-input bg-admin-surface px-3.5 py-2 text-[14px] outline-none focus:border-admin-accent-strong" />
                 {errors.publishedAt && <p role="alert" className="mt-1.5 text-[13px] text-admin-danger">{errors.publishedAt}</p>}
+                <label htmlFor="blog-priority" className="mb-1.5 mt-3 block text-[13px] font-semibold text-admin-field">Ưu tiên (nhỏ đứng trước)</label>
+                <input id="blog-priority" type="number" value={form.priority} onChange={(event) => updateField('priority', event.target.value)} className="w-full rounded-full border border-admin-border-input bg-admin-surface px-3.5 py-2 text-[14px] outline-none focus:border-admin-accent-strong" />
+                {errors.priority && <p role="alert" className="mt-1.5 text-[13px] text-admin-danger">{errors.priority}</p>}
               </div>
             </div>
           </aside>
         </div>
 
-        <div className="sticky bottom-6 ml-auto mt-9 flex max-w-[520px] items-center justify-end gap-3 rounded-full bg-admin-ink px-5 py-3.5">
-          <Link to="/admin/blog" className="inline-flex min-h-11 items-center px-2 text-[14px] font-semibold text-admin-muted-2">Hủy</Link>
-          <button type="submit" disabled={mutation.isPending} className="min-h-11 rounded-full bg-admin-accent px-6 text-[14px] font-bold text-admin-sidebar disabled:opacity-60">{mutation.isPending ? 'Đang lưu…' : 'Lưu bài viết'}</button>
+        <div className="mt-9">
+          <FormActionBar submitLabel="Lưu bài viết" pending={mutation.isPending} cancelTo="/admin/blog" />
         </div>
       </form>
       <ConfirmDialog open={blocker.state === 'blocked'} title="Rời trang khi chưa lưu?" message="Các thay đổi chưa lưu sẽ bị mất." confirmLabel="Rời trang" onCancel={() => blocker.reset?.()} onConfirm={() => blocker.proceed?.()} />

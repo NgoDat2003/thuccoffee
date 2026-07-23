@@ -34,7 +34,7 @@ export function StoreDetailView({ store, onBack }: StoreDetailViewProps) {
         <StoreGallery images={store.gallery} storeName={store.name} />
 
         <div>
-          <MapEmbed address={store.address} />
+          <MapEmbed address={store.address} embedUrl={store.mapEmbedUrl} />
           <h1 className="mt-6 text-2xl font-bold text-primary">{store.name}</h1>
           <p className="mt-2 text-gray-700">{store.address}</p>
           <p className="mt-1 text-primary">

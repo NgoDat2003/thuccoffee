@@ -291,10 +291,9 @@ nghiêm ngặt thì tách bảng theo từng loại.
 
 | Giai đoạn | Nguồn ảnh | Cách phân giải |
 |---|---|---|
-| Frontend hiện tại | file trong repo | `getImageUrl()` → asset đã bundle |
-| MinIO hiện tại | object key tương đối trong `thuccoffee` | public-read; FE chưa gọi |
-| DB hiện tại | một số `media_attachments.storage_key` vẫn là basename | chưa tự join với object MinIO |
-| API đọc sau | `storage_key`/object key | API trả public object URL cho frontend |
+| Frontend hiện tại | MinIO qua proxy `/media` | `getImageUrl()` phân giải object key → URL `/media` |
+| Repo | file trong `src/assets/images/` | chỉ còn là nguồn seed (`db:seed-images`) |
+| DB hiện tại | `storage_key` là object key tương đối | API trả key, FE dựng URL |
 
 Cùng schema, chỉ đổi cách phân giải khi API đọc ảnh — không migrate cột. MinIO đã
 chạy qua Compose với volume `minio-data`; `minio-init` tạo bucket public-read.
@@ -309,20 +308,19 @@ Cột `stores.gallery text[]` bị bỏ, thay bằng các dòng `media_attachmen
 
 ### static_pages
 
-Chỉ cho trang hay đổi: Tuyển dụng và Chương trình thành viên. FAQ, chính sách
-cookie, giới thiệu vẫn ở `src/data/pages.ts`.
-
 | Cột | Kiểu | Ghi chú |
 |---|---|---|
 | id | serial | PK |
-| key | text | UNIQUE — `tuyen-dung`, `chuong-trinh-thanh-vien` |
+| key | text | UNIQUE — slug trang, ví dụ `tuyen-dung`, `chuong-trinh-thanh-vien` |
 | title | text | |
 | content | text | Markdown hoặc HTML |
 | updated_at | timestamptz | |
 
-Hai trang này là thiết kế dự kiến vì nội dung thay đổi thường xuyên (tin tuyển
-dụng mới, bậc thành viên điều chỉnh). Phase API `static_pages` đã hoãn/cancelled;
-seed hiện tại cố ý không tạo dòng nào trong bảng này.
+Thiết kế ban đầu chỉ nhắm 2 trang hay đổi (Tuyển dụng, Thành viên) và phase API
+từng bị hoãn — seed hiện tại chưa tạo dòng nào. Theo quyết định scope 2026-07-23,
+bảng này sẽ chứa cả 6 trang nội dung đơn (about, delivery, membership,
+recruitment, policy, contact-intro) khi CMS static-page triển khai; xem
+`plans/260723-public-parity-cms-completion/phase-05-*.md`.
 
 ## Index
 
@@ -356,7 +354,7 @@ tiêu của dự án này (clone + admin sửa nội dung), nên cố ý bỏ:
 | Thứ | Lý do |
 |---|---|
 | `orders`, `order_items`, `customers` | Admin gốc có "Đơn hàng" nhưng clone không bán hàng; query 2020→nay trả 0 đơn |
-| Upload runtime/admin và xử lý ảnh | MinIO + seed từ repo đã có; form upload, phân quyền ghi, resize/thumbnail và vòng đời object vẫn là giai đoạn sau |
+| Resize/thumbnail và vòng đời object | Admin upload lên MinIO đã có; xử lý ảnh (resize, thumbnail, dọn object mồ côi) vẫn cố ý chưa làm |
 | `localized_texts` (18 namespace) | Chỉ `vi-VN`, không đa ngôn ngữ; text hiện ở `pages.ts` và component |
 | `audit_logs`, `created_by`/`updated_by` mọi bảng | Một người dùng, chưa cần truy vết ai sửa gì |
 | Soft delete (`deleted_at`) mọi bảng | Chưa có nhu cầu khôi phục |

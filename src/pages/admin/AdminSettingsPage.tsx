@@ -57,7 +57,7 @@ function SettingsContent() {
         </div>
         <div className="sticky bottom-6 ml-auto mt-9 flex max-w-[400px] items-center justify-end gap-3 rounded-full bg-admin-ink px-5 py-3.5">
           <button type="button" onClick={reset} className="min-h-11 px-2 text-[14px] font-semibold text-admin-muted-2">Hủy</button>
-          <button type="submit" disabled={updateSettings.isPending} className="min-h-11 rounded-full bg-admin-accent px-6 text-[14px] font-bold text-admin-sidebar disabled:opacity-60">{updateSettings.isPending ? 'Đang lưu…' : 'Lưu cài đặt'}</button>
+          <button type="submit" disabled={updateSettings.isPending} className="min-h-11 rounded-full bg-admin-accent px-6 text-[14px] font-bold text-white hover:bg-admin-accent-strong disabled:opacity-60">{updateSettings.isPending ? 'Đang lưu…' : 'Lưu cài đặt'}</button>
         </div>
       </form>
     </section>

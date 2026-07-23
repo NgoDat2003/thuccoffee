@@ -8,6 +8,13 @@ const bannerFields = {
   image: z.string().trim().min(1),
   altText: z.string().trim().min(1),
   linkUrl: z.string().trim().min(1).nullable(),
+  // Field mở rộng optional: payload cũ thiếu field vẫn hợp lệ và giữ nguyên
+  // giá trị hiện có khi update (undefined không được set vào DB).
+  buttonLabel: z.string().trim().min(1).max(100).nullable().optional(),
+  openInNewTab: z.boolean().optional(),
+  // ISO datetime hoặc null = không giới hạn phía đó.
+  startsAt: z.string().datetime({ offset: true }).nullable().optional(),
+  endsAt: z.string().datetime({ offset: true }).nullable().optional(),
   sortOrder: z.number().int(),
 };
 
@@ -28,6 +35,10 @@ export interface AdminBanner {
   image: string;
   altText: string;
   linkUrl: string | null;
+  buttonLabel: string | null;
+  openInNewTab: boolean;
+  startsAt: string | null;
+  endsAt: string | null;
   sortOrder: number;
   isActive: boolean;
   createdAt: string;

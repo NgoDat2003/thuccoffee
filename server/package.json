@@ -22,7 +22,10 @@
     "smoke:admin-products": "tsx scripts/smoke-admin-products.ts",
     "smoke:admin-blog": "tsx scripts/smoke-admin-blog.ts",
     "smoke:admin-stores": "tsx scripts/smoke-admin-stores.ts",
-    "smoke:admin-banners-settings": "tsx scripts/smoke-admin-banners-settings.ts"
+    "smoke:admin-banners-settings": "tsx scripts/smoke-admin-banners-settings.ts",
+    "smoke:search-submissions": "tsx scripts/smoke-search-submissions.ts",
+    "smoke:pages-gallery": "tsx scripts/smoke-pages-gallery.ts",
+    "smoke:options-stickers": "tsx scripts/smoke-options-stickers.ts"
   },
   "dependencies": {
     "argon2": "^0.45.1",

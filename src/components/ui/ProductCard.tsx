@@ -3,8 +3,12 @@ import type { Product } from '../../../server/src/modules/products/products.sche
 import { getImageUrl } from '../../lib/image-url';
 import { formatPrice } from '../../lib/format';
 
+// Chỉ đòi các field card thật sự render — search item (subset của Product)
+// cũng dùng được card này.
+type ProductCardData = Pick<Product, 'name' | 'slug' | 'price' | 'thumb'>;
+
 interface ProductCardProps {
-  product: Product;
+  product: ProductCardData;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {

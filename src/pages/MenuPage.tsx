@@ -18,7 +18,7 @@ export default function MenuPage() {
   const routeCategory = slug ? categoryKeyFromPath(slug) : undefined;
   const [selectedCategory, setSelectedCategory] = useState('san-pham-moi');
   const activeCategory = routeCategory ?? selectedCategory;
-  const { data: products = [], isLoading, isError } = useProducts(activeCategory);
+  const { data: products = [], isLoading, isError } = useProducts({ category: activeCategory });
 
   const handleSelect = (categoryKey: string) => {
     if (routeCategory) {
