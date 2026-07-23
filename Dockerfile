@@ -7,6 +7,12 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# tsc cua frontend di theo import type vao server/src/**/*.schemas.ts; cac file
+# do import zod/drizzle-orm nen can server/node_modules de resolve (du chi
+# type-only). Runtime stage (nginx) chi COPY /app/dist nen khong phinh image.
+COPY server/package.json server/package-lock.json ./server/
+RUN npm ci --prefix server
+
 COPY . .
 ARG VITE_MINIO_BASE_URL=/media
 ENV VITE_MINIO_BASE_URL=$VITE_MINIO_BASE_URL
