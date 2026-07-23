@@ -41,7 +41,7 @@ export default function AdminLayout() {
           </svg>
           Menu
         </button>
-        <main className="mx-auto max-w-[1180px] px-4 pt-20 pb-[70px] sm:px-6 lg:px-12 lg:pt-11">
+        <main className="w-full min-w-0 px-4 pt-20 pb-[70px] sm:px-6 lg:px-12 lg:pt-11">
           <Outlet />
         </main>
       </div>

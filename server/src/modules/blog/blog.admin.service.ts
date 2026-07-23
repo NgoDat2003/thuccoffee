@@ -1,4 +1,4 @@
-import { count, desc, eq, ilike, or, type SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, or, type SQL } from 'drizzle-orm';
 
 import { ApiError } from '../../common/api-error.js';
 import { isUniqueViolation } from '../../common/db-errors.js';
@@ -9,6 +9,7 @@ import type {
   AdminBlogListItem,
   AdminBlogPost,
   CreateAdminBlogInput,
+  ListAdminBlogQuery,
   PublishAdminBlogInput,
   UpdateAdminBlogInput,
 } from './blog.admin.schemas.js';
@@ -50,26 +51,49 @@ function publishedAt(value: string): Date {
   return new Date(value + 'T00:00:00.000Z');
 }
 
+function adminBlogWhere(query: ListAdminBlogQuery): SQL | undefined {
+  const conditions: SQL[] = [];
+  if (query.q) {
+    const search = or(
+      ilike(blogPosts.title, '%' + query.q + '%'),
+      ilike(blogPosts.slug, '%' + query.q + '%'),
+    );
+    if (search) conditions.push(search);
+  }
+  if (query.status !== 'all') {
+    conditions.push(eq(blogPosts.isPublished, query.status === 'published'));
+  }
+  return conditions.length > 0 ? and(...conditions) : undefined;
+}
+
+function adminBlogOrder(query: ListAdminBlogQuery): [SQL, SQL] {
+  const direction = query.sortDir === 'asc' ? asc : desc;
+  const stableOrder = desc(blogPosts.id);
+
+  switch (query.sortBy) {
+    case 'title':
+      return [direction(blogPosts.title), stableOrder];
+    case 'updatedAt':
+      return [direction(blogPosts.updatedAt), stableOrder];
+    default:
+      return [direction(blogPosts.publishedAt), stableOrder];
+  }
+}
+
 export async function listAdminBlog(
-  page: number,
-  limit: number,
-  q?: string,
+  query: ListAdminBlogQuery,
 ): Promise<{ items: AdminBlogListItem[]; total: number }> {
-  const whereClause: SQL | undefined = q
-    ? or(
-        ilike(blogPosts.title, '%' + q + '%'),
-        ilike(blogPosts.slug, '%' + q + '%'),
-      )
-    : undefined;
+  const whereClause = adminBlogWhere(query);
+  const [primaryOrder, stableOrder] = adminBlogOrder(query);
   const [totals, rows] = await Promise.all([
     db.select({ total: count() }).from(blogPosts).where(whereClause),
     db
       .select(adminBlogListFields)
       .from(blogPosts)
       .where(whereClause)
-      .orderBy(desc(blogPosts.publishedAt), desc(blogPosts.id))
-      .limit(limit)
-      .offset((page - 1) * limit),
+      .orderBy(primaryOrder, stableOrder)
+      .limit(query.limit)
+      .offset((query.page - 1) * query.limit),
   ]);
   return {
     items: rows.map(toAdminBlogListItem),
@@ -115,14 +139,28 @@ export async function createAdminBlog(
 export async function updateAdminBlog(
   id: number,
   input: UpdateAdminBlogInput,
+  options: { preserveContent?: boolean } = {},
 ): Promise<AdminBlogPost> {
+  const contentUpdate: { content?: string } = {};
+  if (!options.preserveContent) {
+    const [current] = await db
+      .select({ content: blogPosts.content })
+      .from(blogPosts)
+      .where(eq(blogPosts.id, id))
+      .limit(1);
+    if (!current) throw ApiError.notFound('Không tìm thấy bài viết.');
+    contentUpdate.content = input.content === current.content
+      ? current.content
+      : sanitizeBlogContent(input.content);
+  }
+
   const [updated] = await db
     .update(blogPosts)
     .set({
       title: input.title,
       cover: input.cover,
       summary: input.summary,
-      content: sanitizeBlogContent(input.content),
+      ...contentUpdate,
       publishedAt: publishedAt(input.publishedAt),
       updatedAt: new Date(),
     })
@@ -144,6 +182,7 @@ export async function publishAdminBlog(
   if (!updated) throw ApiError.notFound('Không tìm thấy bài viết.');
   return getAdminBlog(id);
 }
+
 export function previewAdminBlogContent(content: string): { html: string } {
   return { html: sanitizeBlogContent(content) };
 }

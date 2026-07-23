@@ -41,8 +41,8 @@ export default function StoreGallerySection({ storeId, initial }: StoreGallerySe
   }
 
   return (
-    <fieldset className="border-t border-admin-border pt-6">
-      <legend className="pr-3 text-[11px] font-bold uppercase tracking-[0.08em] text-admin-muted-2">Gallery ({items.length} ảnh)</legend>
+    <fieldset className="rounded-[14px] border border-admin-border bg-admin-surface p-5">
+      <legend className="pr-3 text-[11px] font-bold uppercase tracking-[0.08em] text-admin-muted-2">Thư viện · {items.length} ảnh</legend>
       {items.length === 0 && <p className="mb-4 text-[13px] text-admin-muted">Chưa có ảnh gallery.</p>}
       <ul className="space-y-2.5">
         {items.map((storageKey, index) => (

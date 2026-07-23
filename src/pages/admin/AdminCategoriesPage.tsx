@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 
 import type { AdminCategory } from '../../../server/src/modules/categories/categories.admin.schemas';
 import AdminTable, { type AdminTableColumn } from '../../components/admin/ui/AdminTable';
+import AdminTableToolbar from '../../components/admin/ui/AdminTableToolbar';
 import ConfirmDialog from '../../components/admin/ui/ConfirmDialog';
 import { ToastProvider, useToast } from '../../components/admin/ui/Toast';
 import { usePageMeta } from '../../lib/use-page-meta';
@@ -25,6 +26,7 @@ function CategoriesContent() {
   const deleteCategory = useDeleteCategory();
   const { showToast } = useToast();
   const [newLabel, setNewLabel] = useState('');
+  const [search, setSearch] = useState('');
   const [pendingDelete, setPendingDelete] = useState<AdminCategory>();
   const [editingId, setEditingId] = useState<number>();
   const [draft, setDraft] = useState({ label: '', sortOrder: '0' });
@@ -63,6 +65,15 @@ function CategoriesContent() {
     );
   }
 
+  const filteredCategories = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase('vi');
+    if (!query) return categories.data ?? [];
+    return (categories.data ?? []).filter((category) => (
+      category.label.toLocaleLowerCase('vi').includes(query)
+      || category.key.toLocaleLowerCase('vi').includes(query)
+    ));
+  }, [categories.data, search]);
+
   const columns: Array<AdminTableColumn<AdminCategory>> = [
     {
       key: 'label',
@@ -82,6 +93,8 @@ function CategoriesContent() {
     {
       key: 'key',
       label: 'Key (URL)',
+      headerClassName: '!text-center',
+      cellClassName: 'text-center',
       render: (category) => (
         <code className="rounded-[6px] bg-admin-border-soft px-2 py-1 font-mono text-[12px] text-admin-muted">/{category.key}</code>
       ),
@@ -89,6 +102,8 @@ function CategoriesContent() {
     {
       key: 'productCount',
       label: 'Sản phẩm',
+      headerClassName: '!text-center',
+      cellClassName: 'text-center',
       sortValue: (category) => category.productCount,
       render: (category) => (
         <span className={category.productCount > 0 ? 'font-semibold text-admin-ink-soft' : 'text-admin-muted-2'}>
@@ -99,6 +114,8 @@ function CategoriesContent() {
     {
       key: 'sortOrder',
       label: 'Thứ tự',
+      headerClassName: '!text-center',
+      cellClassName: 'text-center',
       sortValue: (category) => category.sortOrder,
       render: (category) => editingId === category.id ? (
         <input
@@ -115,8 +132,10 @@ function CategoriesContent() {
     {
       key: 'actions',
       label: 'Thao tác',
+      headerClassName: '!text-center',
+      cellClassName: 'text-center',
       render: (category) => (
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-center gap-4">
           {editingId === category.id ? (
             <>
               <button type="button" disabled={updateCategory.isPending} onClick={() => saveEdit(category)} className="text-[13px] font-bold text-admin-accent disabled:opacity-50">
@@ -144,7 +163,7 @@ function CategoriesContent() {
   ];
 
   return (
-    <section className="max-w-4xl">
+    <section className="w-full min-w-0">
       <header className="mb-2 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-[13px] font-semibold text-admin-accent-strong">Quản trị</p>
@@ -168,15 +187,32 @@ function CategoriesContent() {
         </button>
       </form>
 
+      <AdminTableToolbar
+        resultCount={filteredCategories.length}
+        activeFilterCount={Number(Boolean(search))}
+        onClearFilters={() => setSearch('')}
+      >
+        <input
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Tìm tên hoặc key danh mục"
+          aria-label="Tìm danh mục"
+          className="min-w-[220px] flex-1 rounded-[10px] border border-admin-border-input bg-admin-surface px-3.5 py-2.5 text-[14px] text-admin-ink outline-none focus:border-admin-accent focus:ring-[3px] focus:ring-admin-accent/15"
+        />
+      </AdminTableToolbar>
+
       {categories.isError ? (
         <p role="alert" className="py-8 text-admin-danger">{categories.error.message}</p>
       ) : (
         <AdminTable
-          rows={categories.data ?? []}
+          rows={filteredCategories}
           columns={columns}
           rowKey={(category) => category.id}
           isLoading={categories.isPending}
-          emptyText="Chưa có danh mục nào."
+          emptyText="Không tìm thấy danh mục phù hợp."
+          pageSize={10}
+          clientResetKey={search}
         />
       )}
 

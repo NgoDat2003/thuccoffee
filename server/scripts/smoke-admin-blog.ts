@@ -39,7 +39,8 @@ const slug = 'smoke-blog-' + randomUUID();
 const validContent = '<p>Safe content.</p><h2>Heading</h2><img src="blog-asset:blog/smoke.png" alt="Smoke" />';
 const unsafeContent = validContent
   + '<script>alert(1)</script><img src="blog-asset:blog/smoke.png" onerror="alert(2)">'
-  + '<a href="javascript:alert(3)">x</a>';
+  + '<a href="javascript:alert(3)">x</a>'
+  + '<img src="http://localhost:9000/thuccoffee/blog/private.png" alt="Local">';
 
 let cookie = '';
 let createdId: number | undefined;
@@ -55,12 +56,19 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<Result<
   return { status: response.status, body: text ? JSON.parse(text) as ApiResponse<T> : undefined };
 }
 
-function json<T>(method: string, path: string, body?: unknown, auth = true) {
+function json<T>(
+  method: string,
+  path: string,
+  body?: unknown,
+  auth = true,
+  extraHeaders: Record<string, string> = {},
+) {
   return request<T>(path, {
     method,
     headers: {
       'Content-Type': 'application/json',
       ...(auth && cookie ? { Cookie: cookie } : {}),
+      ...extraHeaders,
     },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
@@ -128,7 +136,42 @@ try {
     assert(result.body?.success && result.body.meta.total >= 267, 'Wrong total');
   });
 
-  await check('3. create, search, duplicate slug and slug lock', async () => {
+  await check('3. global sort and stable ordering are truthful', async () => {
+    const sorted = await get<AdminBlogPost[]>('/api/admin/blog?page=1&limit=100&sortBy=title&sortDir=asc');
+    const items = success(sorted);
+    const expected = await pool.query<{ id: number }>(
+      'SELECT id FROM blog_posts ORDER BY title ASC, id DESC LIMIT 100',
+    );
+    assert(
+      items.map((item) => item.id).join(',') === expected.rows.map((item) => item.id).join(','),
+      'API title order differs from the database-wide order',
+    );
+    const repeated = success(await get<AdminBlogPost[]>('/api/admin/blog?page=1&limit=100&sortBy=title&sortDir=asc'));
+    assert(items.map((item) => item.id).join(',') === repeated.map((item) => item.id).join(','), 'Stable ordering changed between requests');
+  });
+
+  await check('4. publish status filter and metadata are truthful', async () => {
+    const all = await get<AdminBlogPost[]>('/api/admin/blog?page=1&limit=100&status=all');
+    const published = await get<AdminBlogPost[]>('/api/admin/blog?page=1&limit=100&status=published');
+    const draft = await get<AdminBlogPost[]>('/api/admin/blog?page=1&limit=100&status=draft');
+    const allMeta = all.body?.success ? all.body.meta : undefined;
+    const publishedItems = success(published);
+    const draftItems = success(draft);
+    const publishedMeta = published.body?.success ? published.body.meta : undefined;
+    const draftMeta = draft.body?.success ? draft.body.meta : undefined;
+    assert(publishedItems.every((item) => item.isPublished), 'Published filter returned a draft');
+    assert(draftItems.every((item) => !item.isPublished), 'Draft filter returned a published post');
+    assert(allMeta && publishedMeta && draftMeta, 'Missing filter pagination metadata');
+    assert(publishedMeta.total + draftMeta.total === allMeta.total, 'Filtered totals do not add up to all posts');
+  });
+
+  await check('5. invalid status and sort enums are rejected', async () => {
+    failure(await get('/api/admin/blog?status=hidden'), 400, 'BAD_REQUEST');
+    failure(await get('/api/admin/blog?sortBy=slug'), 400, 'BAD_REQUEST');
+    failure(await get('/api/admin/blog?sortDir=sideways'), 400, 'BAD_REQUEST');
+  });
+
+  await check('6. create, search, duplicate slug and slug lock', async () => {
     const body = {
       title: 'Smoke admin blog',
       slug,
@@ -151,18 +194,43 @@ try {
     }), 400, 'BAD_REQUEST');
   });
 
-  await check('4. sanitizer removes vectors and preserves valid bytes/marker', async () => {
+  await check('7. sanitizer removes vectors and preserves valid bytes/marker', async () => {
     assert(createdId, 'Create did not succeed');
     const preview = success(await json<{ html: string }>('POST', '/api/admin/blog/preview', { content: unsafeContent }));
     assert(!/<script|onerror|javascript:/i.test(preview.html), 'Unsafe HTML survived preview');
+    assert(!preview.html.includes('http://localhost'), 'Private HTTP image survived preview');
     assert(preview.html.includes('src="blog-asset:blog/smoke.png"'), 'Preview marker lost');
     const stored = success(await get<AdminBlogPost>('/api/admin/blog/' + createdId));
     assert(!/<script|onerror|javascript:/i.test(stored.content), 'Unsafe HTML survived');
+    assert(!stored.content.includes('http://localhost'), 'Private HTTP image survived storage');
     assert(stored.content.includes(validContent), 'Valid content changed');
     assert(stored.content.includes('src="blog-asset:blog/smoke.png"'), 'blog-asset marker lost');
   });
 
-  await check('5. publish toggle is reflected in public API', async () => {
+  await check('8. metadata-only save preserves concurrent newer content', async () => {
+    assert(createdId, 'Create did not succeed');
+    const stale = success(await get<AdminBlogPost>('/api/admin/blog/' + createdId));
+    const concurrent = '<p>Concurrent newer content.</p>';
+    await pool.query('UPDATE blog_posts SET content = $1 WHERE id = $2', [concurrent, createdId]);
+    const saved = success(await json<AdminBlogPost>(
+      'PUT',
+      '/api/admin/blog/' + createdId,
+      {
+        title: stale.title + ' metadata',
+        cover: stale.cover,
+        summary: stale.summary,
+        content: stale.content,
+        publishedAt: stale.publishedAt.slice(0, 10),
+      },
+      true,
+      { 'X-Thuc-Preserve-Blog-Content': 'true' },
+    ));
+    assert(saved.content === concurrent, 'Metadata-only response returned stale content');
+    const current = success(await get<AdminBlogPost>('/api/admin/blog/' + createdId));
+    assert(current.content === concurrent, 'Metadata-only save overwrote newer content');
+  });
+
+  await check('9. publish toggle is reflected in public API', async () => {
     assert(createdId, 'Create did not succeed');
     success(await json('PATCH', '/api/admin/blog/' + createdId + '/publish', { isPublished: false }));
     const hidden = success(await get<Array<{ slug: string }>>('/api/blog?page=1', false));
@@ -173,7 +241,7 @@ try {
     assert(visible.some((item) => item.slug === slug), 'Published post missing publicly');
   });
 
-  await check('6. five longest real posts sanitize byte-for-byte', async () => {
+  await check('10. five longest real posts sanitize byte-for-byte', async () => {
     const { sanitizeBlogContent } = await import('../src/modules/blog/blog-content-sanitizer.js');
     const longest = await pool.query<{
       id: number;
@@ -229,14 +297,51 @@ try {
       await pool.query('UPDATE blog_posts SET updated_at = $1 WHERE id = $2', [real.updatedAt, real.id]);
     }
   });
+
+  await check('11. every real post survives the sanitizer byte-for-byte', async () => {
+    const { sanitizeBlogContent } = await import('../src/modules/blog/blog-content-sanitizer.js');
+    const corpus = await pool.query<{ slug: string; content: string }>(
+      'SELECT slug, content FROM blog_posts WHERE slug <> $1 ORDER BY id ASC',
+      [slug],
+    );
+    assert(corpus.rows.length >= 267, 'Expected the complete real blog corpus');
+    const tags = new Set<string>();
+    const attributes = new Set<string>();
+    let links = 0;
+    let images = 0;
+    let tableCells = 0;
+    let rowspans = 0;
+    let markers = 0;
+    for (const row of corpus.rows) {
+      const sanitized = sanitizeBlogContent(row.content);
+      assert(sanitized === row.content, 'Sanitizer changed untouched post ' + row.slug);
+      for (const match of row.content.matchAll(/<\/?([a-z0-9-]+)/gi)) tags.add((match[1] ?? '').toLowerCase());
+      for (const match of row.content.matchAll(/\s([a-z][a-z0-9-]*)\s*=/gi)) attributes.add((match[1] ?? '').toLowerCase());
+      links += (row.content.match(/<a\b/gi) ?? []).length;
+      images += (row.content.match(/<img\b/gi) ?? []).length;
+      tableCells += (row.content.match(/<td\b/gi) ?? []).length;
+      rowspans += (row.content.match(/\srowspan=/gi) ?? []).length;
+      markers += (row.content.match(/blog-asset:/gi) ?? []).length;
+    }
+    console.log('INFO corpus inventory ' + JSON.stringify({
+      posts: corpus.rows.length,
+      tags: [...tags].sort(),
+      attributes: [...attributes].sort(),
+      links,
+      images,
+      tableCells,
+      rowspans,
+      markers,
+    }));
+  });
 } finally {
   await pool.query('DELETE FROM blog_posts WHERE slug = $1', [slug]);
   await pool.end();
 }
 
 if (failures > 0) {
-  console.error('Smoke admin blog failed: ' + failures + '/6 checks failed.');
+  console.error('Smoke admin blog failed: ' + failures + '/11 checks failed.');
   process.exitCode = 1;
 } else {
-  console.log('Smoke admin blog passed: 6/6 checks at ' + baseUrl + '.');
+  console.log('Smoke admin blog passed: 11/11 checks at ' + baseUrl + '.');
 }

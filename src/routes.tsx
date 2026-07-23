@@ -21,7 +21,6 @@ import AdminNotFound from './components/admin/AdminNotFound';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
 import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
 import AdminBlogPage from './pages/admin/AdminBlogPage';
-import AdminBlogFormPage from './pages/admin/AdminBlogFormPage';
 import AdminStoresPage from './pages/admin/AdminStoresPage';
 import AdminBannersPage from './pages/admin/AdminBannersPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
@@ -36,6 +35,10 @@ function MenuSlugDispatcher() {
 function BlogSlugDispatcher() {
   const { slug } = useParams<{ slug: string }>();
   return /^t1p\d+$/.test(slug ?? '') ? <BlogIndexPage /> : <BlogDetailPage />;
+}
+
+async function loadAdminBlogFormRoute() {
+  return { Component: (await import('./pages/admin/AdminBlogFormPage')).default };
 }
 
 export const router = createBrowserRouter([
@@ -65,8 +68,8 @@ export const router = createBrowserRouter([
       { path: 'products', element: <AdminProductsPage /> },
       { path: 'categories', element: <AdminCategoriesPage /> },
       { path: 'blog', element: <AdminBlogPage /> },
-      { path: 'blog/new', element: <AdminBlogFormPage /> },
-      { path: 'blog/:id', element: <AdminBlogFormPage /> },
+      { path: 'blog/new', lazy: loadAdminBlogFormRoute },
+      { path: 'blog/:id', lazy: loadAdminBlogFormRoute },
       { path: 'stores', element: <AdminStoresPage /> },
       { path: 'banners', element: <AdminBannersPage /> },
       { path: 'settings', element: <AdminSettingsPage /> },

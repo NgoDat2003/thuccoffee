@@ -16,7 +16,7 @@ import {
 } from '../src/db/schema.js';
 import { minioClient } from '../src/lib/minio-client.js';
 
-const VALID_PREFIX = /^(?:blog|products|site|stores)\//;
+const VALID_PREFIX = /^(?:banners|blog|products|site|stores)\//;
 const BLOG_ASSET_PATTERN = /blog-asset:([^"']+)/g;
 const STATIC_IMAGE_KEYS = [
   'site/icon-coffee.png',

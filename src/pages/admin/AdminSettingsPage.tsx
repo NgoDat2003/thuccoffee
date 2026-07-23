@@ -41,7 +41,7 @@ function SettingsContent() {
   );
 
   return (
-    <section>
+    <section className="w-full max-w-[1180px]">
       <p className="text-[13px] font-semibold text-admin-accent-strong">Quản trị</p>
       <h1 className="mt-1 text-[34px] font-black tracking-[-0.02em]">Cài đặt website</h1>
       <p className="mt-2 mb-8 text-[14px] text-admin-muted">Thông tin chung hiển thị ở header, footer và trang liên hệ.</p>

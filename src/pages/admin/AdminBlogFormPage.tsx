@@ -3,6 +3,8 @@ import { Link, useBlocker, useNavigate, useParams } from 'react-router-dom';
 
 import type { CreateAdminBlogInput, UpdateAdminBlogInput } from '../../../server/src/modules/blog/blog.admin.schemas';
 import ImageField from '../../components/admin/ImageField';
+import BlogContentEditor from '../../components/admin/blog-editor/BlogContentEditor';
+import { classifyBlogHtmlForVisual } from '../../components/admin/blog-editor/blog-editor-compatibility';
 import ConfirmDialog from '../../components/admin/ui/ConfirmDialog';
 import FormField from '../../components/admin/ui/FormField';
 import PublishSwitch from '../../components/admin/ui/PublishSwitch';
@@ -18,6 +20,7 @@ import {
   usePublishBlogPost,
   useUpdateBlogPost,
 } from '../../services/admin/blog.service';
+import { useUploadImage } from '../../services/admin/uploads.service';
 
 interface BlogFormState {
   title: string;
@@ -34,9 +37,26 @@ function fieldErrors(error: unknown): Record<string, string> {
   if (!(error instanceof ApiError) || !Array.isArray(error.details)) return {};
   const result: Record<string, string> = {};
   for (const detail of error.details) {
-    if (typeof detail === 'object' && detail !== null && 'field' in detail && 'message' in detail && typeof detail.field === 'string' && typeof detail.message === 'string') result[detail.field] = detail.message;
+    if (
+      typeof detail === 'object'
+      && detail !== null
+      && 'field' in detail
+      && 'message' in detail
+      && typeof detail.field === 'string'
+      && typeof detail.message === 'string'
+    ) {
+      result[detail.field] = detail.message;
+    }
   }
   return result;
+}
+
+function hasMetadataChanges(current: BlogFormState, original: BlogFormState): boolean {
+  return current.title !== original.title
+    || current.slug !== original.slug
+    || current.cover !== original.cover
+    || current.summary !== original.summary
+    || current.publishedAt !== original.publishedAt;
 }
 
 function BlogFormContent() {
@@ -52,13 +72,17 @@ function BlogFormContent() {
   const updatePost = useUpdateBlogPost(postId ?? 0);
   const publishPost = usePublishBlogPost();
   const previewContent = usePreviewBlogContent();
+  const uploadImage = useUploadImage();
   const [form, setForm] = useState<BlogFormState>({ ...emptyForm });
   const [original, setOriginal] = useState<BlogFormState>({ ...emptyForm });
+  const [contentEdited, setContentEdited] = useState(false);
   const [preview, setPreview] = useState(false);
+  const originalRawHtml = useRef('');
   const allowNavigation = useRef(false);
   const hydratedPostId = useRef<number | undefined>(undefined);
-  const isDirty = JSON.stringify(form) !== JSON.stringify(original);
+  const isDirty = contentEdited || hasMetadataChanges(form, original);
   const blocker = useBlocker(isDirty && !allowNavigation.current);
+  const compatibility = classifyBlogHtmlForVisual(form.content);
 
   useEffect(() => {
     if (!post.data || hydratedPostId.current === post.data.id) return;
@@ -71,6 +95,8 @@ function BlogFormContent() {
       content: post.data.content,
       publishedAt: post.data.publishedAt.slice(0, 10),
     };
+    originalRawHtml.current = post.data.content;
+    setContentEdited(false);
     setForm(loaded);
     setOriginal(loaded);
   }, [post.data]);
@@ -79,38 +105,83 @@ function BlogFormContent() {
   const errors = fieldErrors(mutation.error);
   const updateField = <K extends keyof BlogFormState>(key: K, value: BlogFormState[K]) => setForm((current) => ({ ...current, [key]: value }));
 
+  function updateContent(value: string) {
+    setContentEdited(true);
+    updateField('content', value);
+  }
+
+  async function uploadInlineImage(file: File): Promise<string> {
+    try {
+      const { objectKey } = await uploadImage.mutateAsync({ file, kind: 'blog' });
+      return objectKey;
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Không thể tải ảnh.', 'error');
+      throw error;
+    }
+  }
+
   function togglePreview() {
-    if (preview) return setPreview(false);
+    if (preview) {
+      setPreview(false);
+      return;
+    }
     setPreview(true);
-    previewContent.mutate(form.content);
+    previewContent.mutate(contentEdited ? form.content : originalRawHtml.current || form.content);
+  }
+
+  function hydrateSavedPost(saved: Awaited<ReturnType<typeof createPost.mutateAsync>>) {
+    const savedForm: BlogFormState = {
+      title: saved.title,
+      slug: saved.slug,
+      cover: saved.cover,
+      summary: saved.summary,
+      content: saved.content,
+      publishedAt: saved.publishedAt.slice(0, 10),
+    };
+    originalRawHtml.current = saved.content;
+    setForm(savedForm);
+    setOriginal(savedForm);
+    setContentEdited(false);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const common: UpdateAdminBlogInput = { title: form.title, cover: form.cover, summary: form.summary, content: form.content, publishedAt: form.publishedAt };
-    const onSuccess = () => {
-      setOriginal(form);
+    const common: UpdateAdminBlogInput = {
+      title: form.title,
+      cover: form.cover,
+      summary: form.summary,
+      content: contentEdited ? form.content : originalRawHtml.current,
+      publishedAt: form.publishedAt,
+    };
+    const onSuccess = (saved: Awaited<ReturnType<typeof createPost.mutateAsync>>) => {
+      hydrateSavedPost(saved);
       showToast(isEdit ? 'Đã cập nhật bài viết.' : 'Đã tạo bài viết.');
-      if (!isEdit) { allowNavigation.current = true; window.setTimeout(() => navigate('/admin/blog'), 500); }
+      if (!isEdit) {
+        allowNavigation.current = true;
+        window.setTimeout(() => navigate('/admin/blog'), 500);
+      }
     };
     const onError = (error: Error) => showToast(error.message, 'error');
-    if (isEdit) updatePost.mutate(common, { onSuccess, onError });
+    if (isEdit) updatePost.mutate({ input: common, preserveContent: !contentEdited }, { onSuccess, onError });
     else createPost.mutate({ ...common, slug: form.slug } satisfies CreateAdminBlogInput, { onSuccess, onError });
   }
 
   function changePublished(next: boolean) {
     if (postId === undefined) return;
-    publishPost.mutate({ id: postId, input: { isPublished: next } }, {
-      onSuccess: () => showToast(next ? 'Đã hiển thị bài viết.' : 'Đã ẩn bài viết.'),
-      onError: (error) => showToast(error.message, 'error'),
-    });
+    publishPost.mutate(
+      { id: postId, input: { isPublished: next } },
+      {
+        onSuccess: () => showToast(next ? 'Đã hiển thị bài viết.' : 'Đã ẩn bài viết.'),
+        onError: (error) => showToast(error.message, 'error'),
+      },
+    );
   }
 
   if (isEdit && post.isPending) return <p className="py-12 text-center text-admin-muted">Đang tải bài viết…</p>;
   if (isEdit && post.isError) return <p role="alert" className="rounded-[10px] border border-admin-danger/20 p-4 text-admin-danger">{post.error.message}</p>;
 
   return (
-    <section>
+    <section className="w-full max-w-[1180px]">
       <Link to="/admin/blog" className="mb-7 inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold text-admin-muted">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="11 6 5 12 11 18" /></svg>
         Danh sách bài viết
@@ -125,8 +196,8 @@ function BlogFormContent() {
             <FormField label="Tóm tắt" htmlFor="blog-summary" error={errors.summary} required variant="box"><textarea id="blog-summary" rows={2} value={form.summary} onChange={(event) => updateField('summary', event.target.value)} required /></FormField>
             <div>
               <div className="mb-1.5 flex items-center justify-between gap-3">
-                <label htmlFor="blog-content" className="text-[13px] font-semibold text-admin-field">Nội dung HTML</label>
-                <button type="button" onClick={togglePreview} className="min-h-9 text-[12.5px] font-semibold text-admin-accent-strong">{preview ? 'Sửa HTML' : 'Preview an toàn'}</button>
+                <span className="text-[13px] font-semibold text-admin-field">Nội dung bài viết</span>
+                <button type="button" onClick={togglePreview} className="min-h-9 text-[12.5px] font-semibold text-admin-accent-strong">{preview ? 'Quay lại soạn thảo' : 'Preview an toàn'}</button>
               </div>
               {preview ? (
                 <div className="min-h-64 rounded-[10px] border border-admin-border-input bg-admin-surface p-4">
@@ -135,7 +206,13 @@ function BlogFormContent() {
                   {previewContent.data && <div className="[&_a]:text-admin-accent-strong [&_img]:my-4 [&_img]:h-auto [&_img]:max-w-full [&_p]:my-3" dangerouslySetInnerHTML={{ __html: resolveBlogContentImageUrls(previewContent.data.html) }} />}
                 </div>
               ) : (
-                <textarea id="blog-content" rows={18} value={form.content} onChange={(event) => updateField('content', event.target.value)} className="w-full rounded-[10px] border border-admin-border-input bg-admin-surface px-3.5 py-2.5 font-mono text-[13px] outline-none focus:border-admin-accent-strong" />
+                <BlogContentEditor
+                  value={form.content}
+                  onChange={updateContent}
+                  onUploadImage={uploadInlineImage}
+                  compatibility={compatibility.mode}
+                  reasons={compatibility.mode === 'source-only' ? compatibility.reasons : []}
+                />
               )}
               {errors.content && <p role="alert" className="mt-1.5 text-[13px] text-admin-danger">{errors.content}</p>}
             </div>

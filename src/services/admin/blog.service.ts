@@ -10,9 +10,12 @@ import type {
 import { apiGet, apiGetPaginated, apiPatch, apiPost, apiPut } from '../../lib/api';
 import { blogKeys } from '../blog.service';
 
-interface AdminBlogListParams {
+export interface AdminBlogListParams {
   page: number;
   q: string;
+  status: 'all' | 'published' | 'draft';
+  sortBy?: 'title' | 'publishedAt' | 'updatedAt';
+  sortDir?: 'asc' | 'desc';
 }
 
 export const adminBlogKeys = {
@@ -33,7 +36,15 @@ export function useAdminBlogList(params: AdminBlogListParams) {
   return useQuery({
     queryKey: adminBlogKeys.list(params),
     queryFn: () => apiGetPaginated<AdminBlogListItem[]>('/admin/blog', {
-      params: { page: params.page, limit: 10, ...(params.q ? { q: params.q } : {}) },
+      params: {
+        page: params.page,
+        limit: 10,
+        status: params.status,
+        ...(params.q ? { q: params.q } : {}),
+        ...(params.sortBy && params.sortDir
+          ? { sortBy: params.sortBy, sortDir: params.sortDir }
+          : {}),
+      },
     }),
   });
 }
@@ -57,7 +68,15 @@ export function useCreateBlogPost() {
 export function useUpdateBlogPost(id: number) {
   const invalidate = useInvalidateBlog();
   return useMutation({
-    mutationFn: (input: UpdateAdminBlogInput) => apiPut<AdminBlogPost>('/admin/blog/' + id, input),
+    mutationFn: ({ input, preserveContent }: { input: UpdateAdminBlogInput; preserveContent?: boolean }) => (
+      apiPut<AdminBlogPost>(
+        '/admin/blog/' + id,
+        input,
+        preserveContent
+          ? { headers: { 'X-Thuc-Preserve-Blog-Content': 'true' } }
+          : undefined,
+      )
+    ),
     onSuccess: invalidate,
   });
 }
@@ -71,6 +90,7 @@ export function usePublishBlogPost() {
     onSuccess: invalidate,
   });
 }
+
 export function usePreviewBlogContent() {
   return useMutation({
     mutationFn: (content: string) => apiPost<{ html: string }>('/admin/blog/preview', { content }),

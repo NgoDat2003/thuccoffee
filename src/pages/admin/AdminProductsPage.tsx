@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import type { AdminProduct } from '../../../server/src/modules/products/products.admin.schemas';
 import ProductForm from '../../components/admin/forms/ProductForm';
 import AdminDrawer from '../../components/admin/ui/AdminDrawer';
-import AdminTable, { type AdminTableColumn } from '../../components/admin/ui/AdminTable';
+import AdminTable, { IndeterminateCheckbox, type AdminTableColumn } from '../../components/admin/ui/AdminTable';
+import AdminTableToolbar from '../../components/admin/ui/AdminTableToolbar';
 import ConfirmDialog from '../../components/admin/ui/ConfirmDialog';
 import PublishSwitch from '../../components/admin/ui/PublishSwitch';
 import StatusBadge from '../../components/admin/ui/StatusBadge';
@@ -95,7 +96,7 @@ function ProductsContent() {
   }
 
   const columns: Array<AdminTableColumn<AdminProduct>> = [
-    { key: 'select', label: <input type="checkbox" aria-label="Chọn tất cả sản phẩm ở trang hiện tại" checked={allSelected} onChange={toggleAll} />, render: (p) => <input type="checkbox" aria-label={'Chọn ' + p.name} checked={selectedIds.has(p.id)} onChange={() => toggleSelected(p.id)} /> },
+    { key: 'select', label: <IndeterminateCheckbox aria-label="Chọn tất cả sản phẩm ở trang hiện tại" checked={allSelected} indeterminate={selectedVisibleIds.length > 0 && !allSelected} onChange={toggleAll} className="size-4 accent-admin-accent" />, render: (p) => <input type="checkbox" aria-label={'Chọn ' + p.name} checked={selectedIds.has(p.id)} onChange={() => toggleSelected(p.id)} className="size-4 accent-admin-accent" /> },
     { key: 'product', label: 'Sản phẩm', sortValue: (p) => p.name, render: (p) => <div className="flex min-w-[220px] items-center gap-[13px]"><img src={getImageUrl(p.thumb)} alt="" className="size-[46px] shrink-0 rounded-[9px] object-cover" /><div><p className="text-[14.5px] font-semibold text-admin-ink">{p.name}</p><p className="text-[12px] text-admin-muted-2">{p.slug}</p></div></div> },
     { key: 'price', label: 'Giá', sortValue: (p) => p.price ?? 0, render: (p) => <span className="font-semibold text-admin-ink-soft">{p.price === null ? '—' : p.price.toLocaleString('vi-VN') + 'đ'}</span> },
     { key: 'categories', label: 'Danh mục', render: (p) => p.categories.map((item) => item.label).join(', ') || '—' },
@@ -105,22 +106,22 @@ function ProductsContent() {
   ];
 
   return (
-    <section>
+    <section className="w-full min-w-0">
       <header className="mb-2 flex flex-wrap items-end justify-between gap-4">
         <div><p className="text-[13px] font-semibold text-admin-accent-strong">Quản trị</p><h1 className="mt-1 text-[34px] font-black tracking-[-0.02em]">Sản phẩm</h1></div>
         <button type="button" onClick={() => setDrawerProduct(null)} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-admin-ink px-[22px] text-[14px] font-bold text-admin-bg"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>Thêm sản phẩm</button>
       </header>
       <p className="mb-[26px] text-[14px] text-admin-muted">Quản lý nội dung hiển thị trên menu.</p>
 
-      <div className="mb-5 flex flex-wrap gap-2.5">
-        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tìm tên hoặc slug" className="min-w-[200px] flex-1 rounded-[10px] border border-admin-border-input bg-admin-surface px-3.5 py-2.5 text-[16px] text-admin-ink outline-none transition-shadow placeholder:text-admin-muted-2 focus:border-admin-accent focus:ring-[3px] focus:ring-admin-accent/15" />
-        <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)} className="rounded-[10px] border border-admin-border-input bg-admin-surface px-4 py-2.5 text-[14px] text-admin-ink outline-none focus:border-admin-accent focus:ring-[3px] focus:ring-admin-accent/15"><option value="">Tất cả danh mục</option>{categoryOptions.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select>
-        <select value={status} onChange={(event) => setStatus(event.target.value)} className="rounded-[10px] border border-admin-border-input bg-admin-surface px-4 py-2.5 text-[14px] text-admin-ink outline-none focus:border-admin-accent focus:ring-[3px] focus:ring-admin-accent/15"><option value="all">Tất cả trạng thái</option><option value="published">Đang hiển thị</option><option value="hidden">Đã ẩn</option></select>
-      </div>
+      <AdminTableToolbar resultCount={filteredProducts.length} activeFilterCount={Number(Boolean(search)) + Number(Boolean(categoryId)) + Number(status !== 'all')} onClearFilters={() => { setSearch(''); setCategoryId(''); setStatus('all'); }}>
+        <input aria-label="Tìm sản phẩm" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tìm tên hoặc slug" className="min-w-[200px] flex-1 rounded-[10px] border border-admin-border-input bg-admin-surface px-3.5 py-2.5 text-[16px] text-admin-ink outline-none transition-shadow placeholder:text-admin-muted-2 focus:border-admin-accent focus:ring-[3px] focus:ring-admin-accent/15" />
+        <select aria-label="Lọc danh mục sản phẩm" value={categoryId} onChange={(event) => setCategoryId(event.target.value)} className="rounded-[10px] border border-admin-border-input bg-admin-surface px-4 py-2.5 text-[14px] text-admin-ink outline-none focus:border-admin-accent focus:ring-[3px] focus:ring-admin-accent/15"><option value="">Tất cả danh mục</option>{categoryOptions.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select>
+        <select aria-label="Lọc trạng thái sản phẩm" value={status} onChange={(event) => setStatus(event.target.value)} className="rounded-[10px] border border-admin-border-input bg-admin-surface px-4 py-2.5 text-[14px] text-admin-ink outline-none focus:border-admin-accent focus:ring-[3px] focus:ring-admin-accent/15"><option value="all">Tất cả trạng thái</option><option value="published">Đang hiển thị</option><option value="hidden">Đã ẩn</option></select>
+      </AdminTableToolbar>
 
       {selectedVisibleIds.length > 0 && <div className="mb-4 flex items-center gap-3 rounded-full bg-admin-ink px-5 py-2.5 text-admin-bg"><span className="text-[13px] font-semibold">Đã chọn {selectedVisibleIds.length} sản phẩm</span><button type="button" disabled={publishProduct.isPending} onClick={() => void publishSelected(true)} className="ml-auto rounded-full bg-admin-ink-soft px-3.5 py-1.5 text-[12.5px] font-semibold">Hiển thị</button><button type="button" disabled={publishProduct.isPending} onClick={() => setPendingBulkHide(true)} className="rounded-full bg-admin-ink-soft px-3.5 py-1.5 text-[12.5px] font-semibold">Ẩn</button></div>}
 
-      {products.isError ? <p role="alert" className="py-8 text-admin-danger">{products.error.message}</p> : <AdminTable rows={filteredProducts} columns={columns} rowKey={(p) => p.id} isLoading={products.isPending} emptyText="Không tìm thấy sản phẩm phù hợp." pageSize={10} clientResetKey={`${search}|${categoryId}|${status}`} onVisibleRowsChange={handleVisibleRowsChange} />}
+      {products.isError ? <p role="alert" className="py-8 text-admin-danger">{products.error.message}</p> : <AdminTable mode="client" rows={filteredProducts} columns={columns} rowKey={(p) => p.id} isLoading={products.isPending} emptyText="Không tìm thấy sản phẩm phù hợp." pageSize={10} clientResetKey={`${search}|${categoryId}|${status}`} onVisibleRowsChange={handleVisibleRowsChange} />}
 
       <AdminDrawer open={drawerProduct !== undefined} title={drawerProduct === null ? 'Thêm sản phẩm' : 'Sửa sản phẩm'} onClose={() => setDrawerProduct(undefined)}>{drawerProduct !== undefined && <ProductForm key={drawerProduct ?? 'new'} productId={drawerProduct ?? undefined} onDone={() => setDrawerProduct(undefined)} />}</AdminDrawer>
       <ConfirmDialog open={Boolean(pendingUnpublish)} title="Ẩn sản phẩm?" message="Sản phẩm sẽ biến mất khỏi menu công khai nhưng dữ liệu vẫn được giữ." confirmLabel="Ẩn sản phẩm" pending={publishProduct.isPending} onCancel={() => setPendingUnpublish(undefined)} onConfirm={() => { if (!pendingUnpublish) return; publishProduct.mutate({ id: pendingUnpublish.id, input: { isPublished: false } }, { onSuccess: () => { setPendingUnpublish(undefined); showToast('Đã ẩn sản phẩm.'); }, onError: (error) => showToast(error.message, 'error') }); }} />

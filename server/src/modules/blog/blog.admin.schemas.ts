@@ -14,6 +14,9 @@ export const listAdminBlogQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(10),
   q: z.string().trim().min(1).optional(),
+  status: z.enum(['all', 'published', 'draft']).default('all'),
+  sortBy: z.enum(['title', 'publishedAt', 'updatedAt']).default('publishedAt'),
+  sortDir: z.enum(['asc', 'desc']).default('desc'),
 });
 
 export const adminBlogIdParamsSchema = z.object({
