@@ -21,13 +21,13 @@ import {
 export const blogAdminRoutes = Router();
 
 blogAdminRoutes.get('/', async (req, res) => {
-  const { page, limit, q } = listAdminBlogQuerySchema.parse(req.query);
-  const { items, total } = await listAdminBlog(page, limit, q);
+  const query = listAdminBlogQuerySchema.parse(req.query);
+  const { items, total } = await listAdminBlog(query);
   res.json(okPaginated(items, {
-    page,
-    pageSize: limit,
+    page: query.page,
+    pageSize: query.limit,
     total,
-    totalPages: Math.ceil(total / limit),
+    totalPages: Math.ceil(total / query.limit),
   }));
 });
 
@@ -40,6 +40,7 @@ blogAdminRoutes.post('/preview', (req, res) => {
   const { content } = previewAdminBlogSchema.parse(req.body);
   res.json(ok(previewAdminBlogContent(content)));
 });
+
 blogAdminRoutes.post('/', async (req, res) => {
   const input = createAdminBlogSchema.parse(req.body);
   res.status(201).json(ok(await createAdminBlog(input)));
@@ -48,7 +49,8 @@ blogAdminRoutes.post('/', async (req, res) => {
 blogAdminRoutes.put('/:id', async (req, res) => {
   const { id } = adminBlogIdParamsSchema.parse(req.params);
   const input = updateAdminBlogSchema.parse(req.body);
-  res.json(ok(await updateAdminBlog(id, input)));
+  const preserveContent = req.get('X-Thuc-Preserve-Blog-Content') === 'true';
+  res.json(ok(await updateAdminBlog(id, input, { preserveContent })));
 });
 
 blogAdminRoutes.patch('/:id/publish', async (req, res) => {

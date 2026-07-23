@@ -42,7 +42,7 @@ const options: sanitizeHtml.IOptions = {
   allowedSchemes: ['http', 'https', 'mailto', 'tel', 'blog-asset'],
   allowedSchemesByTag: {
     a: ['http', 'https', 'mailto', 'tel'],
-    img: ['http', 'https', 'blog-asset'],
+    img: ['https', 'blog-asset'],
   },
   allowProtocolRelative: false,
   allowedStyles,

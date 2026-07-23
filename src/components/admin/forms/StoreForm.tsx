@@ -54,6 +54,11 @@ export default function StoreForm({ storeId, onDone }: StoreFormProps) {
   return (
     <div className="space-y-8 pb-28">
       <form id="store-form" onSubmit={handleSubmit} className="space-y-6">
+        <section className="rounded-[14px] border border-admin-border bg-admin-surface p-5">
+          <div className="mb-5">
+            <h3 className="text-[16px] font-black text-admin-ink">Thông tin cửa hàng</h3>
+            <p className="mt-1 text-[12.5px] text-admin-muted">Thông tin liên hệ, vị trí và ảnh đại diện công khai.</p>
+          </div>
         <div className="grid gap-5 sm:grid-cols-2">
           <FormField label="Tên cửa hàng" htmlFor="store-name" error={errors.name} required><input id="store-name" value={form.name} onChange={(e) => updateField('name', e.target.value)} required /></FormField>
           <FormField label="Slug" htmlFor="store-slug" error={errors.slug} required><input id="store-slug" value={form.slug} onChange={(e) => updateField('slug', e.target.value)} disabled={isEdit} required /></FormField>
@@ -64,6 +69,7 @@ export default function StoreForm({ storeId, onDone }: StoreFormProps) {
           <FormField label="Thứ tự" htmlFor="store-order" error={errors.sortOrder} required><input id="store-order" type="number" value={form.sortOrder} onChange={(e) => updateField('sortOrder', e.target.value)} required /></FormField>
         </div>
         <div><ImageField kind="stores" value={form.image} onChange={(value) => updateField('image', value)} label="Ảnh đại diện *" />{errors.image && <p role="alert" className="mt-1.5 text-[13px] text-admin-danger">{errors.image}</p>}</div>
+        </section>
       </form>
       {isEdit && store.data && <StoreGallerySection storeId={store.data.id} initial={store.data.gallery} />}
       <div className="sticky bottom-0 ml-auto flex max-w-[520px] items-center justify-end gap-3 rounded-full bg-admin-ink px-5 py-3.5">
