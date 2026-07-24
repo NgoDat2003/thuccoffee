@@ -8,6 +8,7 @@ services:
     # Build từ Dockerfile trong thư mục hiện tại (thay cho: docker build -t ... .)
     build:
       context: .
+      dockerfile: frontend/Dockerfile
       target: runtime # dùng stage runtime (nginx), bỏ qua stage build (node)
       args:
         VITE_MINIO_BASE_URL: /media

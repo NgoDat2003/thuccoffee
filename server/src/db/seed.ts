@@ -2,12 +2,12 @@ import 'dotenv/config';
 
 import { and, eq, notInArray } from 'drizzle-orm';
 
-import { blogContentBySlug } from '../../../src/data/blog-content.ts';
-import { blogPosts as sourceBlogPosts } from '../../../src/data/blog.ts';
-import { categories as sourceCategories } from '../../../src/data/categories.ts';
-import { pages as sourcePages } from '../../../src/data/pages.ts';
-import { products as sourceProducts } from '../../../src/data/products.ts';
-import { stores as sourceStores } from '../../../src/data/stores.ts';
+import { blogContentBySlug } from '../../../frontend/src/data/blog-content.ts';
+import { blogPosts as sourceBlogPosts } from '../../../frontend/src/data/blog.ts';
+import { categories as sourceCategories } from '../../../frontend/src/data/categories.ts';
+import { pages as sourcePages } from '../../../frontend/src/data/pages.ts';
+import { products as sourceProducts } from '../../../frontend/src/data/products.ts';
+import { stores as sourceStores } from '../../../frontend/src/data/stores.ts';
 import { parseVietnameseDate } from '../lib/parse-date.js';
 import { closeDatabase, db } from './client.js';
 import { createSourceImageObjectKeyResolver } from './source-image-object-key-resolver.js';

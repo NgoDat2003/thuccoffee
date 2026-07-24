@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 type ResolveImageObjectKey = (value: string, collisionPrefix?: string) => string;
 
 const sourceImagesRoot = fileURLToPath(
-  new URL('../../../src/assets/images/', import.meta.url),
+  new URL('../../../frontend/src/assets/images/', import.meta.url),
 );
 
 async function listImageObjectKeys(

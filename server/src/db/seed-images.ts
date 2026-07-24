@@ -6,7 +6,7 @@ import { extname, join, relative, resolve, sep } from 'node:path';
 import { env } from '../common/env.js';
 import { minioClient } from '../lib/minio-client.js';
 
-const imagesDirectory = resolve(import.meta.dirname, '../../../src/assets/images');
+const imagesDirectory = resolve(import.meta.dirname, '../../../frontend/src/assets/images');
 
 const contentTypeByExtension: Readonly<Record<string, string>> = {
   '.gif': 'image/gif',

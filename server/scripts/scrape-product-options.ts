@@ -93,7 +93,7 @@ interface ProductInfo {
 
 async function main() {
   // Read products file as string to avoid compiler rootDir check violation
-  const productsFilePath = path.join(__dirname, '../../../src/data/products.ts');
+  const productsFilePath = path.join(__dirname, '../../../frontend/src/data/products.ts');
   const fileText = fs.readFileSync(productsFilePath, 'utf8');
 
   const products: ProductInfo[] = [];
