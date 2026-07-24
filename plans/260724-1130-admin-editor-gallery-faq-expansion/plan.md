@@ -1,14 +1,21 @@
 ---
-title: "Blog editor mo rong, product content field, tach Gallery/FAQ"
-description: "Bat toan bo extension Tiptap co san cho blog, them cot content moi cho product dung chung editor, tach Gallery va FAQ thanh 2 trang rieng dung AdminTable/mau Banner."
-status: pending
+title: 'Blog editor mo rong, product content field, tach Gallery/FAQ'
+description: >-
+  Bat toan bo extension Tiptap co san cho blog, them cot content moi cho product
+  dung chung editor, tach Gallery va FAQ thanh 2 trang rieng dung AdminTable/mau
+  Banner.
+status: completed
 priority: P2
-branch: "feat/public-parity-cms-scope"
-tags: [admin, cms, tiptap, editor]
+branch: feat/public-parity-cms-scope
+tags:
+  - admin
+  - cms
+  - tiptap
+  - editor
 blockedBy: []
 blocks: []
-created: "2026-07-24T04:15:57.498Z"
-createdBy: "ck:plan"
+created: '2026-07-24T04:15:57.498Z'
+createdBy: 'ck:plan'
 source: skill
 ---
 
@@ -38,9 +45,9 @@ Phase 1 (xem Phase 2 § Kien truc).
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 1 | [Mo rong Tiptap blog editor](./phase-01-mo-rong-tiptap-blog-editor.md) | Pending |
-| 2 | [Them product content field](./phase-02-them-product-content-field.md) | Pending |
-| 3 | [Tach Gallery va FAQ thanh 2 trang](./phase-03-tach-gallery-va-faq-thanh-2-trang.md) | Pending |
+| 1 | [Mo rong Tiptap blog editor](./phase-01-mo-rong-tiptap-blog-editor.md) | Completed |
+| 2 | [Them product content field](./phase-02-them-product-content-field.md) | Completed |
+| 3 | [Tach Gallery va FAQ thanh 2 trang](./phase-03-tach-gallery-va-faq-thanh-2-trang.md) | Completed |
 
 ## Dependencies
 

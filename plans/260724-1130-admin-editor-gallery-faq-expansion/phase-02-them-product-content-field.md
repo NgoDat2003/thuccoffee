@@ -1,10 +1,11 @@
 ---
 phase: 2
-title: "Them product content field"
-status: pending
+title: Them product content field
+status: completed
 priority: P2
-effort: "1d"
-dependencies: [1]
+effort: 1d
+dependencies:
+  - 1
 ---
 
 # Phase 2: Them product content field

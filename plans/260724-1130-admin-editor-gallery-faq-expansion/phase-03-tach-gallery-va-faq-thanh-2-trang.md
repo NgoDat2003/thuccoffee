@@ -1,9 +1,9 @@
 ---
 phase: 3
-title: "Tach Gallery va FAQ thanh 2 trang"
-status: pending
+title: Tach Gallery va FAQ thanh 2 trang
+status: completed
 priority: P2
-effort: "0.5d"
+effort: 0.5d
 dependencies: []
 ---
 

@@ -1,9 +1,9 @@
 ---
 phase: 1
-title: "Mo rong Tiptap blog editor"
-status: pending
+title: Mo rong Tiptap blog editor
+status: completed
 priority: P2
-effort: "0.75d"
+effort: 0.75d
 dependencies: []
 ---
 
