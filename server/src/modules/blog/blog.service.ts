@@ -1,4 +1,4 @@
-import { and, count, desc, eq } from 'drizzle-orm';
+import { and, asc, count, desc, eq, like } from 'drizzle-orm';
 
 import { db } from '../../db/client.js';
 import { blogPosts } from '../../db/schema.js';
@@ -49,7 +49,9 @@ export async function listBlog(
       .select(publicBlogFields)
       .from(blogPosts)
       .where(publishedOnly)
-      .orderBy(desc(blogPosts.publishedAt), desc(blogPosts.id))
+      // Sort chính theo priority (nhỏ trước, khớp semantics nguồn);
+      // tie-break bằng ngày mới nhất rồi id để pagination ổn định.
+      .orderBy(asc(blogPosts.priority), desc(blogPosts.publishedAt), desc(blogPosts.id))
       .limit(perPage)
       .offset(offset),
   ]);
@@ -60,14 +62,30 @@ export async function listBlog(
   };
 }
 
+// Nguồn resolve bài theo ID suffix `-s{id}t{n}`; phần text chỉ là SEO slug và
+// clone đã normalize (bỏ emoji/dấu tổ hợp). Deep link nguồn với text slug khác
+// vẫn phải mở đúng bài → fallback match theo suffix (unique trong DB).
+const slugIdSuffixPattern = /-s\d+t\d+$/;
+
 export async function getBlogBySlug(
   slug: string,
 ): Promise<BlogDetail | undefined> {
-  const [row] = await db
+  let [row] = await db
     .select({ ...publicBlogFields, content: blogPosts.content })
     .from(blogPosts)
     .where(and(eq(blogPosts.slug, slug), eq(blogPosts.isPublished, true)))
     .limit(1);
+
+  if (!row) {
+    const suffix = slug.match(slugIdSuffixPattern)?.[0];
+    if (suffix) {
+      [row] = await db
+        .select({ ...publicBlogFields, content: blogPosts.content })
+        .from(blogPosts)
+        .where(and(like(blogPosts.slug, `%${suffix}`), eq(blogPosts.isPublished, true)))
+        .limit(1);
+    }
+  }
 
   if (!row) {
     return undefined;

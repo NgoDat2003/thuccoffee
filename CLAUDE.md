@@ -17,17 +17,21 @@ một quyết định cũ.
 
 ## Dự án này là gì
 
-Bản clone của một site chuỗi cà phê Việt Nam đang chạy thật. **Frontend** là SPA
-tĩnh (tag `v1.0.0`, deploy được): nội dung hardcode trong `src/data/*.ts`, không
-auth, không giỏ hàng thật, không thanh toán. Nhiều thứ trông có vẻ tương tác trên
-bản gốc thì ở đây chỉ là giao diện — đọc `docs/deviations-from-original.md` trước
-khi kết luận một khoảng trống là bug.
+Bản clone của một site chuỗi cà phê Việt Nam đang chạy thật, gồm frontend React,
+backend Express (`server/`) với API đọc công khai + admin CMS (JWT, CRUD 6 nhóm
+resource, upload MinIO, editor Tiptap), và hạ tầng Postgres/MinIO local. Không có
+giỏ hàng thật, thanh toán, hay tài khoản public — đó là quyết định scope, không
+phải bug (xem `plans/reports/260723-thuccoffee-full-functional-parity-audit.md`
+§13). Đọc `docs/deviations-from-original.md` trước khi kết luận một khoảng trống
+là bug.
 
-**Backend** (`server/`) đang được dựng trên nhánh `feat/backend`. Hiện có
-foundation Express + `GET /api/health`, cộng schema Drizzle đầy đủ (14 bảng),
-migration và seed đổ dữ liệu từ `src/data/*.ts`. Content API, auth và admin CRUD
-là các giai đoạn sau — xem thứ tự triển khai trong `docs/backend-architecture.md`.
-Frontend **chưa** gọi backend; mọi trang vẫn đọc `src/data/index.ts`.
+**Trạng thái data fetching:** toàn bộ trang public đọc từ API qua
+`src/services/*.service.ts` — products, blog, stores, banners, categories,
+site-settings, 6 trang nội dung (static_pages), FAQ thành viên, gallery trang
+chủ. Search sản phẩm/bài viết, contact form, newsletter có backend thật
+(submissions lưu DB). `src/data/*.ts` chỉ còn là nguồn seed + nơi khai báo type
+dùng chung — không thêm nghiệp vụ mới vào lớp này. Tag `v1.0.0` là điểm quay về
+cho bản frontend tĩnh thuần.
 
 ## Hỏi lại thay vì đoán
 
@@ -66,10 +70,13 @@ người dùng vẫn chọn hướng ban đầu thì làm theo, không nêu lạ
 
 ## Quy ước không đọc code là biết
 
-**Ảnh phải qua `getImageUrl()`** (`src/lib/image-url.ts`). Hàm này map tên file
-trần vào `import.meta.glob` của `src/assets/images/**`. Không dùng
-`import img from '...'`, không hardcode `/assets/...` — tên file sau build có
-hash khác, và file thiếu sẽ rơi về ảnh placeholder kèm cảnh báo ở dev.
+**Ảnh phải qua `getImageUrl()`** (`src/lib/image-url.ts`). Hàm này nối MinIO
+object key (ví dụ `products/abc.png`) với base URL — dev là MinIO trực tiếp
+(`localhost:9000/thuccoffee`), production là proxy `/media`. Không dùng
+`import img from '...'`, không hardcode `/assets/...` hay URL MinIO. Ảnh trong
+`src/assets/images/` chỉ còn là nguồn seed (`db:seed-images`), không được
+import ở runtime. HTML bài viết dùng marker `blog-asset:<key>` và phân giải qua
+`resolveBlogContentImageUrls()`.
 
 **Meta trang phải qua `usePageMeta()`** (`src/lib/use-page-meta.ts`), không tự
 gán `document.title`. Mọi page cấp route đều gọi hook này.

@@ -22,6 +22,7 @@ const adminBlogListFields = {
   summary: blogPosts.summary,
   publishedAt: blogPosts.publishedAt,
   isPublished: blogPosts.isPublished,
+  priority: blogPosts.priority,
   createdAt: blogPosts.createdAt,
   updatedAt: blogPosts.updatedAt,
 };
@@ -34,6 +35,7 @@ type AdminBlogRow = {
   summary: string;
   publishedAt: Date;
   isPublished: boolean;
+  priority: number;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -124,6 +126,7 @@ export async function createAdminBlog(
         summary: input.summary,
         content: sanitizeBlogContent(input.content),
         publishedAt: publishedAt(input.publishedAt),
+        ...(input.priority === undefined ? {} : { priority: input.priority }),
       })
       .returning({ id: blogPosts.id });
     if (!created) throw new Error('Insert blog post did not return an id.');
@@ -162,6 +165,7 @@ export async function updateAdminBlog(
       summary: input.summary,
       ...contentUpdate,
       publishedAt: publishedAt(input.publishedAt),
+      ...(input.priority === undefined ? {} : { priority: input.priority }),
       updatedAt: new Date(),
     })
     .where(eq(blogPosts.id, id))

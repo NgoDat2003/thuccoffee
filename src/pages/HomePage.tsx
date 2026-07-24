@@ -11,8 +11,8 @@ import { useProducts } from '../services/products.service';
 
 export default function HomePage() {
   usePageMeta('', 'Thương hiệu cà phê tự hào tiên phong trong lĩnh vực hoạt động 24H tại TP.HCM');
-  const { data: products = [], isLoading, isError } = useProducts('yeu-thich-nhat');
-  const featured = products.slice(0, 8);
+  // Khối trang chủ do API quyết định (showOnHome + homePriority), FE không cắt.
+  const { data: featured = [], isLoading, isError } = useProducts({ home: true });
 
   return (
     <>

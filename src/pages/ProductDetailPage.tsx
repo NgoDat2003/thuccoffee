@@ -14,6 +14,7 @@ export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<string>();
   const { data: product, isLoading, isError } = useProduct(slug ?? '');
 
   usePageMeta(product?.name ?? 'Menu', product?.description);
@@ -22,6 +23,13 @@ export default function ProductDetailPage() {
   if (isError || !product) return <Navigate to="/menu" replace />;
 
   const fullImage = product.image ?? product.thumb;
+  const options = product.options;
+  // Sản phẩm có option: mặc định chọn option đầu (đã sort ở API); giá hiển thị
+  // theo lựa chọn. Không có option thì dùng giá gốc như cũ.
+  const activeOption = options.length > 0
+    ? (options.find((option) => option.label === selectedOption) ?? options[0])
+    : undefined;
+  const displayPrice = activeOption ? activeOption.price : product.price;
 
   return (
     <Container className="py-10">
@@ -36,9 +44,50 @@ export default function ProductDetailPage() {
 
         <div>
           <h1 className="text-2xl font-bold uppercase text-primary">{product.name}</h1>
+          {product.stickers.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {product.stickers.map((sticker) => (
+                <span
+                  key={sticker.label}
+                  className="rounded-full px-3 py-1 text-xs font-semibold uppercase text-white"
+                  style={{ backgroundColor: sticker.color }}
+                >
+                  {sticker.label}
+                </span>
+              ))}
+            </div>
+          )}
           {product.description && <p className="mt-3 text-gray-600">{product.description}</p>}
+
+          {options.length > 0 && (
+            <fieldset className="mt-4">
+              <legend className="mb-2 text-sm font-medium text-gray-700">Lựa chọn</legend>
+              <div className="flex flex-wrap gap-2">
+                {options.map((option) => {
+                  const isActive = option.label === activeOption?.label;
+                  return (
+                    <button
+                      key={option.label}
+                      type="button"
+                      aria-pressed={isActive}
+                      onClick={() => setSelectedOption(option.label)}
+                      className={
+                        'rounded border px-4 py-2 text-sm font-medium ' +
+                        (isActive
+                          ? 'border-primary bg-primary text-white'
+                          : 'border-gray-300 text-gray-700 hover:border-primary hover:text-primary')
+                      }
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+          )}
+
           <p className="mt-4 text-2xl font-medium text-primary">
-            {formatPrice(product.price)}
+            {formatPrice(displayPrice)}
           </p>
 
           <a

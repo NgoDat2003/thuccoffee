@@ -1,9 +1,17 @@
 # Deviations from the Original Site
 
-This project is a static React clone of `thuccoffee.com.vn`, built from a
-one-time crawl and a fixed set of downloaded assets. The visual-parity update
-completed on 2026-07-17 closes the known shared-shell, route, content, and media
+This project clones `thuccoffee.com.vn` from a one-time crawl. It began as a
+static React SPA; since then a backend (Express + Postgres + MinIO) and an admin
+CMS were added, and the public pages for products, blog, stores, banners, site
+settings, and categories now read from the API. The visual-parity update
+completed on 2026-07-17 closed the known shared-shell, route, content, and media
 gaps. The differences below remain intentional.
+
+Scope decision (2026-07-23): the target is functional parity for the **public
+site currently in use**, plus an admin able to manage all public data. Public
+member accounts, cart/checkout/payment, legacy StaticText CMS, and multi-role
+admin are explicitly out of scope — see
+`plans/reports/260723-thuccoffee-full-functional-parity-audit.md` §13.
 
 ## Implemented Parity Scope
 
@@ -25,15 +33,21 @@ gaps. The differences below remain intentional.
   the crawled copy and available local images. The contact form includes the
   source Name, Email, Phone, and Content fields.
 
-## No Backend or Account Services
+## Backend Present; No Commerce or Public Accounts
 
-- No real cart, checkout, payments, or member accounts exist. Order CTAs use
-  the hotline or source-linked external delivery channels.
+- A backend exists (`server/`): public read API, JWT admin auth, and admin CRUD
+  for products, categories, blog, stores, banners, and site settings. Public
+  pages for those resources read from the API; images are served from MinIO
+  via the `/media` proxy.
+- No real cart, checkout, payments, or public member accounts exist — by scope
+  decision, not as a gap. Order CTAs use the hotline or source-linked external
+  delivery channels.
 - `/account/login` is UI-only: no authentication, session, or protected routes.
   The page carries a visible disclosure and clears submitted values locally.
 - The contact form performs client-side validation and shows a demo toast;
   nothing is transmitted. Footer newsletter and mobile search forms are also
-  non-submitting UI shells.
+  non-submitting UI shells. (Real search and submission persistence are planned
+  in `plans/260723-public-parity-cms-completion/`.)
 - Header search controls do not provide search results.
 - No embedded Facebook Messenger chat widget is included. Delivery links open
   the externally hosted Zalo/Messenger order destination instead.
@@ -42,12 +56,12 @@ gaps. The differences below remain intentional.
 
 - The clone does not sync with the live site. Products, prices, promotions,
   jobs, store details, policies, and images reflect the committed crawl.
-- The one-time blog crawl stores 267 `BlogPost` listing records in
-  `src/data/blog.ts`; they contain metadata only. `src/data/blog-content.ts`
-  stores full sanitized HTML keyed by slug and is lazy-loaded only on detail
-  pages. The database
-  seed imports both sources to populate `blog_posts.content`; this does not
-  make the planned content API available.
+- The one-time blog crawl stored 267 `BlogPost` records in `src/data/blog.ts`
+  and full sanitized HTML in `src/data/blog-content.ts`. The database seed
+  imports both sources into `blog_posts`, and the public blog pages now read
+  from the blog API. The static files remain only as the seed source; static
+  pages (about, membership, careers, contact, delivery, cookie policy) still
+  render from `src/data/pages.ts` until the static-page CMS lands.
 - 456 live source images were downloaded locally. Eighteen dead source image
   URLs use the existing logo placeholder; the local blog image set is about
   344 MB.
@@ -60,6 +74,23 @@ gaps. The differences below remain intentional.
   such as accounts, commerce, newsletters, and analytics. Those references
   describe the source policy; this static clone does not implement those
   services.
+
+## Intentionally Omitted Legacy Fields
+
+Per the 2026-07-23 scope decision, some source-admin fields were deliberately
+not cloned because no public consumer uses them:
+
+- **Right banner**: the `right` type stays valid in the schema and admin, but
+  no public renderer exists and no data is seeded — legacy-inactive until a
+  real placement is confirmed on the source.
+- **Blog category/tags/featured**: the public blog reads priority + date only;
+  taxonomy fields would have no consumer.
+- **Product old-price, tags, per-role media galleries**: not rendered by the
+  current public detail template.
+- **Stickers table and product stickers**: Consolidated (2026-07-24). The database audit showed the stickers table was completely empty/obsolete. Product badges are instead derived directly from presentation categories (`san-pham-moi`, `yeu-thich-nhat`) using the new `categories.badge_color` field.
+- **Product detail HTML (`detail_html`)**: Omitted. The live site's product detail pages only render plain text descriptions (or the HTML field was empty/obsolete), so product descriptions are stored and rendered as plain text rather than structured HTML fields.
+- **Legacy StaticText (~100 UI strings), analytics/SMTP/counter settings**: UI
+  microcopy stays in code; secrets stay in the environment.
 
 ## External and Local-Only Behavior
 

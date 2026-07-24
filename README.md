@@ -7,11 +7,12 @@ banner, cài đặt website, upload ảnh lên MinIO, trình soạn thảo bài 
 rich-text), cùng hạ tầng Postgres/MinIO chạy local. Giỏ hàng thật và thanh toán
 nằm ngoài phạm vi hiện tại.
 
-**Quan trọng:** các trang public vẫn hiển thị từ dữ liệu tĩnh trong
-`src/data/*.ts` — nội dung sửa trong admin được lưu vào database nhưng **chưa**
-hiện ra trang public. Ngoại lệ duy nhất là ảnh: mọi trang đều tải ảnh từ MinIO
-qua proxy `/media`. Nối trang public vào API đọc là giai đoạn kế tiếp. Khi test
-xin đừng ghi nhận khoảng trống này là bug.
+**Trạng thái hiện tại:** toàn bộ trang public đọc từ API — sản phẩm, danh mục,
+bài viết, cửa hàng, banner, cài đặt, trang nội dung, FAQ thành viên, gallery
+trang chủ. Nội dung sửa trong admin phản ánh ra public sau reload. Search
+sản phẩm/bài viết, form liên hệ và đăng ký nhận tin đều có backend thật
+(submissions lưu database; gửi email nằm ngoài scope vì chưa có provider).
+`src/data/*.ts` chỉ còn là nguồn seed và nơi khai báo type dùng chung.
 
 Lịch sử các đợt làm việc nằm trong `plans/`; mỗi thư mục là một chu kỳ đã xong.
 
@@ -99,8 +100,9 @@ npm run lint
 
 ## Bộ smoke test (lưới regression)
 
-Tám bộ trong `server/scripts/smoke-*.ts` kiểm tra auth, API public, CRUD admin,
-upload và tính toàn vẹn ảnh trên stack đang chạy. Các bộ admin cần
+Mười một bộ trong `server/scripts/smoke-*.ts` kiểm tra auth, API public, CRUD
+admin, search, submissions, static pages/gallery, options/stickers, upload và
+tính toàn vẹn ảnh trên stack đang chạy. Các bộ admin cần
 `ADMIN_EMAIL`/`ADMIN_PASSWORD` của một tài khoản có sẵn:
 
 ```bash
@@ -113,6 +115,9 @@ npm run smoke:admin-stores
 npm run smoke:admin-banners-settings
 npm run smoke:upload
 npm run smoke:images
+npm run smoke:search-submissions      # search + contact/newsletter (không cần auth)
+npm run smoke:pages-gallery           # static pages + FAQ + gallery admin→public
+npm run smoke:options-stickers        # options/stickers admin→public
 ```
 
 Chạy chúng trước khi kết luận bất cứ điều gì về backend hoặc admin.

@@ -26,6 +26,17 @@ export default function AdminDrawer({
     if (!open && dialog.open) dialog.close();
   }, [open]);
 
+  // Khóa scroll trang nền khi drawer mở — tránh 2 thanh cuộn chồng nhau
+  // (scrollbar body + scrollbar nội dung drawer).
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
+
   return (
     <dialog
       ref={dialogRef}
@@ -37,7 +48,7 @@ export default function AdminDrawer({
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      className={`admin-drawer m-0 ml-auto h-dvh max-h-none max-w-none border-0 bg-admin-bg p-0 text-admin-ink shadow-2xl backdrop:bg-admin-sidebar/60 ${
+      className={`admin-drawer m-0 ml-auto h-dvh max-h-none max-w-none overflow-hidden border-0 bg-admin-bg p-0 text-admin-ink shadow-2xl backdrop:bg-admin-sidebar/60 ${
         size === 'wide' ? 'w-[min(100vw,720px)]' : 'w-[min(100vw,560px)]'
       } ${className}`}
     >

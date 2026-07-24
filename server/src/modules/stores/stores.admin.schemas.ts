@@ -7,6 +7,11 @@ const storeFields = {
   hours: z.string().trim().min(1),
   image: z.string().trim().min(1),
   region: z.string().trim().min(1).nullable(),
+  // optional: payload cũ thiếu field giữ nguyên giá trị hiện có khi update.
+  // Chỉ nhận https — URL này vào iframe src, chặn javascript:/http:.
+  mapEmbedUrl: z.string().trim().url().max(2000)
+    .refine((value) => value.startsWith('https://'), 'URL bản đồ phải dùng https.')
+    .nullable().optional(),
   sortOrder: z.number().int(),
 };
 
@@ -51,6 +56,7 @@ export interface AdminStoreListItem {
   hours: string;
   image: string;
   region: string | null;
+  mapEmbedUrl: string | null;
   isPublished: boolean;
   sortOrder: number;
   createdAt: string;

@@ -5,6 +5,8 @@ export const bannerSchema = z.object({
   image: z.string(),
   altText: z.string(),
   linkUrl: z.string().nullable(),
+  buttonLabel: z.string().nullable(),
+  openInNewTab: z.boolean(),
   sortOrder: z.number().int(),
 });
 

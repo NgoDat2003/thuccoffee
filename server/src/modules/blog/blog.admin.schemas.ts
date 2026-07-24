@@ -8,6 +8,10 @@ const blogFields = {
   summary: z.string().trim().min(1),
   content: z.string(),
   publishedAt: dateInputSchema,
+  // Sort chính danh sách public: nhỏ trước, tie-break publishedAt DESC.
+  // optional: payload thiếu field = giữ nguyên priority hiện có (create dùng
+  // default 0 của DB).
+  priority: z.number().int().optional(),
 };
 
 export const listAdminBlogQuerySchema = z.object({
@@ -46,6 +50,7 @@ export interface AdminBlogListItem {
   summary: string;
   publishedAt: string;
   isPublished: boolean;
+  priority: number;
   createdAt: string;
   updatedAt: string;
 }

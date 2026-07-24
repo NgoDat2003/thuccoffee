@@ -8,7 +8,33 @@ const productFields = {
   image: z.string().trim().min(1).nullable(),
   description: z.string().trim().nullable(),
   sortOrder: z.number().int(),
+  // optional: payload cũ thiếu field vẫn hợp lệ; update giữ nguyên giá trị
+  // hiện có (undefined không được set vào DB), create dùng default của DB.
+  isFeatured: z.boolean().optional(),
+  showOnHome: z.boolean().optional(),
+  homePriority: z.number().int().optional(),
   categoryIds: z.array(z.number().int().positive()),
+  // Giá tuyệt đối của lựa chọn (nóng/lạnh/size); thứ tự mảng = sortOrder.
+  // optional (không default): payload thiếu field = GIỮ NGUYÊN link hiện có,
+  // tránh client cũ vô tình xóa sạch option/sticker khi update.
+  optionLinks: z.array(z.object({
+    optionId: z.number().int().positive(),
+    label: z.string().trim().max(120).nullable().optional(),
+    price: z.number().int().min(1, 'Giá phải lớn hơn 0.'),
+  })).optional().superRefine((links, ctx) => {
+    if (!links) return;
+    const seen = new Set<number>();
+    for (const [index, link] of links.entries()) {
+      if (seen.has(link.optionId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Mỗi option chỉ được chọn một lần.',
+          path: [index, 'optionId'],
+        });
+      }
+      seen.add(link.optionId);
+    }
+  }),
 };
 
 export const adminProductIdParamsSchema = z.object({
@@ -32,6 +58,13 @@ export interface AdminProductCategory {
   label: string;
 }
 
+export interface AdminProductOptionLink {
+  optionId: number;
+  name: string;
+  label: string | null;
+  price: number;
+}
+
 export interface AdminProduct {
   id: number;
   name: string;
@@ -43,9 +76,13 @@ export interface AdminProduct {
   description: string | null;
   isPublished: boolean;
   sortOrder: number;
+  isFeatured: boolean;
+  showOnHome: boolean;
+  homePriority: number;
   createdAt: string;
   updatedAt: string;
   categories: AdminProductCategory[];
+  optionLinks: AdminProductOptionLink[];
 }
 
 export type AdminProductIdParams = z.infer<typeof adminProductIdParamsSchema>;

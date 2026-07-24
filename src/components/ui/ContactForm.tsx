@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSubmitContact } from '../../services/public-submissions.service';
 import Toast from './Toast';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -8,8 +9,10 @@ export default function ContactForm() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
+  const [website, setWebsite] = useState(''); // honeypot — người thật không thấy field này
   const [error, setError] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const submitContact = useSubmitContact();
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,11 +27,21 @@ export default function ContactForm() {
     }
 
     setError('');
-    setName('');
-    setEmail('');
-    setPhone('');
-    setMessage('');
-    setShowToast(true);
+    submitContact.mutate(
+      { name, email, phone, message, website },
+      {
+        onSuccess: () => {
+          setName('');
+          setEmail('');
+          setPhone('');
+          setMessage('');
+          setShowToast(true);
+        },
+        onError: () => {
+          setError('Không thể gửi liên hệ. Vui lòng thử lại sau.');
+        },
+      },
+    );
   };
 
   return (
@@ -82,17 +95,30 @@ export default function ContactForm() {
           />
         </div>
 
+        {/* Honeypot chống bot: ẩn khỏi người dùng và screen reader. */}
+        <div aria-hidden="true" className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden">
+          <label htmlFor="contact-website">Website</label>
+          <input
+            id="contact-website"
+            tabIndex={-1}
+            autoComplete="off"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+          />
+        </div>
+
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <button
           type="submit"
-          className="self-start rounded bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-primary/90"
+          disabled={submitContact.isPending}
+          className="self-start rounded bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-60"
         >
-          Gửi
+          {submitContact.isPending ? 'Đang gửi…' : 'Gửi'}
         </button>
       </form>
 
-      {showToast && <Toast message="Đã gửi (demo)" onDismiss={() => setShowToast(false)} />}
+      {showToast && <Toast message="Đã gửi liên hệ. Cảm ơn bạn!" onDismiss={() => setShowToast(false)} />}
     </>
   );
 }

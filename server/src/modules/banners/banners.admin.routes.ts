@@ -19,6 +19,10 @@ const adminBannerSelect = {
   image: banners.image,
   altText: banners.altText,
   linkUrl: banners.linkUrl,
+  buttonLabel: banners.buttonLabel,
+  openInNewTab: banners.openInNewTab,
+  startsAt: banners.startsAt,
+  endsAt: banners.endsAt,
   sortOrder: banners.sortOrder,
   isActive: banners.isActive,
   createdAt: banners.createdAt,
@@ -31,6 +35,10 @@ type AdminBannerRow = {
   image: string;
   altText: string;
   linkUrl: string | null;
+  buttonLabel: string | null;
+  openInNewTab: boolean;
+  startsAt: Date | null;
+  endsAt: Date | null;
   sortOrder: number;
   isActive: boolean;
   createdAt: Date;
@@ -41,8 +49,25 @@ function toAdminBanner(row: AdminBannerRow): AdminBanner {
   return {
     ...row,
     type: row.type as AdminBanner['type'],
+    startsAt: row.startsAt?.toISOString() ?? null,
+    endsAt: row.endsAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+// Input schedule là ISO string; DB cột timestamptz nhận Date.
+// undefined giữ nguyên (Drizzle bỏ qua khi set), null xóa giới hạn.
+function toScheduleDate(value: string | null | undefined): Date | null | undefined {
+  if (value === undefined) return undefined;
+  return value === null ? null : new Date(value);
+}
+
+function toBannerValues<T extends { startsAt?: string | null; endsAt?: string | null }>(input: T) {
+  return {
+    ...input,
+    startsAt: toScheduleDate(input.startsAt),
+    endsAt: toScheduleDate(input.endsAt),
   };
 }
 
@@ -70,7 +95,7 @@ bannersAdminRoutes.post('/', async (req, res) => {
   const input = createAdminBannerSchema.parse(req.body);
   const [created] = await db
     .insert(banners)
-    .values(input)
+    .values(toBannerValues(input))
     .returning({ id: banners.id });
   if (!created) throw new Error('Insert banner did not return an id.');
   res.status(201).json(ok(await requireAdminBanner(created.id)));
@@ -81,7 +106,7 @@ bannersAdminRoutes.put('/:id', async (req, res) => {
   const input = updateAdminBannerSchema.parse(req.body);
   const [updated] = await db
     .update(banners)
-    .set({ ...input, updatedAt: new Date() })
+    .set({ ...toBannerValues(input), updatedAt: new Date() })
     .where(eq(banners.id, id))
     .returning({ id: banners.id });
   if (!updated) throw ApiError.notFound('Không tìm thấy banner.');

@@ -16,6 +16,8 @@ const icons = {
   stores: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="12" cy="10" r="6" /><circle cx="12" cy="10" r="2" fill="currentColor" stroke="none" /><line x1="12" y1="16" x2="12" y2="21" /></svg>,
   banners: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="8.5" cy="10" r="1.8" /><path d="M3 16l5-4 4 3 4-5 5 6" /></svg>,
   settings: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6" /><circle cx="9" cy="6" r="2" fill="#1c150f" /><line x1="4" y1="12" x2="20" y2="12" /><circle cx="15" cy="12" r="2" fill="#1c150f" /><line x1="4" y1="18" x2="20" y2="18" /><circle cx="11" cy="18" r="2" fill="#1c150f" /></svg>,
+  pages: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5" /></svg>,
+  gallery: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="4" width="8" height="8" rx="1.5" /><rect x="13" y="4" width="8" height="8" rx="1.5" /><rect x="3" y="14" width="8" height="6" rx="1.5" /><rect x="13" y="14" width="8" height="6" rx="1.5" /></svg>,
 };
 
 const groups = [
@@ -25,6 +27,8 @@ const groups = [
       { to: '/admin/products', label: 'Sản phẩm', icon: icons.products },
       { to: '/admin/categories', label: 'Danh mục', icon: icons.categories },
       { to: '/admin/blog', label: 'Bài viết', icon: icons.blog },
+      { to: '/admin/pages', label: 'Trang nội dung', icon: icons.pages },
+      { to: '/admin/gallery', label: 'Gallery & FAQ', icon: icons.gallery },
     ],
   },
   {
@@ -72,7 +76,7 @@ export default function AdminSidebar({ open, onClose, user }: AdminSidebarProps)
         ].join(' ')}
       >
         <div className="flex items-center gap-[10px] px-[10px]">
-          <div className="flex size-[34px] shrink-0 items-center justify-center rounded-full bg-admin-accent text-[15px] font-black text-admin-sidebar">T</div>
+          <div className="flex size-[34px] shrink-0 items-center justify-center rounded-full bg-admin-accent text-[15px] font-black text-white">T</div>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-admin-accent">Thức Coffee</p>
             <p className="mt-px text-[16px] font-bold text-admin-bg">Quản trị</p>

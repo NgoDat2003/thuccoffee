@@ -1,8 +1,8 @@
-import type { Product } from '../../server/src/modules/products/products.schemas';
+import type { ProductSeedInput } from '../../server/src/modules/products/products.schemas';
 
 // Some products lack a source price (see research/crawl-report.md); those carry
 // priceEstimated:true with a value estimated from other items in the same category.
-export const products: Product[] = [
+export const products: ProductSeedInput[] = [
   {
     name: 'AMERICANO',
     slug: 'americano-s153t2',

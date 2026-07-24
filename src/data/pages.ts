@@ -22,6 +22,15 @@ export interface CookiePolicySection {
   paragraphs: string[];
 }
 
+// Shape content JSON của từng static page trong DB — seed lấy từ object `pages`
+// bên dưới, page component parse JSON theo các type này.
+export type AboutPageContent = typeof pages.about;
+export type MembershipPageContent = typeof pages.membership;
+export type CareersPageContent = typeof pages.careers & { jobs: JobListing[] };
+export type DeliveryPageContent = typeof pages.delivery;
+export type CookiePolicyPageContent = typeof pages.cookiePolicy;
+export type ContactPageContent = typeof pages.contact;
+
 export const pages = {
   about: {
     heading: 'THỨC COFFEE - OPEN 24/7',

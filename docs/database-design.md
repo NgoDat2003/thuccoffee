@@ -40,9 +40,9 @@ phải đếm động file nguồn và object. Riêng crawl blog lưu 456 ảnh 
 ## Sơ đồ quan hệ
 
 ```
-                    ┌── product_categories ──── categories
+                    ┌── product_categories ──── categories (badge_color)
                     │
-products ───────────┼── product_stickers ────── stickers
+products ───────────┼
                     │
                     ├── product_option_links ── product_options
                     │
@@ -53,9 +53,11 @@ blog_posts   stores   banners   users   site_settings   static_pages
 ```
 
 Quan hệ nhiều-nhiều:
-- sản phẩm ↔ danh mục qua `product_categories` (tối đa 3 danh mục).
-- sản phẩm ↔ sticker qua `product_stickers` (một sản phẩm nhiều nhãn).
-- sản phẩm ↔ option qua `product_option_links`, có thuộc tính giá và số lượng.
+- sản phẩm ↔ danh mục qua `product_categories` (tối đa 3 danh mục). Danh mục
+  `kind='presentation'` có `badge_color` — đây là nguồn badge duy nhất (không còn
+  bảng sticker riêng, xem mục dưới).
+- sản phẩm ↔ option qua `product_option_links`, có thuộc tính giá, nhãn hiển thị
+  và số lượng.
 
 `media_attachments` gắn với sản phẩm, cửa hàng, bài viết qua cặp
 `owner_type/owner_id` — polymorphic, không có khoá ngoại cứng (xem mục bảng).
@@ -72,6 +74,7 @@ Quan hệ nhiều-nhiều:
 | key | text | UNIQUE — khớp `categories[].key`, dùng trong URL |
 | label | text | Tên hiển thị, có dấu tiếng Việt |
 | sort_order | integer | Thứ tự hiển thị |
+| badge_color | text | Màu badge dạng CSS color (chỉ cho presentation categories) |
 
 ### products
 
@@ -94,9 +97,7 @@ làm tròn lẫn chi phí của kiểu thập phân. Cho phép NULL vì `types.t
 báo `price: number | null` — hiện không có sản phẩm nào null, nhưng giữ khả năng
 đó cho tới khi business chốt giá là bắt buộc. Có CHECK `price >= 0`.
 
-Sticker không phải cột ở đây. Audit admin thật cho thấy một sản phẩm mang được
-nhiều sticker (10 sản phẩm có 2 nhãn), nên quan hệ là nhiều-nhiều qua bảng
-`product_stickers`, không phải khoá ngoại đơn.
+Sticker không phải cột ở đây. Quyết định 2026-07-24 đã gộp sticker trực tiếp vào danh mục (categories) mang kind = 'presentation' và badge_color. Không còn bảng sticker hay product_stickers riêng.
 
 ### product_categories
 
@@ -232,6 +233,7 @@ riêng (giá cộng thêm, số lượng). Không phải mỗi sản phẩm sở
 |---|---|---|
 | product_id | integer | FK → products, ON DELETE CASCADE |
 | option_id | integer | FK → product_options, ON DELETE RESTRICT |
+| label | text | Nhãn hiển thị cho option của sản phẩm; cho phép NULL |
 | price_amount | integer | Giá cộng thêm, VNĐ; mặc định `0` |
 | quantity | integer | Mặc định `1` |
 | sort_order | integer | |
@@ -240,29 +242,7 @@ PK gộp `(product_id, option_id)`. `RESTRICT` phía option để không xoá nh
 đang được sản phẩm dùng. Bản clone chưa có giỏ hàng thật nên bảng link để trống
 lúc seed; catalog có thể seed 6 option gốc.
 
-### stickers và product_stickers
 
-Nhãn dán sản phẩm — tương ứng mục admin "Sticker" (MỚI, HOT, BÁN CHẠY).
-
-`stickers`:
-
-| Cột | Kiểu | Ghi chú |
-|---|---|---|
-| id | serial | PK |
-| label | text | Chữ trên nhãn |
-| color | text | Mã màu nền, ví dụ `#e11d48` |
-| created_at / updated_at | timestamptz | |
-
-`product_stickers` — nhiều-nhiều:
-
-| Cột | Kiểu | Ghi chú |
-|---|---|---|
-| product_id | integer | FK → products, ON DELETE CASCADE |
-| sticker_id | integer | FK → stickers, ON DELETE CASCADE |
-| sort_order | integer | |
-
-PK gộp `(product_id, sticker_id)`. Là nhiều-nhiều vì audit cho thấy một sản phẩm
-mang được nhiều nhãn — 10 sản phẩm có 2 sticker, 15 có 1.
 
 ### media_attachments
 
@@ -291,10 +271,9 @@ nghiêm ngặt thì tách bảng theo từng loại.
 
 | Giai đoạn | Nguồn ảnh | Cách phân giải |
 |---|---|---|
-| Frontend hiện tại | file trong repo | `getImageUrl()` → asset đã bundle |
-| MinIO hiện tại | object key tương đối trong `thuccoffee` | public-read; FE chưa gọi |
-| DB hiện tại | một số `media_attachments.storage_key` vẫn là basename | chưa tự join với object MinIO |
-| API đọc sau | `storage_key`/object key | API trả public object URL cho frontend |
+| Frontend hiện tại | MinIO qua proxy `/media` | `getImageUrl()` phân giải object key → URL `/media` |
+| Repo | file trong `src/assets/images/` | chỉ còn là nguồn seed (`db:seed-images`) |
+| DB hiện tại | `storage_key` là object key tương đối | API trả key, FE dựng URL |
 
 Cùng schema, chỉ đổi cách phân giải khi API đọc ảnh — không migrate cột. MinIO đã
 chạy qua Compose với volume `minio-data`; `minio-init` tạo bucket public-read.
@@ -309,20 +288,19 @@ Cột `stores.gallery text[]` bị bỏ, thay bằng các dòng `media_attachmen
 
 ### static_pages
 
-Chỉ cho trang hay đổi: Tuyển dụng và Chương trình thành viên. FAQ, chính sách
-cookie, giới thiệu vẫn ở `src/data/pages.ts`.
-
 | Cột | Kiểu | Ghi chú |
 |---|---|---|
 | id | serial | PK |
-| key | text | UNIQUE — `tuyen-dung`, `chuong-trinh-thanh-vien` |
+| key | text | UNIQUE — slug trang, ví dụ `tuyen-dung`, `chuong-trinh-thanh-vien` |
 | title | text | |
 | content | text | Markdown hoặc HTML |
 | updated_at | timestamptz | |
 
-Hai trang này là thiết kế dự kiến vì nội dung thay đổi thường xuyên (tin tuyển
-dụng mới, bậc thành viên điều chỉnh). Phase API `static_pages` đã hoãn/cancelled;
-seed hiện tại cố ý không tạo dòng nào trong bảng này.
+Thiết kế ban đầu chỉ nhắm 2 trang hay đổi (Tuyển dụng, Thành viên) và phase API
+từng bị hoãn — seed hiện tại chưa tạo dòng nào. Theo quyết định scope 2026-07-23,
+bảng này sẽ chứa cả 6 trang nội dung đơn (about, delivery, membership,
+recruitment, policy, contact-intro) khi CMS static-page triển khai; xem
+`plans/260723-public-parity-cms-completion/phase-05-*.md`.
 
 ## Index
 
@@ -356,7 +334,7 @@ tiêu của dự án này (clone + admin sửa nội dung), nên cố ý bỏ:
 | Thứ | Lý do |
 |---|---|
 | `orders`, `order_items`, `customers` | Admin gốc có "Đơn hàng" nhưng clone không bán hàng; query 2020→nay trả 0 đơn |
-| Upload runtime/admin và xử lý ảnh | MinIO + seed từ repo đã có; form upload, phân quyền ghi, resize/thumbnail và vòng đời object vẫn là giai đoạn sau |
+| Resize/thumbnail và vòng đời object | Admin upload lên MinIO đã có; xử lý ảnh (resize, thumbnail, dọn object mồ côi) vẫn cố ý chưa làm |
 | `localized_texts` (18 namespace) | Chỉ `vi-VN`, không đa ngôn ngữ; text hiện ở `pages.ts` và component |
 | `audit_logs`, `created_by`/`updated_by` mọi bảng | Một người dùng, chưa cần truy vết ai sửa gì |
 | Soft delete (`deleted_at`) mọi bảng | Chưa có nhu cầu khôi phục |

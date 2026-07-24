@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Container from '../ui/Container';
 import DesktopNav from './DesktopNav';
 import MobileDrawer from './MobileDrawer';
@@ -9,7 +9,19 @@ import { useSiteSettings } from '../../services/site-settings.service';
 
 export default function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const navigate = useNavigate();
   const { data: settings } = useSiteSettings();
+
+  const onSearchSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const keyword = searchKeyword.trim();
+    if (!keyword) return;
+    navigate(`/search/p1/?type=Product&keyword=${encodeURIComponent(keyword)}`);
+    setSearchKeyword('');
+    setSearchOpen(false);
+  };
   const hotline = settings?.hotline ?? '1800 6230';
   const hotlineHref = `tel:${hotline.replace(/\s+/g, '')}`;
   const logoStorageKey = settings?.logoStorageKey ?? 'site/151b6674_circlelogo-white-blue-jul2023.png';
@@ -58,9 +70,25 @@ export default function Header() {
           </div>
           <div className="flex min-h-0 flex-1 items-start justify-end">
             <DesktopNav />
+            {searchOpen && (
+              <form role="search" onSubmit={onSearchSubmit} className="ml-[5px] flex items-center">
+                <label htmlFor="header-search" className="sr-only">Tìm kiếm sản phẩm</label>
+                <input
+                  id="header-search"
+                  type="search"
+                  autoFocus
+                  value={searchKeyword}
+                  onChange={(event) => setSearchKeyword(event.target.value)}
+                  placeholder="Tìm kiếm…"
+                  className="h-[35px] w-[180px] rounded border border-[#d7dbdb] bg-white px-2 text-sm outline-none focus:border-primary"
+                />
+              </form>
+            )}
             <button
               type="button"
-              aria-label="Tìm kiếm"
+              aria-label={searchOpen ? 'Đóng tìm kiếm' : 'Tìm kiếm'}
+              aria-expanded={searchOpen}
+              onClick={() => setSearchOpen((current) => !current)}
               className="ml-[5px] flex h-[35px] w-[35px] shrink-0 items-center justify-end text-text hover:text-primary"
             >
               <SearchIcon className="h-5 w-5" />

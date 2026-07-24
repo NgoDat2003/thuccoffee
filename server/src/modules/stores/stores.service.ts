@@ -16,6 +16,7 @@ const publicStoreFields = {
   phone: stores.phone,
   hours: stores.hours,
   image: stores.image,
+  mapEmbedUrl: stores.mapEmbedUrl,
 };
 
 export async function listStores(): Promise<Store[]> {

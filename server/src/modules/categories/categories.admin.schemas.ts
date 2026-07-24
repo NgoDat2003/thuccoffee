@@ -7,11 +7,13 @@ export const adminCategoryIdParamsSchema = z.object({
 export const createAdminCategorySchema = z.object({
   label: z.string().trim().min(1),
   sortOrder: z.number().int(),
+  badgeColor: z.string().trim().nullable().optional(),
 }).strict();
 
 export const updateAdminCategorySchema = z.object({
   label: z.string().trim().min(1),
   sortOrder: z.number().int(),
+  badgeColor: z.string().trim().nullable().optional(),
 }).strict();
 
 export interface AdminCategory {
@@ -19,6 +21,7 @@ export interface AdminCategory {
   key: string;
   label: string;
   sortOrder: number;
+  badgeColor: string | null;
   productCount: number;
 }
 

@@ -23,7 +23,14 @@ export const categories = pgTable('categories', {
   key: text('key').notNull().unique(),
   label: text('label').notNull(),
   sortOrder: integer('sort_order').default(0).notNull(),
-});
+  // 'category' = danh mục thật của menu; 'presentation' = nhóm trình bày/lọc
+  // (Sản phẩm mới, Yêu thích nhất) — vẫn filter được qua URL nhưng không phải
+  // taxonomy sản phẩm thật của nguồn.
+  kind: text('kind').default('category').notNull(),
+  badgeColor: text('badge_color'),
+}, (table) => [
+  check('categories_kind_valid', sql`${table.kind} in ('category', 'presentation')`),
+]);
 
 export const products = pgTable('products', {
   id: serial('id').primaryKey(),
@@ -36,10 +43,15 @@ export const products = pgTable('products', {
   description: text('description'),
   isPublished: boolean('is_published').default(true).notNull(),
   sortOrder: integer('sort_order').default(0).notNull(),
+  isFeatured: boolean('is_featured').default(false).notNull(),
+  showOnHome: boolean('show_on_home').default(false).notNull(),
+  // Thứ tự riêng cho khối trang chủ; nhỏ hơn đứng trước.
+  homePriority: integer('home_priority').default(0).notNull(),
   ...timestamps,
 }, (table) => [
   check('products_price_nonnegative', sql`${table.price} >= 0`),
   index('products_is_published_idx').on(table.isPublished),
+  index('products_show_on_home_idx').on(table.showOnHome, table.homePriority),
 ]);
 
 export const productCategories = pgTable('product_categories', {
@@ -62,24 +74,12 @@ export const productOptionLinks = pgTable('product_option_links', {
   priceAmount: integer('price_amount').default(0).notNull(),
   quantity: integer('quantity').default(1).notNull(),
   sortOrder: integer('sort_order').default(0).notNull(),
+  label: text('label'),
 }, (table) => [
   primaryKey({ columns: [table.productId, table.optionId] }),
   check('product_option_links_price_nonnegative', sql`${table.priceAmount} >= 0`),
   check('product_option_links_quantity_positive', sql`${table.quantity} > 0`),
 ]);
-
-export const stickers = pgTable('stickers', {
-  id: serial('id').primaryKey(),
-  label: text('label').notNull(),
-  color: text('color').notNull(),
-  ...timestamps,
-});
-
-export const productStickers = pgTable('product_stickers', {
-  productId: integer('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
-  stickerId: integer('sticker_id').notNull().references(() => stickers.id, { onDelete: 'cascade' }),
-  sortOrder: integer('sort_order').default(0).notNull(),
-}, (table) => [primaryKey({ columns: [table.productId, table.stickerId] })]);
 
 export const blogPosts = pgTable('blog_posts', {
   id: serial('id').primaryKey(),
@@ -90,10 +90,14 @@ export const blogPosts = pgTable('blog_posts', {
   content: text('content'),
   publishedAt: date('published_at', { mode: 'date' }).notNull(),
   isPublished: boolean('is_published').default(true).notNull(),
+  // Sort chính của danh sách blog theo nguồn; nhỏ hơn đứng trước,
+  // tie-break bằng publishedAt DESC rồi id DESC.
+  priority: integer('priority').default(0).notNull(),
   ...timestamps,
 }, (table) => [
   index('blog_posts_published_at_idx').on(table.publishedAt.desc()),
   index('blog_posts_is_published_idx').on(table.isPublished),
+  index('blog_posts_priority_idx').on(table.priority),
 ]);
 
 export const stores = pgTable('stores', {
@@ -105,6 +109,8 @@ export const stores = pgTable('stores', {
   hours: text('hours').notNull(),
   image: text('image').notNull(),
   region: text('region'),
+  // URL embed Google Maps quản trị được; null thì FE suy từ address như cũ.
+  mapEmbedUrl: text('map_embed_url'),
   isPublished: boolean('is_published').default(true).notNull(),
   sortOrder: integer('sort_order').default(0).notNull(),
   ...timestamps,
@@ -116,6 +122,11 @@ export const banners = pgTable('banners', {
   image: text('image').notNull(),
   altText: text('alt_text').notNull(),
   linkUrl: text('link_url'),
+  buttonLabel: text('button_label'),
+  openInNewTab: boolean('open_in_new_tab').default(false).notNull(),
+  // Active window: null = không giới hạn phía đó. Ngoài window thì public ẩn.
+  startsAt: timestamp('starts_at', { withTimezone: true }),
+  endsAt: timestamp('ends_at', { withTimezone: true }),
   sortOrder: integer('sort_order').default(0).notNull(),
   isActive: boolean('is_active').default(true).notNull(),
   ...timestamps,
@@ -154,10 +165,50 @@ export const mediaAttachments = pgTable('media_attachments', {
   uniqueIndex('media_attachments_owner_storage_role_uidx').on(table.ownerType, table.ownerId, table.storageKey, table.role),
 ]);
 
+export const contactSubmissions = pgTable('contact_submissions', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull(),
+  phone: text('phone'),
+  message: text('message').notNull(),
+  status: text('status').default('new').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  check('contact_submissions_status_valid', sql`${table.status} in ('new', 'read', 'archived')`),
+  index('contact_submissions_status_idx').on(table.status, table.createdAt.desc()),
+]);
+
+export const newsletterSubscriptions = pgTable('newsletter_subscriptions', {
+  id: serial('id').primaryKey(),
+  email: text('email').notNull().unique(),
+  source: text('source').default('footer').notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  ...timestamps,
+});
+
 export const staticPages = pgTable('static_pages', {
   id: serial('id').primaryKey(),
   key: text('key').notNull().unique(),
   title: text('title').notNull(),
+  // JSON theo shape của từng page (giữ layout structured), không phải HTML blob.
   content: text('content').notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const membershipFaqs = pgTable('membership_faqs', {
+  id: serial('id').primaryKey(),
+  question: text('question').notNull(),
+  answer: text('answer').notNull(),
+  sortOrder: integer('sort_order').default(0).notNull(),
+  isPublished: boolean('is_published').default(true).notNull(),
+  ...timestamps,
+}, (table) => [index('membership_faqs_published_sort_idx').on(table.isPublished, table.sortOrder)]);
+
+export const siteGallery = pgTable('site_gallery', {
+  id: serial('id').primaryKey(),
+  storageKey: text('storage_key').notNull(),
+  altText: text('alt_text').default('').notNull(),
+  sortOrder: integer('sort_order').default(0).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  ...timestamps,
+}, (table) => [index('site_gallery_active_sort_idx').on(table.isActive, table.sortOrder)]);

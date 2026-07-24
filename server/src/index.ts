@@ -17,6 +17,11 @@ import { blogRoutes } from './modules/blog/blog.routes.js';
 import { categoriesRoutes } from './modules/categories/categories.routes.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 import { productsRoutes } from './modules/products/products.routes.js';
+import { membershipFaqsRoutes } from './modules/membership-faqs/membership-faqs.routes.js';
+import { publicSubmissionsRoutes } from './modules/public-submissions/public-submissions.routes.js';
+import { searchRoutes } from './modules/search/search.routes.js';
+import { siteGalleryRoutes } from './modules/site-gallery/site-gallery.routes.js';
+import { staticPagesRoutes } from './modules/static-pages/static-pages.routes.js';
 import { siteSettingsRoutes } from './modules/site-settings/site-settings.routes.js';
 import { storesRoutes } from './modules/stores/stores.routes.js';
 
@@ -36,6 +41,11 @@ app.use('/api/stores', storesRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/site-settings', siteSettingsRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/submissions', publicSubmissionsRoutes);
+app.use('/api/pages', staticPagesRoutes);
+app.use('/api/membership-faqs', membershipFaqsRoutes);
+app.use('/api/home-gallery', siteGalleryRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', requireAuth, adminRoutes);
 

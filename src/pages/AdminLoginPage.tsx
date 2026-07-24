@@ -24,7 +24,7 @@ export default function AdminLoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-admin-bg px-4 py-12 text-admin-ink">
       <section className="w-full max-w-[420px] border-t border-admin-border px-2 pt-8 sm:px-8">
         <div className="mb-7 flex items-center gap-[10px]">
-          <div className="flex size-[34px] items-center justify-center rounded-full bg-admin-accent text-[15px] font-black text-admin-sidebar">T</div>
+          <div className="flex size-[34px] items-center justify-center rounded-full bg-admin-accent text-[15px] font-black text-white">T</div>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-admin-accent-strong">Thức Coffee</p>
             <p className="mt-px text-[16px] font-bold">Quản trị</p>
