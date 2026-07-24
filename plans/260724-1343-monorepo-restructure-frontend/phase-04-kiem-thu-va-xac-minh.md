@@ -98,8 +98,22 @@ lai Phase 1-3 de sua, khong tu y doi scope trong phase nay.
       `postgres`, `minio`, `minio-init`) healthy.
 - [x] `/healthz` va `/api/health` tra `200`.
 - [x] `npm run test:admin-ui` pass (chay tu `frontend/`) — 10/10 pass.
-- [ ] CI tren GitHub Actions xanh ca 2 job cho nhanh `refactor/monorepo-restructure`
-      (chua verify — chua push nhanh len remote).
+- [x] CI tren GitHub Actions xanh ca 2 job cho nhanh `refactor/monorepo-restructure`
+      (run 30077339466, sau khi fix them `axios` vao `server/package.json`).
+
+## Loi CI phat sinh ngoai du kien (2026-07-24)
+
+Lan push dau (run 30077024516) do o job `lint-and-build` buoc "Build server":
+`server/scripts/scrape-product-options.ts` import `axios` nhung khong khai bao
+trong `server/package.json`. Day la loi tiem an co tu truoc khi restructure —
+truoc day `npm ci` chay chung o root nen `node_modules` dung chung, `axios`
+(dependency cua frontend) "leak" len duoc qua co che Node module resolution
+di tim `node_modules` o thu muc cha. Sau khi tach `frontend/` va `server/`
+thanh hai `node_modules` doc lap hoan toan, co che leak nay khong con, CI moi
+lo dung loi thieu dependency. Da sua bang cach them `axios` vao
+`server/package.json` devDependencies (commit rieng, khong gop vao 3 commit
+chinh cua Phase 1-3). Da quet toan bo `server/scripts/` va `server/src/` tim
+cac truong hop tuong tu — khong con thieu dependency nao khac.
 - [ ] Khong con tham chieu duong dan cu (root-level `src/`, `package.json`,
       v.v.) trong bat ky file cau hinh hay tai lieu nao.
 
