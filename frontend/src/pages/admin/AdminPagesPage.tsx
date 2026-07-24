@@ -71,7 +71,7 @@ function PagesContent() {
         <p className="text-[13px] font-semibold text-admin-accent-strong">Quản trị</p>
         <h1 className="mt-1 text-[34px] font-black tracking-[-0.02em]">Trang nội dung</h1>
       </header>
-      <p className="mb-7 max-w-2xl text-[14px] text-admin-muted">
+      <p className="mb-7 text-[14px] text-admin-muted">
         Nội dung 6 trang tĩnh (giới thiệu, thành viên, tuyển dụng, delivery,
         chính sách, liên hệ). Nội dung lưu dạng JSON theo cấu trúc từng trang —
         sửa giá trị text, giữ nguyên tên field. FAQ thành viên quản lý ở mục riêng
@@ -101,7 +101,7 @@ function PagesContent() {
       ) : pages.isError ? (
         <p role="alert" className="text-admin-danger">{pages.error.message}</p>
       ) : selected ? (
-        <form onSubmit={handleSubmit} className="max-w-4xl space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <label className="block">
             <span className="mb-1.5 block text-[13px] font-semibold text-admin-field">Tiêu đề</span>
             <input value={title} onChange={(event) => setTitle(event.target.value)} className={inputClass} required />
