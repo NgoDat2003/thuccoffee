@@ -3,8 +3,8 @@
 Thiết kế Postgres phục vụ backend và trang admin. Schema Drizzle, migration và
 seed nền đã tồn tại; tài liệu này ghi cấu trúc và các quyết định phạm vi hiện tại.
 
-Nguồn dữ liệu hiện tại: `src/data/*.ts` (42 sản phẩm, 267 bài viết, 7 cửa hàng,
-10 danh mục).
+Nguồn dữ liệu hiện tại: `frontend/src/data/*.ts` (42 sản phẩm, 267 bài viết,
+7 cửa hàng, 10 danh mục).
 
 ## Phạm vi
 
@@ -17,17 +17,17 @@ Chuyện Của Thức, Đơn hàng) — không chỉ suy từ nội dung mặt t
 tài khoản, cấu hình site, biến thể sản phẩm (options), sticker, và hai trang hay
 đổi (tuyển dụng, chương trình thành viên).
 
-**Giữ nguyên trong code:** phần còn lại của `src/data/pages.ts` (FAQ, chính sách
-cookie, giới thiệu) và `src/data/category-paths.ts`. Ba trang này gần như không
-đổi — đưa vào DB tốn công cho giá trị thấp. `category-paths.ts` là logic ánh xạ
-URL, thuộc về code.
+**Giữ nguyên trong code:** phần còn lại của `frontend/src/data/pages.ts` (FAQ,
+chính sách cookie, giới thiệu) và `frontend/src/data/category-paths.ts`. Ba
+trang này gần như không đổi — đưa vào DB tốn công cho giá trị thấp.
+`category-paths.ts` là logic ánh xạ URL, thuộc về code.
 
 **Cố ý không làm — Đơn hàng.** Admin gốc có mục "Đơn hàng" nhưng bản clone không
 có giỏ hàng hay thanh toán thật (xem `deviations-from-original.md`). Không thêm
 `orders`, `order_items`, `customers`.
 
 **Ảnh:** DB chỉ lưu `storage_key`, không lưu binary. Frontend vẫn phân giải file
-trong `src/assets/images/` qua `src/lib/image-url.ts`; MinIO là bản sao object
+trong `frontend/src/assets/images/` qua `frontend/src/lib/image-url.ts`; MinIO là bản sao object
 chuẩn bị cho API sau, chưa phải nguồn ảnh của frontend. Thêm ảnh mới hiện vẫn
 phải commit vào repo rồi chạy `npm run db:seed-images` để đồng bộ object key theo
 đường dẫn tương đối. Không có upload runtime/admin trong phạm vi này.
@@ -123,8 +123,8 @@ mục cũng vậy — sản phẩm không bị xoá theo.
 | is_published | boolean | Mặc định `true` |
 | created_at / updated_at | timestamptz | |
 
-`src/data/blog.ts` hiện giữ 267 bản ghi metadata cho danh sách;
-`src/data/blog-content.ts` giữ HTML đầy đủ đã làm sạch, ánh xạ theo slug.
+`frontend/src/data/blog.ts` hiện giữ 267 bản ghi metadata cho danh sách;
+`frontend/src/data/blog-content.ts` giữ HTML đầy đủ đã làm sạch, ánh xạ theo slug.
 `BlogDetailPage` lazy-load file nội dung khi mở trang chi tiết. Seed import cả
 hai nguồn, ghép theo slug rồi upsert `content` vào `blog_posts`. Đây là dữ liệu
 snapshot, không phải kết quả crawl lúc runtime.
@@ -170,7 +170,7 @@ riêng.
 | is_active | boolean | Mặc định `true` |
 | created_at / updated_at | timestamptz | |
 
-Bảng mới. Banner hiện hardcode trong `src/components/home/BannerSlider.tsx` và
+Bảng mới. Banner hiện hardcode trong `frontend/src/components/home/BannerSlider.tsx` và
 `PromoBanner.tsx`, nên đổi banner phải sửa code rồi deploy lại. Bảng này cho
 phép bật/tắt, đổi thứ tự, đổi link qua admin — riêng ảnh mới vẫn cần commit.
 
@@ -272,7 +272,7 @@ nghiêm ngặt thì tách bảng theo từng loại.
 | Giai đoạn | Nguồn ảnh | Cách phân giải |
 |---|---|---|
 | Frontend hiện tại | MinIO qua proxy `/media` | `getImageUrl()` phân giải object key → URL `/media` |
-| Repo | file trong `src/assets/images/` | chỉ còn là nguồn seed (`db:seed-images`) |
+| Repo | file trong `frontend/src/assets/images/` | chỉ còn là nguồn seed (`db:seed-images`) |
 | DB hiện tại | `storage_key` là object key tương đối | API trả key, FE dựng URL |
 
 Cùng schema, chỉ đổi cách phân giải khi API đọc ảnh — không migrate cột. MinIO đã

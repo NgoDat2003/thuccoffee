@@ -27,11 +27,12 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: |
-            package-lock.json
+            frontend/package-lock.json
             server/package-lock.json
 
       # npm ci = cai dung phien ban trong package-lock.json (nghiem ngat hon npm install)
       - name: Install dependencies
+        working-directory: frontend
         run: npm ci
 
       # Backend co package-lock rieng. Phai cai TRUOC buoc Build frontend:
@@ -43,10 +44,12 @@ jobs:
 
       # Chay lint — bao do neu co loi
       - name: Lint
+        working-directory: frontend
         run: npm run lint
 
       # Build production — bao do neu TypeScript hoac Vite loi
       - name: Build
+        working-directory: frontend
         run: npm run build
 
       - name: Lint server
@@ -68,9 +71,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Build image frontend tu Dockerfile goc, chi lay stage "runtime" (nginx)
+      # Build image frontend tu frontend/Dockerfile, context van la root vi
+      # tsc frontend can thay server/src/**/*.schemas.ts (type-only import)
       - name: Build frontend image
-        run: docker build --target runtime -t thuccoffee:ci .
+        run: docker build --target runtime -f frontend/Dockerfile -t thuccoffee:ci .
 
       # Build image backend tu server/Dockerfile — bat loi tsc/deps tren may sach
       - name: Build backend image

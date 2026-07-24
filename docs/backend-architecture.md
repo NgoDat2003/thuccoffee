@@ -10,8 +10,8 @@ Schema và lý do đằng sau nó: @database-design.md
 | File | Vì sao cần |
 |---|---|
 | `docs/database-design.md` | 14 bảng, ràng buộc, quy tắc slug, những thứ cố ý không làm |
-| `src/data/types.ts` | Kiểu dữ liệu hiện tại — gần như là schema |
-| `src/lib/api/`, `src/services/`, `src/providers/` | Data layer FE mới; page chưa chuyển sang hook |
+| `frontend/src/data/types.ts` | Kiểu dữ liệu hiện tại — gần như là schema |
+| `frontend/src/lib/api/`, `frontend/src/services/`, `frontend/src/providers/` | Data layer FE mới; page chưa chuyển sang hook |
 
 Đọc thêm `docs/deployment.md` và `docs/local-environment-and-ci.md` khi sửa
 container hoặc CI. `docs/deviations-from-original.md` chỉ cần khi thay đổi hành
@@ -21,9 +21,10 @@ vi giao diện so với site gốc.
 
 Frontend từng là SPA tĩnh thuần (tag `v1.0.0`); nay mọi tài nguyên do backend
 quản lý đều đọc qua API. Sáu nhóm nội dung — sản phẩm, danh mục, blog, cửa hàng,
-banner, site settings — render từ hook TanStack Query, không còn đọc `src/data/*.ts`.
-Nhóm trang tĩnh nội dung ít đổi (About/Contact/Delivery/Cookie/FAQ + Careers/
-Membership) vẫn giữ trong `src/data/pages.ts` có chủ đích: backend chưa có endpoint
+banner, site settings — render từ hook TanStack Query, không còn đọc
+`frontend/src/data/*.ts`. Nhóm trang tĩnh nội dung ít đổi (About/Contact/
+Delivery/Cookie/FAQ + Careers/Membership) vẫn giữ trong
+`frontend/src/data/pages.ts` có chủ đích: backend chưa có endpoint
 `pages`, bảng `static_pages` cố ý để trống (xem mục dưới).
 
 Backend trong `server/` hiện chạy được, có middleware vận hành, health endpoint
@@ -34,25 +35,29 @@ Auth foundation đã có JWT trong cookie httpOnly, Argon2, CLI bootstrap admin 
 Hạ tầng ảnh MinIO đã có trong Compose: API `9000`, console local `9001`, volume
 `minio-data`, bucket `thuccoffee` public-read và lệnh seed
 `npm run db:seed-images`. Frontend chưa dùng kho này; ảnh hiển thị vẫn được bundle
-từ `src/assets/images/`. Snapshot hiện tại có 498 ảnh hợp lệ sau khi 103 PNG emoji
+từ `frontend/src/assets/images/`. Snapshot hiện tại có 498 ảnh hợp lệ sau khi 103 PNG emoji
 được đổi thành Unicode trong nội dung blog rồi xoá. Count kiểm chứng phải luôn
 tính động vì tập ảnh còn có thể thay đổi.
 
 Các page đọc nội dung DB đã chuyển hết sang hook TanStack Query: axios client
-trong `src/lib/api/` unwrap `ApiResponse<T>` và chuẩn hoá `ApiError`; sáu
-service+hook trong `src/services/` giữ query key và type import thẳng từ backend;
-`QueryProvider` trong `src/providers/` bọc router với cache mặc định năm phút.
-Barrel `src/data/index.ts` đã xoá; `src/data/*.ts` chỉ còn `pages.ts` (nhóm tĩnh)
-và `category-paths.ts` (routing/slug, không phải nội dung DB).
+trong `frontend/src/lib/api/` unwrap `ApiResponse<T>` và chuẩn hoá `ApiError`;
+sáu service+hook trong `frontend/src/services/` giữ query key và type import
+thẳng từ backend; `QueryProvider` trong `frontend/src/providers/` bọc router
+với cache mặc định năm phút. Barrel `frontend/src/data/index.ts` đã xoá;
+`frontend/src/data/*.ts` chỉ còn `pages.ts` (nhóm tĩnh) và `category-paths.ts`
+(routing/slug, không phải nội dung DB).
 
 ## Cấu trúc thư mục
 
 ```
 thuccoffee/
-├── src/                         frontend React + nguồn ảnh local
-│   ├── lib/api/                 axios client + chuẩn hoá response/error
-│   ├── providers/               TanStack Query provider
-│   └── services/                query keys + hook theo tài nguyên
+├── frontend/
+│   ├── Dockerfile               image frontend Nginx
+│   ├── package.json             deps và script riêng
+│   └── src/                     frontend React + nguồn ảnh local
+│       ├── lib/api/             axios client + chuẩn hoá response/error
+│       ├── providers/           TanStack Query provider
+│       └── services/            query keys + hook theo tài nguyên
 ├── server/
 │   ├── Dockerfile               image backend Node 22
 │   ├── .env.example             hợp đồng env local
@@ -63,7 +68,6 @@ thuccoffee/
 │       ├── modules/health/      GET /api/health
 │       ├── db/                  schema, migration, seed dữ liệu và seed ảnh
 │       └── lib/minio-client.ts  MinIO SDK client dùng chung
-├── Dockerfile                   image frontend Nginx
 └── compose.yaml                 frontend, backend, Postgres, MinIO + init
 ```
 
@@ -300,7 +304,7 @@ trị thật.
 ## API hiện có và mục tiêu các giai đoạn sau
 
 `GET /api/health` và chín content API GET dưới đây đã triển khai. Frontend vẫn
-đọc dữ liệu tĩnh từ `src/data/*.ts`; auth và admin API vẫn là mục tiêu tiếp theo.
+đọc dữ liệu tĩnh từ `frontend/src/data/*.ts`; auth và admin API vẫn là mục tiêu tiếp theo.
 
 Đọc công khai, ghi phải đăng nhập.
 
@@ -350,7 +354,7 @@ Mỗi bước chạy được và kiểm chứng được trước khi sang bư�
    chứng 9/9 endpoint, gallery cửa hàng, 404 slug sai và 400 query sai.
 3. **Frontend đọc từ API** — Đã xong. Sáu nhóm nội dung DB (products, categories,
    blog, stores, banners, site-settings) render từ hook TanStack Query với
-   loading/error; barrel `src/data/index.ts` đã xoá. Kiểm chứng runtime qua nginx
+   loading/error; barrel `frontend/src/data/index.ts` đã xoá. Kiểm chứng runtime qua nginx
    proxy `:3000/api/*` (200 + JSON thật, không rơi fallback), gallery cửa hàng,
    phân trang blog 267 bài / 54 trang và 404 slug sai. Nhóm trang tĩnh giữ nguyên
    có chủ đích (backend chưa có endpoint `pages`).
@@ -381,17 +385,17 @@ phase frontend/media sau; script ảnh không cập nhật `media_attachments`.
 
 Ba thay đổi không tránh được:
 
-**Data layer bất đồng bộ đã có, page chưa dùng.** `src/lib/api/axios.ts` dùng
-axios interceptor để giữ `{ data, meta? }`, chuẩn hoá lỗi thành `ApiError`, và
-proxy `/api` qua Vite khi dev. Sáu file `src/services/*.service.ts` giữ query key,
-type import từ backend và hook `useQuery`; `QueryProvider` bọc router với cache
-mặc định năm phút. Vòng chuyển page phải render đủ loading/error/data, không tự
-viết fetch trong component. `src/data/*.ts` vẫn là nguồn đang chạy tới khi page
-cuối cùng chuyển xong.
+**Data layer bất đồng bộ đã có, page chưa dùng.** `frontend/src/lib/api/axios.ts`
+dùng axios interceptor để giữ `{ data, meta? }`, chuẩn hoá lỗi thành `ApiError`,
+và proxy `/api` qua Vite khi dev. Sáu file `frontend/src/services/*.service.ts`
+giữ query key, type import từ backend và hook `useQuery`; `QueryProvider` bọc
+router với cache mặc định năm phút. Vòng chuyển page phải render đủ
+loading/error/data, không tự viết fetch trong component. `frontend/src/data/*.ts`
+vẫn là nguồn đang chạy tới khi page cuối cùng chuyển xong.
 
-**Phân trang blog đã dùng đủ dữ liệu tĩnh.** `src/data/blog.ts` chứa 267 bản ghi
-metadata cho danh sách. HTML đầy đủ đã làm sạch nằm trong
-`src/data/blog-content.ts`, ánh xạ theo slug và chỉ được lazy-load khi mở trang
+**Phân trang blog đã dùng đủ dữ liệu tĩnh.** `frontend/src/data/blog.ts` chứa
+267 bản ghi metadata cho danh sách. HTML đầy đủ đã làm sạch nằm trong
+`frontend/src/data/blog-content.ts`, ánh xạ theo slug và chỉ được lazy-load khi mở trang
 chi tiết. `getBlogPage()` cắt đúng năm bài mỗi trang trong 54 trang; trang 54
 còn hai bài, không lặp dữ liệu. Seed import cả hai nguồn để upsert `content` vào
 `blog_posts`; API detail hiện đã trả content đầy đủ, nhưng frontend chưa chuyển sang dùng API.
