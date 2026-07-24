@@ -15,7 +15,7 @@ import ImageField from '../ImageField';
 import FormActionBar from '../ui/FormActionBar';
 import FormField from '../ui/FormField';
 import { useToast } from '../ui/Toast';
-import ProductOptionsStickerFields, { type OptionLinkDraft } from './ProductOptionsStickerFields';
+import ProductOptionFields, { type OptionLinkDraft } from './ProductOptionFields';
 
 interface ProductFormProps {
   productId?: number;
@@ -36,13 +36,12 @@ interface ProductFormState {
   homePriority: string;
   categoryIds: number[];
   optionLinks: OptionLinkDraft[];
-  stickerIds: number[];
 }
 
 const emptyForm: ProductFormState = {
   name: '', slug: '', price: '0', priceEstimated: false, thumb: '', image: '',
   description: '', sortOrder: '0', isFeatured: false, showOnHome: false,
-  homePriority: '0', categoryIds: [], optionLinks: [], stickerIds: [],
+  homePriority: '0', categoryIds: [], optionLinks: [],
 };
 
 function fieldErrors(error: unknown): Record<string, string> {
@@ -65,6 +64,7 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct(productId ?? 0);
   const [form, setForm] = useState<ProductFormState>({ ...emptyForm });
+  const [priceErrors, setPriceErrors] = useState<Record<number, string>>({});
 
   useEffect(() => {
     if (!isEdit) {
@@ -88,8 +88,9 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
       optionLinks: product.data.optionLinks.map((link) => ({
         optionId: link.optionId,
         price: String(link.price),
+        label: link.label ?? '',
+        ticked: true,
       })),
-      stickerIds: product.data.stickers.map((sticker) => sticker.id),
     });
   }, [isEdit, product.data]);
 
@@ -107,6 +108,25 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    // Validate option prices: must be > 0 for ticked options
+    const invalidOptions: Record<number, string> = {};
+    let hasError = false;
+    for (const link of form.optionLinks) {
+      if (!link.ticked) continue;
+      const priceVal = Number(link.price);
+      if (isNaN(priceVal) || priceVal <= 0) {
+        invalidOptions[link.optionId] = 'Giá phải lớn hơn 0.';
+        hasError = true;
+      }
+    }
+    if (hasError) {
+      setPriceErrors(invalidOptions);
+      showToast('Vui lòng kiểm tra lại giá các option.', 'error');
+      return;
+    }
+    setPriceErrors({});
+
     const common: UpdateAdminProductInput = {
       name: form.name,
       price: Number(form.price),
@@ -119,11 +139,13 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
       showOnHome: form.showOnHome,
       homePriority: Number(form.homePriority),
       categoryIds: form.categoryIds,
-      optionLinks: form.optionLinks.map((link) => ({
-        optionId: link.optionId,
-        price: Number(link.price),
-      })),
-      stickerIds: form.stickerIds,
+      optionLinks: form.optionLinks
+        .filter((link) => link.ticked)
+        .map((link) => ({
+          optionId: link.optionId,
+          price: Number(link.price),
+          label: link.label.trim() || null,
+        })),
     };
     const onSuccess = () => {
       showToast(isEdit ? 'Đã cập nhật sản phẩm.' : 'Đã tạo sản phẩm.');
@@ -175,16 +197,13 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
         {errors.categoryIds && <p role="alert" className="mt-1.5 text-[13px] text-admin-danger">{errors.categoryIds}</p>}
       </fieldset>
 
-      <ProductOptionsStickerFields
+      <ProductOptionFields
         optionLinks={form.optionLinks}
-        stickerIds={form.stickerIds}
-        onOptionLinksChange={(optionLinks) => updateField('optionLinks', optionLinks)}
-        onToggleSticker={(id) => setForm((current) => ({
-          ...current,
-          stickerIds: current.stickerIds.includes(id)
-            ? current.stickerIds.filter((value) => value !== id)
-            : [...current.stickerIds, id],
-        }))}
+        onOptionLinksChange={(optionLinks) => {
+          updateField('optionLinks', optionLinks);
+          setPriceErrors({});
+        }}
+        priceErrors={priceErrors}
       />
 
       <div className="grid gap-6 sm:grid-cols-2">

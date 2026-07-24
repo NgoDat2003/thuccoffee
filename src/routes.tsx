@@ -21,7 +21,6 @@ import AdminLayout from './components/admin/AdminLayout';
 import AdminNotFound from './components/admin/AdminNotFound';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
 import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
-import AdminStickersPage from './pages/admin/AdminStickersPage';
 import AdminPagesPage from './pages/admin/AdminPagesPage';
 import AdminGalleryPage from './pages/admin/AdminGalleryPage';
 import AdminBlogPage from './pages/admin/AdminBlogPage';
@@ -90,7 +89,6 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/admin/products" replace /> },
       { path: 'products', element: <AdminProductsPage /> },
       { path: 'categories', element: <AdminCategoriesPage /> },
-      { path: 'stickers', element: <AdminStickersPage /> },
       { path: 'blog', element: <AdminBlogPage /> },
       { path: 'blog/new', lazy: loadAdminBlogFormRoute },
       { path: 'blog/:id', lazy: loadAdminBlogFormRoute },

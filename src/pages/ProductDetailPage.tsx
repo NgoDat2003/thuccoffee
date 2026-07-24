@@ -27,7 +27,7 @@ export default function ProductDetailPage() {
   // Sản phẩm có option: mặc định chọn option đầu (đã sort ở API); giá hiển thị
   // theo lựa chọn. Không có option thì dùng giá gốc như cũ.
   const activeOption = options.length > 0
-    ? (options.find((option) => option.name === selectedOption) ?? options[0])
+    ? (options.find((option) => option.label === selectedOption) ?? options[0])
     : undefined;
   const displayPrice = activeOption ? activeOption.price : product.price;
 
@@ -64,13 +64,13 @@ export default function ProductDetailPage() {
               <legend className="mb-2 text-sm font-medium text-gray-700">Lựa chọn</legend>
               <div className="flex flex-wrap gap-2">
                 {options.map((option) => {
-                  const isActive = option.name === activeOption?.name;
+                  const isActive = option.label === activeOption?.label;
                   return (
                     <button
-                      key={option.name}
+                      key={option.label}
                       type="button"
                       aria-pressed={isActive}
-                      onClick={() => setSelectedOption(option.name)}
+                      onClick={() => setSelectedOption(option.label)}
                       className={
                         'rounded border px-4 py-2 text-sm font-medium ' +
                         (isActive
@@ -78,7 +78,7 @@ export default function ProductDetailPage() {
                           : 'border-gray-300 text-gray-700 hover:border-primary hover:text-primary')
                       }
                     >
-                      {option.name}
+                      {option.label}
                     </button>
                   );
                 })}

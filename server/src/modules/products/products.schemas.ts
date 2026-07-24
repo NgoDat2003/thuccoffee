@@ -20,6 +20,7 @@ export const productParamsSchema = z.object({
 // Lựa chọn phục vụ (nóng/lạnh/size) với giá tuyệt đối cho lựa chọn đó.
 export const productOptionSchema = z.object({
   name: z.string(),
+  label: z.string(),
   price: z.number().int().nonnegative(),
 });
 

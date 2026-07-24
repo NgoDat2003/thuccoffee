@@ -3,6 +3,7 @@ import {
   asc,
   eq,
   inArray,
+  isNotNull,
   like,
   type SQL,
 } from 'drizzle-orm';
@@ -14,10 +15,8 @@ import {
   productOptionLinks,
   productOptions,
   products,
-  productStickers,
-  stickers,
 } from '../../db/schema.js';
-import { productSchema, type Product } from './products.schemas.js';
+import { productSchema, type Product, type ProductOption } from './products.schemas.js';
 
 async function selectProductRows(whereClause: SQL, homeOrder = false) {
   // Khối trang chủ sort theo homePriority; danh sách thường theo sortOrder.
@@ -59,7 +58,7 @@ type ProductRow = Awaited<ReturnType<typeof selectProductRows>>[number];
 async function loadProductRelations(productIds: number[]) {
   if (productIds.length === 0) {
     return {
-      optionsByProductId: new Map<number, { name: string; price: number }[]>(),
+      optionsByProductId: new Map<number, ProductOption[]>(),
       stickersByProductId: new Map<number, { label: string; color: string }[]>(),
     };
   }
@@ -69,6 +68,7 @@ async function loadProductRelations(productIds: number[]) {
       .select({
         productId: productOptionLinks.productId,
         name: productOptions.name,
+        label: productOptionLinks.label,
         price: productOptionLinks.priceAmount,
       })
       .from(productOptionLinks)
@@ -77,27 +77,33 @@ async function loadProductRelations(productIds: number[]) {
       .orderBy(asc(productOptionLinks.sortOrder), asc(productOptions.sortOrder)),
     db
       .select({
-        productId: productStickers.productId,
-        label: stickers.label,
-        color: stickers.color,
+        productId: productCategories.productId,
+        label: categories.label,
+        color: categories.badgeColor,
       })
-      .from(productStickers)
-      .innerJoin(stickers, eq(stickers.id, productStickers.stickerId))
-      .where(inArray(productStickers.productId, productIds))
-      .orderBy(asc(productStickers.sortOrder)),
+      .from(productCategories)
+      .innerJoin(categories, eq(categories.id, productCategories.categoryId))
+      .where(
+        and(
+          inArray(productCategories.productId, productIds),
+          eq(categories.kind, 'presentation'),
+          isNotNull(categories.badgeColor)
+        )
+      )
+      .orderBy(asc(categories.sortOrder)),
   ]);
 
-  const optionsByProductId = new Map<number, { name: string; price: number }[]>();
+  const optionsByProductId = new Map<number, ProductOption[]>();
   for (const row of optionRows) {
     const list = optionsByProductId.get(row.productId) ?? [];
-    list.push({ name: row.name, price: row.price });
+    list.push({ name: row.name, label: row.label ?? row.name, price: row.price });
     optionsByProductId.set(row.productId, list);
   }
 
   const stickersByProductId = new Map<number, { label: string; color: string }[]>();
   for (const row of stickerRows) {
     const list = stickersByProductId.get(row.productId) ?? [];
-    list.push({ label: row.label, color: row.color });
+    list.push({ label: row.label, color: row.color! });
     stickersByProductId.set(row.productId, list);
   }
 

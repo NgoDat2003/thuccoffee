@@ -36,6 +36,20 @@
       "when": 1784796977047,
       "tag": "0004_adorable_cyclops",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784862280551,
+      "tag": "0005_same_lila_cheney",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784862873497,
+      "tag": "0006_acoustic_norman_osborn",
+      "breakpoints": true
     }
   ]
 }

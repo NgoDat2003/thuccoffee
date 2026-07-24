@@ -32,6 +32,7 @@ async function listWithProductCounts(): Promise<AdminCategory[]> {
         key: categories.key,
         label: categories.label,
         sortOrder: categories.sortOrder,
+        badgeColor: categories.badgeColor,
       })
       .from(categories)
       .orderBy(asc(categories.sortOrder), asc(categories.label)),
@@ -64,6 +65,7 @@ export async function createAdminCategory(
         key: keyFromLabel(input.label),
         label: input.label,
         sortOrder: input.sortOrder,
+        badgeColor: input.badgeColor,
       })
       .returning({ id: categories.id });
     if (!created) throw new Error('Insert category did not return an id.');
@@ -82,7 +84,11 @@ export async function updateAdminCategory(
 ): Promise<AdminCategory> {
   const [updated] = await db
     .update(categories)
-    .set({ label: input.label, sortOrder: input.sortOrder })
+    .set({
+      label: input.label,
+      sortOrder: input.sortOrder,
+      badgeColor: input.badgeColor,
+    })
     .where(eq(categories.id, id))
     .returning({ id: categories.id });
   if (!updated) throw ApiError.notFound('Không tìm thấy danh mục.');

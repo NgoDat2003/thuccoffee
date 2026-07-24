@@ -27,6 +27,7 @@ export const categories = pgTable('categories', {
   // (Sản phẩm mới, Yêu thích nhất) — vẫn filter được qua URL nhưng không phải
   // taxonomy sản phẩm thật của nguồn.
   kind: text('kind').default('category').notNull(),
+  badgeColor: text('badge_color'),
 }, (table) => [
   check('categories_kind_valid', sql`${table.kind} in ('category', 'presentation')`),
 ]);
@@ -73,24 +74,12 @@ export const productOptionLinks = pgTable('product_option_links', {
   priceAmount: integer('price_amount').default(0).notNull(),
   quantity: integer('quantity').default(1).notNull(),
   sortOrder: integer('sort_order').default(0).notNull(),
+  label: text('label'),
 }, (table) => [
   primaryKey({ columns: [table.productId, table.optionId] }),
   check('product_option_links_price_nonnegative', sql`${table.priceAmount} >= 0`),
   check('product_option_links_quantity_positive', sql`${table.quantity} > 0`),
 ]);
-
-export const stickers = pgTable('stickers', {
-  id: serial('id').primaryKey(),
-  label: text('label').notNull(),
-  color: text('color').notNull(),
-  ...timestamps,
-});
-
-export const productStickers = pgTable('product_stickers', {
-  productId: integer('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
-  stickerId: integer('sticker_id').notNull().references(() => stickers.id, { onDelete: 'cascade' }),
-  sortOrder: integer('sort_order').default(0).notNull(),
-}, (table) => [primaryKey({ columns: [table.productId, table.stickerId] })]);
 
 export const blogPosts = pgTable('blog_posts', {
   id: serial('id').primaryKey(),

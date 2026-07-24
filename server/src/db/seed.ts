@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-import { and, eq } from 'drizzle-orm';
+import { and, eq, notInArray } from 'drizzle-orm';
 
 import { blogContentBySlug } from '../../../src/data/blog-content.ts';
 import { blogPosts as sourceBlogPosts } from '../../../src/data/blog.ts';
@@ -27,20 +27,10 @@ import {
   stores,
 } from './schema.js';
 
-const optionCatalog = [
-  'Lạnh', 'Nóng', 'Size nhỏ', 'Size vừa', '1 Egg', '2 Eggs',
-  // Nhãn khớp lựa chọn nguồn hiển thị trên chi tiết sản phẩm (vd Americano).
-  'Lạnh Size M', 'Lạnh Size L',
-];
-// Option links có evidence từ audit nguồn (chi tiết Americano). Sản phẩm khác
-// admin tự gắn — không seed dữ liệu chưa xác minh.
-const productOptionLinkSeed: Record<string, { option: string; price: number }[]> = {
-  'americano-s153t2': [
-    { option: 'Lạnh Size M', price: 45000 },
-    { option: 'Lạnh Size L', price: 55000 },
-    { option: 'Nóng', price: 45000 },
-  ],
-};
+import {
+  scrapedOptionCatalog,
+  scrapedProductOptions,
+} from './seed-data/product-options-scraped.js';
 // Nhóm trình bày/lọc — không phải danh mục taxonomy thật của nguồn.
 const presentationGroupKeys = new Set(['san-pham-moi', 'yeu-thich-nhat']);
 const bannerSeed = [
@@ -91,12 +81,17 @@ async function seed(): Promise<void> {
 
     for (const [sortOrder, category] of sourceCategories.entries()) {
       const kind = presentationGroupKeys.has(category.key) ? 'presentation' : 'category';
+      const badgeColor = category.key === 'san-pham-moi'
+        ? 'var(--color-accent)'
+        : category.key === 'yeu-thich-nhat'
+        ? 'var(--color-primary)'
+        : null;
       const [saved] = await tx
         .insert(categories)
-        .values({ key: category.key, label: category.label, sortOrder, kind })
+        .values({ key: category.key, label: category.label, sortOrder, kind, badgeColor })
         .onConflictDoUpdate({
           target: categories.key,
-          set: { label: category.label, sortOrder, kind },
+          set: { label: category.label, sortOrder, kind, badgeColor },
         })
         .returning({ id: categories.id });
       if (!saved) throw new Error(`Không thể seed danh mục: ${category.key}`);
@@ -207,7 +202,7 @@ async function seed(): Promise<void> {
     }
 
     const optionIds = new Map<string, number>();
-    for (const [sortOrder, name] of optionCatalog.entries()) {
+    for (const [sortOrder, name] of scrapedOptionCatalog.entries()) {
       const [savedOption] = await tx
         .insert(productOptions)
         .values({ name, sortOrder })
@@ -217,26 +212,39 @@ async function seed(): Promise<void> {
       optionIds.set(name, savedOption.id);
     }
 
-    for (const [productSlug, links] of Object.entries(productOptionLinkSeed)) {
+    await tx.delete(productOptionLinks);
+
+    for (const [productSlug, links] of Object.entries(scrapedProductOptions)) {
       const [productRow] = await tx
         .select({ id: products.id })
         .from(products)
         .where(eq(products.slug, productSlug));
       if (!productRow) throw new Error(`Option link seed: không thấy sản phẩm ${productSlug}`);
 
-      await tx
-        .delete(productOptionLinks)
-        .where(eq(productOptionLinks.productId, productRow.id));
       await tx.insert(productOptionLinks).values(links.map((link, sortOrder) => {
         const optionId = optionIds.get(link.option);
         if (!optionId) throw new Error(`Option link seed: option không tồn tại ${link.option}`);
         return {
           productId: productRow.id,
           optionId,
+          label: link.label,
           priceAmount: link.price,
+          quantity: 1,
           sortOrder,
         };
       }));
+    }
+
+    const optionsWithLinks = await tx
+      .select({ optionId: productOptionLinks.optionId })
+      .from(productOptionLinks);
+    const activeOptionIds = Array.from(new Set(optionsWithLinks.map((row) => row.optionId)));
+    if (activeOptionIds.length > 0) {
+      await tx
+        .delete(productOptions)
+        .where(notInArray(productOptions.id, activeOptionIds));
+    } else {
+      await tx.delete(productOptions);
     }
 
     await tx.delete(banners);
@@ -292,7 +300,7 @@ async function seed(): Promise<void> {
     `${sourceProducts.length} sản phẩm`,
     `${sourceBlogPosts.length} bài viết`,
     `${sourceStores.length} cửa hàng`,
-    `${optionCatalog.length} options`,
+    `${scrapedOptionCatalog.length} options`,
     `${bannerSeed.length} banners`,
     `${publicSiteSettings.length} site settings`,
     `${staticPageSeed.length} static pages`,

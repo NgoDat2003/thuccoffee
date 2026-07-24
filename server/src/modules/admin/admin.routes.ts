@@ -10,8 +10,7 @@ import { bannersAdminRoutes } from '../banners/banners.admin.routes.js';
 import { siteSettingsAdminRoutes } from '../site-settings/site-settings.admin.routes.js';
 import {
   productOptionsAdminRoutes,
-  stickersAdminRoutes,
-} from '../stickers/stickers.admin.routes.js';
+} from '../product-options/product-options.admin.routes.js';
 import { membershipFaqsAdminRoutes } from '../membership-faqs/membership-faqs.routes.js';
 import { siteGalleryAdminRoutes } from '../site-gallery/site-gallery.routes.js';
 import { staticPagesAdminRoutes } from '../static-pages/static-pages.routes.js';
@@ -26,7 +25,6 @@ adminRoutes.use('/stores', storesAdminRoutes);
 adminRoutes.use('/banners', bannersAdminRoutes);
 adminRoutes.use('/site-settings', siteSettingsAdminRoutes);
 adminRoutes.use('/product-options', productOptionsAdminRoutes);
-adminRoutes.use('/stickers', stickersAdminRoutes);
 adminRoutes.use('/pages', staticPagesAdminRoutes);
 adminRoutes.use('/membership-faqs', membershipFaqsAdminRoutes);
 adminRoutes.use('/gallery', siteGalleryAdminRoutes);

@@ -87,6 +87,8 @@ not cloned because no public consumer uses them:
   taxonomy fields would have no consumer.
 - **Product old-price, tags, per-role media galleries**: not rendered by the
   current public detail template.
+- **Stickers table and product stickers**: Consolidated (2026-07-24). The database audit showed the stickers table was completely empty/obsolete. Product badges are instead derived directly from presentation categories (`san-pham-moi`, `yeu-thich-nhat`) using the new `categories.badge_color` field.
+- **Product detail HTML (`detail_html`)**: Omitted. The live site's product detail pages only render plain text descriptions (or the HTML field was empty/obsolete), so product descriptions are stored and rendered as plain text rather than structured HTML fields.
 - **Legacy StaticText (~100 UI strings), analytics/SMTP/counter settings**: UI
   microcopy stays in code; secrets stay in the environment.
 

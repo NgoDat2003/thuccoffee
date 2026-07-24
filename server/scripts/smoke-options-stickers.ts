@@ -1,6 +1,5 @@
 // Smoke: product options + stickers — admin gắn option/sticker phản ánh ra
 // public product detail. Cần ADMIN_EMAIL/ADMIN_PASSWORD.
-import { randomUUID } from 'node:crypto';
 
 type ApiResponse<T> =
   | { success: true; data: T }
@@ -14,15 +13,14 @@ interface HttpResult<T> {
 interface PublicProduct {
   slug: string;
   price: number;
-  options: Array<{ name: string; price: number }>;
+  options: Array<{ name: string; label: string; price: number }>;
   stickers: Array<{ label: string; color: string }>;
 }
 
 interface AdminProduct {
   id: number;
   slug: string;
-  optionLinks: Array<{ optionId: number; name: string; price: number }>;
-  stickers: Array<{ id: number; label: string }>;
+  optionLinks: Array<{ optionId: number; name: string; label: string | null; price: number }>;
   // Các field còn lại giữ nguyên khi round-trip update.
   name: string;
   price: number | null;
@@ -37,11 +35,6 @@ interface AdminProduct {
   categories: Array<{ id: number }>;
 }
 
-interface AdminSticker {
-  id: number;
-  label: string;
-}
-
 const baseUrl = (process.env.API_BASE_URL ?? 'http://127.0.0.1:8080').replace(/\/$/, '');
 const adminEmail = process.env.ADMIN_EMAIL ?? '';
 const adminPassword = process.env.ADMIN_PASSWORD ?? '';
@@ -52,8 +45,6 @@ if (!adminEmail || !adminPassword) {
 
 let cookie = '';
 let failures = 0;
-const marker = `smoke-${randomUUID()}`;
-let stickerId: number | undefined;
 let targetProduct: AdminProduct | undefined;
 
 function assert(condition: unknown, message: string): asserts condition {
@@ -99,8 +90,11 @@ function toUpdatePayload(product: AdminProduct) {
     showOnHome: product.showOnHome,
     homePriority: product.homePriority,
     categoryIds: product.categories.map((category) => category.id),
-    optionLinks: product.optionLinks.map((link) => ({ optionId: link.optionId, price: link.price })),
-    stickerIds: product.stickers.map((sticker) => sticker.id),
+    optionLinks: product.optionLinks.map((link) => ({
+      optionId: link.optionId,
+      price: link.price,
+      label: link.label,
+    })),
   };
 }
 
@@ -126,52 +120,40 @@ assert(cookie, 'Expected auth cookie from login');
 await check('seeded Americano options are public', async () => {
   const data = expectSuccess(await get<PublicProduct>('/api/products/americano-s153t2'));
   const names = data.options.map((option) => option.name);
-  assert(names.includes('Nóng'), 'Expected seeded Nóng option');
+  assert(names.includes('Lạnh'), 'Expected seeded Lạnh option name');
   assert(
-    data.options.some((option) => option.name === 'Lạnh Size L' && option.price === 55000),
-    'Expected Lạnh Size L = 55000 from seed evidence',
+    data.options.some((option) => option.label === 'Lạnh (Size L)' && option.price === 55000),
+    'Expected Lạnh (Size L) = 55000 from seed evidence',
   );
 });
 
 await check('GET /admin/product-options master list', async () => {
   const data = expectSuccess(await get<Array<{ id: number; name: string }>>('/api/admin/product-options', true));
-  assert(data.length >= 8, 'Expected at least 8 seeded options');
+  assert(data.length === 4, 'Expected exactly 4 seeded options');
 });
 
-await check('sticker create → attach to product → public shows it', async () => {
-  const sticker = expectSuccess(await jsonRequest<AdminSticker>('POST', '/api/admin/stickers', {
-    label: marker,
-    color: '#ff0000',
-  }), 201);
-  stickerId = sticker.id;
+await check('category badge color shows up on public product', async () => {
+  const publicProduct = expectSuccess(await get<PublicProduct>('/api/products/black-cold-brew-coffee-s1378t2'));
+  assert(
+    publicProduct.stickers.some((item) => item.label === 'Yêu thích nhất' && item.color === 'var(--color-primary)'),
+    'Public product must show Yêu thích nhất badge with primary color',
+  );
+});
 
+await check('option link price must be > 0 validation', async () => {
   const adminProducts = expectSuccess(await get<AdminProduct[]>('/api/admin/products', true));
   const americano = adminProducts.find((product) => product.slug === 'americano-s153t2');
   assert(americano, 'Expected Americano in admin list');
   targetProduct = americano;
 
   const payload = toUpdatePayload(americano);
-  payload.stickerIds = [...payload.stickerIds, sticker.id];
-  expectSuccess(await jsonRequest<AdminProduct>('PUT', `/api/admin/products/${americano.id}`, payload));
-
-  const publicProduct = expectSuccess(await get<PublicProduct>('/api/products/americano-s153t2'));
-  assert(
-    publicProduct.stickers.some((item) => item.label === marker),
-    'Public product must show attached sticker',
-  );
-});
-
-await check('sticker delete cascades off product', async () => {
-  assert(stickerId !== undefined && targetProduct, 'Depends on previous check');
-  const deleteResult = await jsonRequest('DELETE', `/api/admin/stickers/${stickerId}`);
-  assert(deleteResult.status === 204, `Expected 204, received ${deleteResult.status}`);
-  stickerId = undefined;
-
-  const publicProduct = expectSuccess(await get<PublicProduct>('/api/products/americano-s153t2'));
-  assert(
-    !publicProduct.stickers.some((item) => item.label === marker),
-    'Deleted sticker must disappear from public product',
-  );
+  const invalidPayload = {
+    ...payload,
+    optionLinks: payload.optionLinks.map((link, i) => i === 0 ? { ...link, price: 0 } : link),
+  };
+  
+  const res = await jsonRequest('PUT', `/api/admin/products/${americano.id}`, invalidPayload);
+  assert(res.status === 400, `Expected 400 Bad Request for price 0, received ${res.status}`);
 });
 
 await check('option link price round-trips through admin update', async () => {
@@ -181,11 +163,6 @@ await check('option link price round-trips through admin update', async () => {
   const publicProduct = expectSuccess(await get<PublicProduct>('/api/products/americano-s153t2'));
   assert(publicProduct.options.length === targetProduct.optionLinks.length, 'Option links must round-trip');
 });
-
-// Cleanup phòng khi check giữa chừng fail.
-if (stickerId !== undefined) {
-  await jsonRequest('DELETE', `/api/admin/stickers/${stickerId}`);
-}
 
 if (failures > 0) {
   console.error(`Smoke options/stickers failed: ${failures} check(s).`);

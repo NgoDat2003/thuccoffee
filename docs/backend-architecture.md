@@ -336,7 +336,7 @@ GET/PUT /api/admin/site-settings   allow-list 11 key public, key lạ 400
 
 Mọi route `/api/admin/*` sau guard `requireAuth`. Mỗi resource có smoke script
 riêng (`smoke:upload`, `smoke:admin-products`, `smoke:admin-blog`,
-`smoke:admin-stores`, `smoke:admin-banners-settings`).
+`smoke:admin-stores`, `smoke:admin-banners-settings`, `smoke:options-stickers`).
 
 Endpoint công khai chỉ trả bản ghi có `is_published = true`.
 

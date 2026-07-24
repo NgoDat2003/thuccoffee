@@ -40,9 +40,9 @@ phải đếm động file nguồn và object. Riêng crawl blog lưu 456 ảnh 
 ## Sơ đồ quan hệ
 
 ```
-                    ┌── product_categories ──── categories
+                    ┌── product_categories ──── categories (badge_color)
                     │
-products ───────────┼── product_stickers ────── stickers
+products ───────────┼
                     │
                     ├── product_option_links ── product_options
                     │
@@ -53,9 +53,11 @@ blog_posts   stores   banners   users   site_settings   static_pages
 ```
 
 Quan hệ nhiều-nhiều:
-- sản phẩm ↔ danh mục qua `product_categories` (tối đa 3 danh mục).
-- sản phẩm ↔ sticker qua `product_stickers` (một sản phẩm nhiều nhãn).
-- sản phẩm ↔ option qua `product_option_links`, có thuộc tính giá và số lượng.
+- sản phẩm ↔ danh mục qua `product_categories` (tối đa 3 danh mục). Danh mục
+  `kind='presentation'` có `badge_color` — đây là nguồn badge duy nhất (không còn
+  bảng sticker riêng, xem mục dưới).
+- sản phẩm ↔ option qua `product_option_links`, có thuộc tính giá, nhãn hiển thị
+  và số lượng.
 
 `media_attachments` gắn với sản phẩm, cửa hàng, bài viết qua cặp
 `owner_type/owner_id` — polymorphic, không có khoá ngoại cứng (xem mục bảng).
@@ -72,6 +74,7 @@ Quan hệ nhiều-nhiều:
 | key | text | UNIQUE — khớp `categories[].key`, dùng trong URL |
 | label | text | Tên hiển thị, có dấu tiếng Việt |
 | sort_order | integer | Thứ tự hiển thị |
+| badge_color | text | Màu badge dạng CSS color (chỉ cho presentation categories) |
 
 ### products
 
@@ -94,9 +97,7 @@ làm tròn lẫn chi phí của kiểu thập phân. Cho phép NULL vì `types.t
 báo `price: number | null` — hiện không có sản phẩm nào null, nhưng giữ khả năng
 đó cho tới khi business chốt giá là bắt buộc. Có CHECK `price >= 0`.
 
-Sticker không phải cột ở đây. Audit admin thật cho thấy một sản phẩm mang được
-nhiều sticker (10 sản phẩm có 2 nhãn), nên quan hệ là nhiều-nhiều qua bảng
-`product_stickers`, không phải khoá ngoại đơn.
+Sticker không phải cột ở đây. Quyết định 2026-07-24 đã gộp sticker trực tiếp vào danh mục (categories) mang kind = 'presentation' và badge_color. Không còn bảng sticker hay product_stickers riêng.
 
 ### product_categories
 
@@ -232,6 +233,7 @@ riêng (giá cộng thêm, số lượng). Không phải mỗi sản phẩm sở
 |---|---|---|
 | product_id | integer | FK → products, ON DELETE CASCADE |
 | option_id | integer | FK → product_options, ON DELETE RESTRICT |
+| label | text | Nhãn hiển thị cho option của sản phẩm; cho phép NULL |
 | price_amount | integer | Giá cộng thêm, VNĐ; mặc định `0` |
 | quantity | integer | Mặc định `1` |
 | sort_order | integer | |
@@ -240,29 +242,7 @@ PK gộp `(product_id, option_id)`. `RESTRICT` phía option để không xoá nh
 đang được sản phẩm dùng. Bản clone chưa có giỏ hàng thật nên bảng link để trống
 lúc seed; catalog có thể seed 6 option gốc.
 
-### stickers và product_stickers
 
-Nhãn dán sản phẩm — tương ứng mục admin "Sticker" (MỚI, HOT, BÁN CHẠY).
-
-`stickers`:
-
-| Cột | Kiểu | Ghi chú |
-|---|---|---|
-| id | serial | PK |
-| label | text | Chữ trên nhãn |
-| color | text | Mã màu nền, ví dụ `#e11d48` |
-| created_at / updated_at | timestamptz | |
-
-`product_stickers` — nhiều-nhiều:
-
-| Cột | Kiểu | Ghi chú |
-|---|---|---|
-| product_id | integer | FK → products, ON DELETE CASCADE |
-| sticker_id | integer | FK → stickers, ON DELETE CASCADE |
-| sort_order | integer | |
-
-PK gộp `(product_id, sticker_id)`. Là nhiều-nhiều vì audit cho thấy một sản phẩm
-mang được nhiều nhãn — 10 sản phẩm có 2 sticker, 15 có 1.
 
 ### media_attachments
 

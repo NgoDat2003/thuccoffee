@@ -9,8 +9,6 @@ import {
   productOptionLinks,
   productOptions,
   products,
-  productStickers,
-  stickers,
 } from '../../db/schema.js';
 import type {
   AdminProduct,
@@ -61,50 +59,30 @@ async function loadAdminProductRelations(productIds: number[]) {
   if (productIds.length === 0) {
     return {
       optionLinksByProductId: new Map<number, AdminProduct['optionLinks']>(),
-      stickersByProductId: new Map<number, AdminProduct['stickers']>(),
     };
   }
 
-  const [optionRows, stickerRows] = await Promise.all([
-    db
-      .select({
-        productId: productOptionLinks.productId,
-        optionId: productOptions.id,
-        name: productOptions.name,
-        price: productOptionLinks.priceAmount,
-      })
-      .from(productOptionLinks)
-      .innerJoin(productOptions, eq(productOptions.id, productOptionLinks.optionId))
-      .where(inArray(productOptionLinks.productId, productIds))
-      .orderBy(asc(productOptionLinks.sortOrder), asc(productOptions.sortOrder)),
-    db
-      .select({
-        productId: productStickers.productId,
-        id: stickers.id,
-        label: stickers.label,
-        color: stickers.color,
-      })
-      .from(productStickers)
-      .innerJoin(stickers, eq(stickers.id, productStickers.stickerId))
-      .where(inArray(productStickers.productId, productIds))
-      .orderBy(asc(productStickers.sortOrder)),
-  ]);
+  const optionRows = await db
+    .select({
+      productId: productOptionLinks.productId,
+      optionId: productOptions.id,
+      name: productOptions.name,
+      label: productOptionLinks.label,
+      price: productOptionLinks.priceAmount,
+    })
+    .from(productOptionLinks)
+    .innerJoin(productOptions, eq(productOptions.id, productOptionLinks.optionId))
+    .where(inArray(productOptionLinks.productId, productIds))
+    .orderBy(asc(productOptionLinks.sortOrder), asc(productOptions.sortOrder));
 
   const optionLinksByProductId = new Map<number, AdminProduct['optionLinks']>();
   for (const row of optionRows) {
     const list = optionLinksByProductId.get(row.productId) ?? [];
-    list.push({ optionId: row.optionId, name: row.name, price: row.price });
+    list.push({ optionId: row.optionId, name: row.name, label: row.label, price: row.price });
     optionLinksByProductId.set(row.productId, list);
   }
 
-  const stickersByProductId = new Map<number, AdminProduct['stickers']>();
-  for (const row of stickerRows) {
-    const list = stickersByProductId.get(row.productId) ?? [];
-    list.push({ id: row.id, label: row.label, color: row.color });
-    stickersByProductId.set(row.productId, list);
-  }
-
-  return { optionLinksByProductId, stickersByProductId };
+  return { optionLinksByProductId };
 }
 
 // Field vắng mặt trong payload = giữ nguyên link hiện có (client cũ không
@@ -112,7 +90,7 @@ async function loadAdminProductRelations(productIds: number[]) {
 async function replaceProductRelations(
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
   productId: number,
-  input: Pick<CreateAdminProductInput, 'optionLinks' | 'stickerIds'>,
+  input: Pick<CreateAdminProductInput, 'optionLinks'>,
 ): Promise<void> {
   if (input.optionLinks !== undefined) {
     await tx.delete(productOptionLinks).where(eq(productOptionLinks.productId, productId));
@@ -120,18 +98,8 @@ async function replaceProductRelations(
       await tx.insert(productOptionLinks).values(input.optionLinks.map((link, sortOrder) => ({
         productId,
         optionId: link.optionId,
+        label: link.label,
         priceAmount: link.price,
-        sortOrder,
-      })));
-    }
-  }
-
-  if (input.stickerIds !== undefined) {
-    await tx.delete(productStickers).where(eq(productStickers.productId, productId));
-    if (input.stickerIds.length > 0) {
-      await tx.insert(productStickers).values(input.stickerIds.map((stickerId, sortOrder) => ({
-        productId,
-        stickerId,
         sortOrder,
       })));
     }
@@ -162,7 +130,6 @@ function groupAdminProducts(rows: AdminProductRow[]): AdminProduct[] {
         updatedAt: row.updatedAt.toISOString(),
         categories: [],
         optionLinks: [],
-        stickers: [],
       };
       grouped.set(row.id, product);
     }
@@ -185,12 +152,11 @@ function groupAdminProducts(rows: AdminProductRow[]): AdminProduct[] {
 }
 
 async function withRelations(list: AdminProduct[]): Promise<AdminProduct[]> {
-  const { optionLinksByProductId, stickersByProductId } =
+  const { optionLinksByProductId } =
     await loadAdminProductRelations(list.map((product) => product.id));
 
   for (const product of list) {
     product.optionLinks = optionLinksByProductId.get(product.id) ?? [];
-    product.stickers = stickersByProductId.get(product.id) ?? [];
   }
   return list;
 }
