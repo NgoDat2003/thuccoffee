@@ -12,6 +12,7 @@ import {
   useUpdateProduct,
 } from '../../../services/admin/products.service';
 import { useUploadImage } from '../../../services/admin/uploads.service';
+import { classifyBlogHtmlForVisual } from '../blog-editor/blog-editor-compatibility';
 import ContentEditor from '../blog-editor/ContentEditor';
 import ImageField from '../ImageField';
 import FormActionBar from '../ui/FormActionBar';
@@ -69,6 +70,7 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
   const uploadImage = useUploadImage();
   const [form, setForm] = useState<ProductFormState>({ ...emptyForm });
   const [priceErrors, setPriceErrors] = useState<Record<number, string>>({});
+  const compatibility = classifyBlogHtmlForVisual(form.content);
 
   useEffect(() => {
     if (!isEdit) {
@@ -198,7 +200,8 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
             const { objectKey } = await uploadImage.mutateAsync({ file, kind: 'products' });
             return objectKey;
           }}
-          compatibility="visual"
+          compatibility={compatibility.mode}
+          reasons={compatibility.mode === 'source-only' ? compatibility.reasons : []}
           assetUrlScheme="product-asset"
         />
         {errors.content && <p role="alert" className="mt-1.5 text-[13px] text-admin-danger">{errors.content}</p>}

@@ -6,7 +6,7 @@ import ProductDetailSkeleton from '../components/menu/ProductDetailSkeleton';
 import RelatedProducts from '../components/menu/RelatedProducts';
 import Container from '../components/ui/Container';
 import { formatPrice } from '../lib/format';
-import { getImageUrl } from '../lib/image-url';
+import { getImageUrl, resolveProductContentImageUrls } from '../lib/image-url';
 import { usePageMeta } from '../lib/use-page-meta';
 import { useProduct } from '../services/products.service';
 
@@ -107,6 +107,13 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      {product.content && (
+        <div
+          className="mt-10 text-gray-700 [&_a]:text-primary [&_img]:my-4 [&_img]:h-auto [&_img]:max-w-full [&_p]:my-3"
+          dangerouslySetInnerHTML={{ __html: resolveProductContentImageUrls(product.content) }}
+        />
+      )}
 
       <RelatedProducts categoryKey={product.categories[0]} currentSlug={product.slug} />
 
