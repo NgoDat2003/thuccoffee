@@ -4,21 +4,23 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import BlogEditorToolbar from './BlogEditorToolbar';
 import { createBlogEditorExtensions } from './blog-editor-extensions';
 
-interface BlogContentEditorProps {
+interface ContentEditorProps {
   value: string;
   onChange(value: string): void;
   onUploadImage(file: File): Promise<string>;
   compatibility: 'visual' | 'source-only';
   reasons?: string[];
+  assetUrlScheme: string;
 }
 
-export default function BlogContentEditor({
+export default function ContentEditor({
   value,
   onChange,
   onUploadImage,
   compatibility,
   reasons = [],
-}: BlogContentEditorProps) {
+  assetUrlScheme,
+}: ContentEditorProps) {
   const [mode, setMode] = useState<'visual' | 'html'>(compatibility === 'visual' ? 'visual' : 'html');
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -28,7 +30,7 @@ export default function BlogContentEditor({
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        'aria-label': 'Nội dung bài viết',
+        'aria-label': 'Nội dung',
         class: 'min-h-[420px] px-5 py-4 outline-none [&_a]:text-admin-accent-strong [&_h1]:text-3xl [&_h2]:text-2xl [&_h3]:text-xl [&_img]:max-w-full [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-3 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-admin-border [&_td]:p-2 [&_ul]:list-disc [&_ul]:pl-6',
       },
     },
@@ -49,7 +51,7 @@ export default function BlogContentEditor({
     setUploading(true);
     try {
       const objectKey = await onUploadImage(file);
-      editor.chain().focus().setImage({ src: `blog-asset:${objectKey}`, alt: file.name }).run();
+      editor.chain().focus().setImage({ src: `${assetUrlScheme}:${objectKey}`, alt: file.name }).run();
     } catch {
       // The form-level upload handler already surfaces a user-facing toast.
     } finally {
@@ -70,7 +72,7 @@ export default function BlogContentEditor({
 
       {compatibility === 'source-only' && (
         <div role="note" className="border-b border-amber-300/70 bg-amber-50 px-4 py-3 text-[12px] leading-[1.5] text-admin-ink-soft">
-          Bài này chứa cấu trúc legacy cần giữ nguyên, nên chế độ Trực quan đã tắt. {reasons[0]}
+          Chứa cấu trúc legacy cần giữ nguyên, nên chế độ Trực quan đã tắt. {reasons[0]}
         </div>
       )}
 
@@ -82,8 +84,8 @@ export default function BlogContentEditor({
         </>
       ) : (
         <textarea
-          id="blog-content"
-          aria-label="Nội dung bài viết HTML"
+          id="editor-content-html"
+          aria-label="Nội dung HTML"
           rows={22}
           value={value}
           onChange={(event) => onChange(event.target.value)}

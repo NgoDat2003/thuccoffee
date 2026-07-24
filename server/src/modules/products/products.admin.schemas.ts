@@ -7,6 +7,7 @@ const productFields = {
   thumb: z.string().trim().min(1),
   image: z.string().trim().min(1).nullable(),
   description: z.string().trim().nullable(),
+  content: z.string().trim().nullable().optional(),
   sortOrder: z.number().int(),
   // optional: payload cũ thiếu field vẫn hợp lệ; update giữ nguyên giá trị
   // hiện có (undefined không được set vào DB), create dùng default của DB.
@@ -74,6 +75,7 @@ export interface AdminProduct {
   thumb: string;
   image: string | null;
   description: string | null;
+  content: string | null;
   isPublished: boolean;
   sortOrder: number;
   isFeatured: boolean;

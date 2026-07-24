@@ -23,6 +23,7 @@ import AdminProductsPage from './pages/admin/AdminProductsPage';
 import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
 import AdminPagesPage from './pages/admin/AdminPagesPage';
 import AdminGalleryPage from './pages/admin/AdminGalleryPage';
+import AdminFaqPage from './pages/admin/AdminFaqPage';
 import AdminBlogPage from './pages/admin/AdminBlogPage';
 import AdminStoresPage from './pages/admin/AdminStoresPage';
 import AdminBannersPage from './pages/admin/AdminBannersPage';
@@ -95,6 +96,7 @@ export const router = createBrowserRouter([
       { path: 'stores', element: <AdminStoresPage /> },
       { path: 'pages', element: <AdminPagesPage /> },
       { path: 'gallery', element: <AdminGalleryPage /> },
+      { path: 'faq', element: <AdminFaqPage /> },
       { path: 'banners', element: <AdminBannersPage /> },
       { path: 'settings', element: <AdminSettingsPage /> },
       { path: '*', element: <AdminNotFound /> },

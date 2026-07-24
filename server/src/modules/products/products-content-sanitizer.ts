@@ -20,34 +20,33 @@ const allowedStyles = {
   },
 };
 
-// Surveyed all 267 blog_posts on 2026-07-22. These are the complete tag and
-// attribute sets in production content; iframe was absent, so it stays blocked.
-// Updated 2026-07-24 to support extended Tiptap options (blockquote, code, table headers, align, highlight).
+// Mirrors the blog sanitizer's tag/attribute set (see blog-content-sanitizer.ts)
+// so the shared ContentEditor toolbar behaves identically for product content.
+// Only the image src scheme differs (product-asset vs blog-asset).
 const options: sanitizeHtml.IOptions = {
   allowedTags: [
     'a', 'blockquote', 'br', 'code', 'div', 'em', 'h1', 'h2', 'h3', 'hr', 'img', 'li',
     'mark', 'ol', 'p', 'pre', 'span', 'strong', 'table', 'tbody', 'td', 'th', 'tr', 'u', 'ul',
   ],
   allowedAttributes: {
-    a: ['href', 'rel', 'tabindex', 'target'],
+    a: ['href', 'rel', 'target'],
     div: ['style'],
     h1: ['style'],
-    h2: ['dir', 'style'],
+    h2: ['style'],
     h3: ['style'],
     img: ['alt', 'src', 'style'],
-    li: ['dir', 'style'],
+    li: ['style'],
     mark: ['data-color', 'style'],
-    p: ['dir', 'style'],
-    span: ['aria-label', 'role', 'style'],
+    p: ['style'],
+    span: ['style'],
     table: ['border', 'cellpadding', 'cellspacing', 'class', 'style'],
     td: ['colspan', 'rowspan', 'style'],
     th: ['colspan', 'rowspan', 'style'],
-    ul: ['dir'],
   },
-  allowedSchemes: ['http', 'https', 'mailto', 'tel', 'blog-asset'],
+  allowedSchemes: ['http', 'https', 'mailto', 'tel', 'product-asset'],
   allowedSchemesByTag: {
     a: ['http', 'https', 'mailto', 'tel'],
-    img: ['https', 'blog-asset'],
+    img: ['https', 'product-asset'],
   },
   allowProtocolRelative: false,
   allowedStyles,
@@ -60,14 +59,10 @@ function normalizeSafeSerialization(html: string): string {
       `style="${value.replace(/\s*:\s*/g, ':').replace(/\s*;\s*/g, ';')}"`
     ))
     .replace(/<(br|hr|img)([^>]*?)\s*\/?>/gi, '<$1$2 />')
-    .replace(/&nbsp;/gi, '\u00a0');
+    .replace(/&nbsp;/gi, ' ');
 }
 
-export function sanitizeBlogContent(html: string): string {
+export function sanitizeProductContent(html: string): string {
   const sanitized = sanitizeHtml(html, options);
-
-  // sanitize-html serializes legacy <br>/<hr>/<img> and &nbsp; differently.
-  // Preserve original bytes only when those harmless rewrites are the entire
-  // diff; any removed tag, attribute, URI, or CSS value returns sanitized HTML.
   return normalizeSafeSerialization(html) === sanitized ? html : sanitized;
 }

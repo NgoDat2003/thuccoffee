@@ -42,13 +42,14 @@ describe('blog editor compatibility', () => {
     expect(compareBlogHtmlStructure('<p dir="ltr">A</p>', '<p>A</p>').mode).toBe('source-only');
   });
 
-  it('keeps table cells but excludes unsupported table headers', () => {
+  it('keeps table cells and supports table headers', () => {
     const editor = new Editor({
       extensions: createBlogEditorExtensions(),
-      content: '<table><tbody><tr><td>A</td></tr></tbody></table>',
+      content: '<table><tbody><tr><th>A</th><td>B</td></tr></tbody></table>',
     });
-    expect(editor.schema.nodes.tableHeader).toBeUndefined();
+    expect(editor.schema.nodes.tableHeader).toBeDefined();
     expect(editor.schema.nodes.tableCell).toBeDefined();
+    expect(editor.getHTML()).toContain('<th');
     expect(editor.getHTML()).toContain('<td');
     editor.destroy();
   });

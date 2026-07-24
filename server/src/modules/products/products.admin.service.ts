@@ -16,6 +16,7 @@ import type {
   PublishAdminProductInput,
   UpdateAdminProductInput,
 } from './products.admin.schemas.js';
+import { sanitizeProductContent } from './products-content-sanitizer.js';
 
 async function selectAdminProductRows(whereClause: SQL = sql.raw('true')) {
   return db
@@ -28,6 +29,7 @@ async function selectAdminProductRows(whereClause: SQL = sql.raw('true')) {
       thumb: products.thumb,
       image: products.image,
       description: products.description,
+      content: products.content,
       isPublished: products.isPublished,
       sortOrder: products.sortOrder,
       isFeatured: products.isFeatured,
@@ -121,6 +123,7 @@ function groupAdminProducts(rows: AdminProductRow[]): AdminProduct[] {
         thumb: row.thumb,
         image: row.image,
         description: row.description,
+        content: row.content,
         isPublished: row.isPublished,
         sortOrder: row.sortOrder,
         isFeatured: row.isFeatured,
@@ -194,6 +197,7 @@ export async function createAdminProduct(
           thumb: input.thumb,
           image: input.image,
           description: input.description,
+          content: input.content ? sanitizeProductContent(input.content) : input.content,
           sortOrder: input.sortOrder,
           isFeatured: input.isFeatured,
           showOnHome: input.showOnHome,
@@ -242,6 +246,7 @@ export async function updateAdminProduct(
         thumb: input.thumb,
         image: input.image,
         description: input.description,
+        content: input.content ? sanitizeProductContent(input.content) : input.content,
         sortOrder: input.sortOrder,
         isFeatured: input.isFeatured,
         showOnHome: input.showOnHome,

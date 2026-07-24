@@ -3,7 +3,7 @@ import { Link, useBlocker, useNavigate, useParams } from 'react-router-dom';
 
 import type { CreateAdminBlogInput, UpdateAdminBlogInput } from '../../../server/src/modules/blog/blog.admin.schemas';
 import ImageField from '../../components/admin/ImageField';
-import BlogContentEditor from '../../components/admin/blog-editor/BlogContentEditor';
+import ContentEditor from '../../components/admin/blog-editor/ContentEditor';
 import { classifyBlogHtmlForVisual } from '../../components/admin/blog-editor/blog-editor-compatibility';
 import ConfirmDialog from '../../components/admin/ui/ConfirmDialog';
 import FormActionBar from '../../components/admin/ui/FormActionBar';
@@ -212,12 +212,13 @@ function BlogFormContent() {
                   {previewContent.data && <div className="[&_a]:text-admin-accent-strong [&_img]:my-4 [&_img]:h-auto [&_img]:max-w-full [&_p]:my-3" dangerouslySetInnerHTML={{ __html: resolveBlogContentImageUrls(previewContent.data.html) }} />}
                 </div>
               ) : (
-                <BlogContentEditor
+                <ContentEditor
                   value={form.content}
                   onChange={updateContent}
                   onUploadImage={uploadInlineImage}
                   compatibility={compatibility.mode}
                   reasons={compatibility.mode === 'source-only' ? compatibility.reasons : []}
+                  assetUrlScheme="blog-asset"
                 />
               )}
               {errors.content && <p role="alert" className="mt-1.5 text-[13px] text-admin-danger">{errors.content}</p>}
