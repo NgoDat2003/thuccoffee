@@ -5,7 +5,10 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noEmit": true,
-    "rootDir": ".."
+    "rootDir": "..",
+    "paths": {
+      "@server/*": ["./*"]
+    }
   },
   "include": [
     "src/db/seed.ts",
@@ -13,12 +16,12 @@
     "src/db/source-image-object-key-resolver.ts",
     "src/lib/minio-client.ts",
     "src/lib/parse-date.ts",
-    "../src/data/blog-content.ts",
-    "../src/data/blog.ts",
-    "../src/data/categories.ts",
-    "../src/data/products.ts",
-    "../src/data/stores.ts",
-    "../src/data/types.ts"
+    "../frontend/src/data/blog-content.ts",
+    "../frontend/src/data/blog.ts",
+    "../frontend/src/data/categories.ts",
+    "../frontend/src/data/products.ts",
+    "../frontend/src/data/stores.ts",
+    "../frontend/src/data/types.ts"
   ],
   "exclude": ["dist", "node_modules"]
 }

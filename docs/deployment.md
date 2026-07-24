@@ -35,9 +35,9 @@ private MinIO service.
 
 | Setting | Value |
 |---|---|
-| Build source | Repository `Dockerfile` |
+| Build source | `frontend/Dockerfile` |
 | Docker context | `.` |
-| Dockerfile path | `Dockerfile` |
+| Dockerfile path | `frontend/Dockerfile` |
 | Docker target stage | `runtime` |
 | Container port | `80` |
 | Health endpoint | `/healthz` |
@@ -79,7 +79,7 @@ npm run db:seed-images
 cd ..
 
 # Compare dynamically; do not encode this count into scripts.
-find src/assets/images -type f | wc -l
+find frontend/src/assets/images -type f | wc -l
 docker compose exec minio mc find local/thuccoffee --type f | wc -l
 ```
 
@@ -98,8 +98,8 @@ Expected architecture and checks:
 - `/healthz` returns `200`, body `ok`, and `Cache-Control: no-store`.
 - `/api/health` and MinIO readiness return `200`.
 - `minio-init` exits `0`; policy output is `download`.
-- A seed run uploads paths relative to `src/assets/images/`; rerunning is the
-  idempotence check because the same object keys are overwritten.
+- A seed run uploads paths relative to `frontend/src/assets/images/`; rerunning
+  is the idempotence check because the same object keys are overwritten.
 - Source and object counts match after a successful seed.
 - Application and deep routes return `200` and GET assertions find the SPA root.
 - Missing `/assets/...` and root static-looking files return `404`, not `index.html`.
@@ -125,7 +125,7 @@ console directly.
 
 ### 2. Git Source
 
-1. Commit and push `Dockerfile`, `.dockerignore`, `deploy/nginx.conf`, and the application source before deploying.
+1. Commit and push `frontend/Dockerfile`, `.dockerignore`, `deploy/nginx.conf`, and the application source before deploying.
 2. Connect the Git provider in Dokploy and grant access only to the required repository.
 3. Select the production branch, normally `main`.
 4. Set build path to `/`.
@@ -136,7 +136,7 @@ Frontend:
 
 ```text
 Build type: Dockerfile
-Dockerfile path: Dockerfile
+Dockerfile path: frontend/Dockerfile
 Docker context path: .
 Docker build stage: runtime
 ```

@@ -6,8 +6,8 @@ on every push.
 
 ## Ways to Run the Container
 
-The same `Dockerfile` drives three separate environments. They share the image
-definition but run in different places and never touch each other.
+The same `frontend/Dockerfile` drives three separate environments. They share
+the image definition but run in different places and never touch each other.
 
 | Environment | Where it runs | Command | URL |
 |---|---|---|---|
@@ -24,8 +24,9 @@ frontend one at a time rather than together.
 `.github/workflows/ci.yml` runs on push and pull request to `main`, in two
 parallel jobs.
 
-**`lint-and-build`** installs with `npm ci`, then runs `npm run lint` and
-`npm run build`. Catches TypeScript and lint regressions.
+**`lint-and-build`** installs with `npm ci` inside `frontend/` (and `server/`
+separately), then runs `npm run lint` and `npm run build` in each. Catches
+TypeScript and lint regressions.
 
 **`docker`** builds the `runtime` stage, starts the container, waits for the
 Dockerfile `HEALTHCHECK` to report healthy, then asserts HTTP behavior:
@@ -95,8 +96,8 @@ can reach over the public internet, and `.localhost` is not one.
 GitHub cannot reach it with a deploy webhook. Deployments are triggered by hand
 from the Dokploy UI. On a public VPS this gap closes.
 
-**No test suite.** `package.json` defines `lint` and `build` only, so CI checks
-compilation and runtime behavior, not application logic.
+**No test suite.** `frontend/package.json` defines `lint` and `build` only, so
+CI checks compilation and runtime behavior, not application logic.
 
 **Docker Desktop and local Dokploy are independent.** Separate daemons, separate
 image stores. An image built in one is invisible to the other, and Dokploy keeps

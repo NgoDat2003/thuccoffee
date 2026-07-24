@@ -12,7 +12,7 @@ bài viết, cửa hàng, banner, cài đặt, trang nội dung, FAQ thành viê
 trang chủ. Nội dung sửa trong admin phản ánh ra public sau reload. Search
 sản phẩm/bài viết, form liên hệ và đăng ký nhận tin đều có backend thật
 (submissions lưu database; gửi email nằm ngoài scope vì chưa có provider).
-`src/data/*.ts` chỉ còn là nguồn seed và nơi khai báo type dùng chung.
+`frontend/src/data/*.ts` chỉ còn là nguồn seed và nơi khai báo type dùng chung.
 
 Lịch sử các đợt làm việc nằm trong `plans/`; mỗi thư mục là một chu kỳ đã xong.
 
@@ -50,8 +50,8 @@ Dựng database lần đầu (chạy một lần, theo thứ tự):
 cd server
 npm install
 npm run db:migrate        # tạo schema
-npm run db:seed           # đổ nội dung từ src/data/*.ts — xem cảnh báo bên dưới
-npm run db:seed-images    # upload ảnh từ src/assets/images/ lên MinIO
+npm run db:seed           # đổ nội dung từ frontend/src/data/*.ts — xem cảnh báo bên dưới
+npm run db:seed-images    # upload ảnh từ frontend/src/assets/images/ lên MinIO
 ```
 
 > **⚠️ Seed ghi đè nội dung admin đã sửa.** `npm run db:seed` upsert và
@@ -80,6 +80,7 @@ tự tạo tài khoản riêng; không có tài khoản mặc định.
 ## Phát triển (không dùng Docker)
 
 ```bash
+cd frontend
 npm install
 npm run dev            # dev server frontend
 npm run build          # build production
@@ -126,9 +127,9 @@ Chạy chúng trước khi kết luận bất cứ điều gì về backend ho�
 
 MinIO là kho ảnh chuẩn; database chỉ lưu object key (`storage_key`, marker
 `blog-asset:<key>` trong HTML bài viết). File ảnh vẫn còn trong
-`src/assets/images/` làm nguồn seed trong giai đoạn chuyển tiếp.
+`frontend/src/assets/images/` làm nguồn seed trong giai đoạn chuyển tiếp.
 `npm run db:seed-images` giữ nguyên đường dẫn tương đối so với
-`src/assets/images/` và ghi đè cùng object key một cách an toàn.
+`frontend/src/assets/images/` và ghi đè cùng object key một cách an toàn.
 
 ## Ghi chú production
 

@@ -26,12 +26,13 @@ phải bug (xem `plans/reports/260723-thuccoffee-full-functional-parity-audit.md
 là bug.
 
 **Trạng thái data fetching:** toàn bộ trang public đọc từ API qua
-`src/services/*.service.ts` — products, blog, stores, banners, categories,
-site-settings, 6 trang nội dung (static_pages), FAQ thành viên, gallery trang
-chủ. Search sản phẩm/bài viết, contact form, newsletter có backend thật
-(submissions lưu DB). `src/data/*.ts` chỉ còn là nguồn seed + nơi khai báo type
-dùng chung — không thêm nghiệp vụ mới vào lớp này. Tag `v1.0.0` là điểm quay về
-cho bản frontend tĩnh thuần.
+`frontend/src/services/*.service.ts` — products, blog, stores, banners,
+categories, site-settings, 6 trang nội dung (static_pages), FAQ thành viên,
+gallery trang chủ. Search sản phẩm/bài viết, contact form, newsletter có
+backend thật (submissions lưu DB). `frontend/src/data/*.ts` chỉ còn là nguồn
+seed + nơi khai báo type dùng chung — không thêm nghiệp vụ mới vào lớp này.
+Tag `v1.0.0` là điểm quay về cho bản frontend tĩnh thuần (trước khi có
+`frontend/` — ở thời điểm đó code còn ở root).
 
 ## Hỏi lại thay vì đoán
 
@@ -40,7 +41,7 @@ và hỏi**, không tự chọn hướng rồi viết code:
 
 - Yêu cầu có thể hiểu theo nhiều cách, và các cách đó dẫn tới cấu trúc dữ liệu
   hoặc luồng khác nhau.
-- Cần thêm field/route/trạng thái mà `src/data/types.ts` chưa có, và không rõ
+- Cần thêm field/route/trạng thái mà `frontend/src/data/types.ts` chưa có, và không rõ
   giá trị hợp lệ là gì.
 - Không tìm thấy nội dung tương ứng trên site gốc để đối chiếu.
 - Yêu cầu mâu thuẫn với `docs/deviations-from-original.md`.
@@ -70,36 +71,37 @@ người dùng vẫn chọn hướng ban đầu thì làm theo, không nêu lạ
 
 ## Quy ước không đọc code là biết
 
-**Ảnh phải qua `getImageUrl()`** (`src/lib/image-url.ts`). Hàm này nối MinIO
-object key (ví dụ `products/abc.png`) với base URL — dev là MinIO trực tiếp
-(`localhost:9000/thuccoffee`), production là proxy `/media`. Không dùng
+**Ảnh phải qua `getImageUrl()`** (`frontend/src/lib/image-url.ts`). Hàm này nối
+MinIO object key (ví dụ `products/abc.png`) với base URL — dev là MinIO trực
+tiếp (`localhost:9000/thuccoffee`), production là proxy `/media`. Không dùng
 `import img from '...'`, không hardcode `/assets/...` hay URL MinIO. Ảnh trong
-`src/assets/images/` chỉ còn là nguồn seed (`db:seed-images`), không được
-import ở runtime. HTML bài viết dùng marker `blog-asset:<key>` và phân giải qua
-`resolveBlogContentImageUrls()`.
+`frontend/src/assets/images/` chỉ còn là nguồn seed (`db:seed-images`), không
+được import ở runtime. HTML bài viết dùng marker `blog-asset:<key>` và phân
+giải qua `resolveBlogContentImageUrls()`.
 
-**Meta trang phải qua `usePageMeta()`** (`src/lib/use-page-meta.ts`), không tự
-gán `document.title`. Mọi page cấp route đều gọi hook này.
+**Meta trang phải qua `usePageMeta()`** (`frontend/src/lib/use-page-meta.ts`),
+không tự gán `document.title`. Mọi page cấp route đều gọi hook này.
 
 **Tailwind v4 là CSS-first.** Design token nằm trong block `@theme` ở
-`src/styles/main.css` (`--color-primary`, `--container-max`, …). **Không có
-`tailwind.config.js`** — đừng tạo. Thêm token ở đó rồi dùng như utility bình
-thường (`text-primary`, `bg-page`).
+`frontend/src/styles/main.css` (`--color-primary`, `--container-max`, …).
+**Không có `tailwind.config.js`** — đừng tạo. Thêm token ở đó rồi dùng như
+utility bình thường (`text-primary`, `bg-page`).
 
-**Routing config-based** trong `src/routes.tsx` (React Router v7), không phải
-file-based. Trang mới phải khai báo ở đó. Slug tiếng Việt (`/chuyen-cua-thuc`,
-`/cua-hang`, `/gioi-thieu`) khớp site gốc, không được đổi.
+**Routing config-based** trong `frontend/src/routes.tsx` (React Router v7),
+không phải file-based. Trang mới phải khai báo ở đó. Slug tiếng Việt
+(`/chuyen-cua-thuc`, `/cua-hang`, `/gioi-thieu`) khớp site gốc, không được đổi.
 
-**Nội dung nằm ở `src/data/*.ts`** dạng module có kiểu, không phải JSON hay CMS.
-Kiểu dữ liệu ở `src/data/types.ts`.
+**Nội dung nằm ở `frontend/src/data/*.ts`** dạng module có kiểu, không phải
+JSON hay CMS. Kiểu dữ liệu ở `frontend/src/data/types.ts`.
 
-**Data fetching phía frontend đi qua ba lớp.** `src/lib/api/` giữ axios client,
-unwrap `ApiResponse<T>` và chuẩn hoá `ApiError`; `src/services/*.service.ts` giữ
-`queryKeys`, type backend và hook TanStack Query theo tài nguyên;
-`src/providers/query-provider.tsx` giữ `QueryClient`. Page/component chỉ gọi hook
-và render, không gọi axios/`apiGet` trực tiếp. `src/data/*.ts` và
-`src/data/index.ts` còn tồn tại tạm thời cho tới khi từng page chuyển sang API;
-không tạo thêm nghiệp vụ data-fetching mới trong lớp tĩnh này.
+**Data fetching phía frontend đi qua ba lớp.** `frontend/src/lib/api/` giữ
+axios client, unwrap `ApiResponse<T>` và chuẩn hoá `ApiError`;
+`frontend/src/services/*.service.ts` giữ `queryKeys`, type backend và hook
+TanStack Query theo tài nguyên; `frontend/src/providers/query-provider.tsx`
+giữ `QueryClient`. Page/component chỉ gọi hook và render, không gọi
+axios/`apiGet` trực tiếp. `frontend/src/data/*.ts` và
+`frontend/src/data/index.ts` còn tồn tại tạm thời cho tới khi từng page
+chuyển sang API; không tạo thêm nghiệp vụ data-fetching mới trong lớp tĩnh này.
 
 ## Backend: quy ước `server/`
 
@@ -132,10 +134,13 @@ tên file trong `storage_key`; không thêm `multer`/`sharp`/upload.
 
 ## Bố cục
 
-- `src/components/<area>/` — `.tsx` PascalCase, nhóm theo mảng (`blog`, `home`,
-  `layout`, `menu`, `store`, `ui`)
-- `src/pages/` — mỗi route một component
-- `src/lib/` — helper dùng chung, tên file kebab-case
+Mã nguồn Frontend nằm trong thư mục con `frontend/` (không phải root); Backend
+vẫn ở `server/` như cũ. Cả hai đều dưới root cùng `compose.yaml`.
+
+- `frontend/src/components/<area>/` — `.tsx` PascalCase, nhóm theo mảng
+  (`blog`, `home`, `layout`, `menu`, `store`, `ui`)
+- `frontend/src/pages/` — mỗi route một component
+- `frontend/src/lib/` — helper dùng chung, tên file kebab-case
 - `deploy/nginx.conf` — cấu hình Nginx production, nướng vào image
 
 ## Nginx: ba nhánh có chủ ý
@@ -181,9 +186,10 @@ là repo công ty (chỉ đẩy khi có mốc bàn giao, và phải hỏi riêng
 
 ## Trước khi commit
 
-Chạy `npm run lint` và `npm run build`. Backend có checks riêng trong `server/`
-(`npm run lint`, `npm run build`). CI chạy tất cả cộng kiểm tra container ở mỗi
-lần push lên bất kỳ nhánh nào — xem `.github/workflows/ci.yml`.
+Chạy `npm run lint` và `npm run build` trong `frontend/`. Backend có checks
+riêng trong `server/` (`npm run lint`, `npm run build`). CI chạy tất cả cộng
+kiểm tra container ở mỗi lần push lên bất kỳ nhánh nào — xem
+`.github/workflows/ci.yml`.
 
 Chữ tiếng Việt là nội dung hiển thị cho người dùng: giữ nguyên dấu, không "sửa"
 sang tiếng Anh.
