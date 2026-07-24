@@ -41,6 +41,7 @@ export const products = pgTable('products', {
   thumb: text('thumb').notNull(),
   image: text('image'),
   description: text('description'),
+  content: text('content'),
   isPublished: boolean('is_published').default(true).notNull(),
   sortOrder: integer('sort_order').default(0).notNull(),
   isFeatured: boolean('is_featured').default(false).notNull(),

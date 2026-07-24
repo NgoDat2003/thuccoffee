@@ -18,6 +18,7 @@ const icons = {
   settings: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6" /><circle cx="9" cy="6" r="2" fill="#1c150f" /><line x1="4" y1="12" x2="20" y2="12" /><circle cx="15" cy="12" r="2" fill="#1c150f" /><line x1="4" y1="18" x2="20" y2="18" /><circle cx="11" cy="18" r="2" fill="#1c150f" /></svg>,
   pages: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5" /></svg>,
   gallery: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="4" width="8" height="8" rx="1.5" /><rect x="13" y="4" width="8" height="8" rx="1.5" /><rect x="3" y="14" width="8" height="6" rx="1.5" /><rect x="13" y="14" width="8" height="6" rx="1.5" /></svg>,
+  faq: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>,
 };
 
 const groups = [
@@ -28,7 +29,8 @@ const groups = [
       { to: '/admin/categories', label: 'Danh mục', icon: icons.categories },
       { to: '/admin/blog', label: 'Bài viết', icon: icons.blog },
       { to: '/admin/pages', label: 'Trang nội dung', icon: icons.pages },
-      { to: '/admin/gallery', label: 'Gallery & FAQ', icon: icons.gallery },
+      { to: '/admin/gallery', label: 'Gallery', icon: icons.gallery },
+      { to: '/admin/faq', label: 'FAQ', icon: icons.faq },
     ],
   },
   {

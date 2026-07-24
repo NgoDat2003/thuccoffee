@@ -78,10 +78,10 @@ export function useCreateMembershipFaq() {
   });
 }
 
-export function useUpdateMembershipFaq(id: number) {
+export function useUpdateMembershipFaq() {
   const invalidate = useInvalidateFaqs();
   return useMutation({
-    mutationFn: (input: UpsertMembershipFaqInput) =>
+    mutationFn: ({ id, input }: { id: number; input: UpsertMembershipFaqInput }) =>
       apiPut<MembershipFaq>('/admin/membership-faqs/' + id, input),
     onSuccess: invalidate,
   });
@@ -119,10 +119,10 @@ export function useCreateGalleryItem() {
   });
 }
 
-export function useUpdateGalleryItem(id: number) {
+export function useUpdateGalleryItem() {
   const invalidate = useInvalidateGallery();
   return useMutation({
-    mutationFn: (input: UpsertGalleryItemInput) =>
+    mutationFn: ({ id, input }: { id: number; input: UpsertGalleryItemInput }) =>
       apiPut<GalleryItem>('/admin/gallery/' + id, input),
     onSuccess: invalidate,
   });

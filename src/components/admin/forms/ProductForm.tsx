@@ -11,6 +11,8 @@ import {
   useCreateProduct,
   useUpdateProduct,
 } from '../../../services/admin/products.service';
+import { useUploadImage } from '../../../services/admin/uploads.service';
+import ContentEditor from '../blog-editor/ContentEditor';
 import ImageField from '../ImageField';
 import FormActionBar from '../ui/FormActionBar';
 import FormField from '../ui/FormField';
@@ -30,6 +32,7 @@ interface ProductFormState {
   thumb: string;
   image: string;
   description: string;
+  content: string;
   sortOrder: string;
   isFeatured: boolean;
   showOnHome: boolean;
@@ -40,7 +43,7 @@ interface ProductFormState {
 
 const emptyForm: ProductFormState = {
   name: '', slug: '', price: '0', priceEstimated: false, thumb: '', image: '',
-  description: '', sortOrder: '0', isFeatured: false, showOnHome: false,
+  description: '', content: '', sortOrder: '0', isFeatured: false, showOnHome: false,
   homePriority: '0', categoryIds: [], optionLinks: [],
 };
 
@@ -63,6 +66,7 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
   const categories = useAdminCategories();
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct(productId ?? 0);
+  const uploadImage = useUploadImage();
   const [form, setForm] = useState<ProductFormState>({ ...emptyForm });
   const [priceErrors, setPriceErrors] = useState<Record<number, string>>({});
 
@@ -80,6 +84,7 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
       thumb: product.data.thumb,
       image: product.data.image ?? '',
       description: product.data.description ?? '',
+      content: product.data.content ?? '',
       sortOrder: String(product.data.sortOrder),
       isFeatured: product.data.isFeatured,
       showOnHome: product.data.showOnHome,
@@ -134,6 +139,7 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
       thumb: form.thumb,
       image: form.image || null,
       description: form.description || null,
+      content: form.content || null,
       sortOrder: Number(form.sortOrder),
       isFeatured: form.isFeatured,
       showOnHome: form.showOnHome,
@@ -182,6 +188,21 @@ export default function ProductForm({ productId, onDone }: ProductFormProps) {
       </div>
 
       <FormField label="Mô tả" htmlFor="product-description" error={errors.description} variant="box"><textarea id="product-description" rows={4} value={form.description} onChange={(event) => updateField('description', event.target.value)} /></FormField>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-[13px] font-semibold text-admin-field">Nội dung chi tiết</span>
+        <ContentEditor
+          value={form.content}
+          onChange={(val) => updateField('content', val)}
+          onUploadImage={async (file) => {
+            const { objectKey } = await uploadImage.mutateAsync({ file, kind: 'products' });
+            return objectKey;
+          }}
+          compatibility="visual"
+          assetUrlScheme="product-asset"
+        />
+        {errors.content && <p role="alert" className="mt-1.5 text-[13px] text-admin-danger">{errors.content}</p>}
+      </div>
 
       <fieldset>
         <legend className="mb-3 text-[11px] font-bold uppercase tracking-[0.08em] text-admin-muted-2">Danh mục</legend>
