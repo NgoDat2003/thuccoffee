@@ -38,6 +38,7 @@ export const productSchema = z.object({
   thumb: z.string(),
   image: z.string().optional(),
   description: z.string().optional(),
+  content: z.string().optional(),
   // default giữ input type optional — src/data/products.ts (nguồn seed)
   // dùng chung type này và không mang field trình bày/quan hệ.
   isFeatured: z.boolean().default(false),

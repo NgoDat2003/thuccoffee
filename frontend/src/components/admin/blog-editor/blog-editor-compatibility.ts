@@ -94,7 +94,7 @@ export function classifyBlogHtmlForVisual(html: string): BlogEditorCompatibility
     }
     if (tag === 'img') {
       const src = element.getAttribute('src') ?? '';
-      if (!src.startsWith('blog-asset:') && !src.startsWith('https://')) {
+      if (!/^[a-z-]+-asset:/.test(src) && !src.startsWith('https://')) {
         reasons.add('Ảnh không dùng blog-asset hoặc HTTPS chỉ được chỉnh trong chế độ HTML.');
       }
     }

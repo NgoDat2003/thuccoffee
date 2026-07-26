@@ -73,6 +73,14 @@ export default function BlogEditorToolbar({ editor, onUploadClick, uploading }: 
           <option value="#513829">Nâu Thức</option>
         </select>
 
+        <input
+          type="color"
+          aria-label="Chọn màu chữ tự do"
+          className="h-9 w-9 cursor-pointer rounded-md border border-admin-border bg-transparent p-0.5"
+          value={editor.getAttributes('textStyle').color || '#000000'}
+          onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
+        />
+
         <select
           className={`${buttonClass} bg-transparent py-0 cursor-pointer`}
           value={editor.isActive('highlight') ? editor.getAttributes('highlight').color || '#fef08a' : ''}

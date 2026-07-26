@@ -34,6 +34,7 @@ async function selectProductRows(whereClause: SQL, homeOrder = false) {
       thumb: products.thumb,
       image: products.image,
       description: products.description,
+      content: products.content,
       isFeatured: products.isFeatured,
       categoryKey: categories.key,
     })
@@ -133,6 +134,7 @@ async function groupProducts(rows: ProductRow[]): Promise<Product[]> {
         stickers: [],
         ...(row.image === null ? {} : { image: row.image }),
         ...(row.description === null ? {} : { description: row.description }),
+        ...(row.content === null ? {} : { content: row.content }),
       };
       productsById.set(row.id, product);
     }

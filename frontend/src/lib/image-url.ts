@@ -19,3 +19,11 @@ export function resolveBlogContentImageUrls(content: string): string {
     `src="${getImageUrl(objectKey)}"`
   ));
 }
+
+const productAssetPattern = /src="product-asset:([^"]+)"/g;
+
+export function resolveProductContentImageUrls(content: string): string {
+  return content.replace(productAssetPattern, (_, objectKey: string) => (
+    `src="${getImageUrl(objectKey)}"`
+  ));
+}

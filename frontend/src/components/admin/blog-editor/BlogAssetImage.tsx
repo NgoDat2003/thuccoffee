@@ -4,9 +4,8 @@ import { getImageUrl } from '../../../lib/image-url';
 
 export default function BlogAssetImage({ node, selected }: ReactNodeViewProps) {
   const persistedSrc = String(node.attrs.src ?? '');
-  const displaySrc = persistedSrc.startsWith('blog-asset:')
-    ? getImageUrl(persistedSrc.slice('blog-asset:'.length))
-    : persistedSrc;
+  const assetMatch = persistedSrc.match(/^([a-z-]+-asset):(.+)$/);
+  const displaySrc = assetMatch ? getImageUrl(assetMatch[2]) : persistedSrc;
 
   return (
     <NodeViewWrapper className="my-4">
