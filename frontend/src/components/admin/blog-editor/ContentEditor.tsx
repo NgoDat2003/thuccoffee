@@ -23,7 +23,10 @@ export default function ContentEditor({
 }: ContentEditorProps) {
   const [mode, setMode] = useState<'visual' | 'html'>(compatibility === 'visual' ? 'visual' : 'html');
   const [uploading, setUploading] = useState(false);
+  const [htmlUploading, setHtmlUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const htmlTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const htmlInputRef = useRef<HTMLInputElement>(null);
   const editor = useEditor({
     extensions: createBlogEditorExtensions(),
     content: compatibility === 'visual' ? value : '',
@@ -60,6 +63,28 @@ export default function ContentEditor({
     }
   }
 
+  async function uploadIntoHtml(file?: File) {
+    if (!file) return;
+    setHtmlUploading(true);
+    try {
+      const textarea = htmlTextareaRef.current;
+      const start = textarea?.selectionStart ?? 0;
+      const end = textarea?.selectionEnd ?? 0;
+      const objectKey = await onUploadImage(file);
+      // Đọc lại .value trực tiếp từ DOM (không dùng prop `value` đã đóng
+      // băng lúc gọi hàm) — người dùng có thể gõ tiếp trong lúc chờ upload
+      // xong, dùng prop cũ sẽ xóa mất phần vừa gõ khi chèn ảnh.
+      const current = textarea?.value ?? value;
+      const imgTag = `<img src="${assetUrlScheme}:${objectKey}" alt="${file.name}">`;
+      onChange(current.slice(0, start) + imgTag + current.slice(end));
+    } catch {
+      // Form-level upload handler already surfaces a user-facing toast.
+    } finally {
+      setHtmlUploading(false);
+      if (htmlInputRef.current) htmlInputRef.current.value = '';
+    }
+  }
+
   return (
     <div className="overflow-hidden rounded-[12px] border border-admin-border-input bg-admin-surface">
       <div className="flex items-center justify-between gap-3 border-b border-admin-border px-3 py-2">
@@ -83,15 +108,35 @@ export default function ContentEditor({
           <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="sr-only" onChange={(event) => void upload(event.target.files?.[0])} />
         </>
       ) : (
-        <textarea
-          id="editor-content-html"
-          aria-label="Nội dung HTML"
-          rows={22}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          spellCheck={false}
-          className="w-full resize-y bg-admin-surface px-4 py-3 font-mono text-[13px] leading-[1.55] outline-none"
-        />
+        <>
+          <div className="flex items-center justify-end border-b border-admin-border bg-admin-border-soft/35 p-2.5">
+            <button
+              type="button"
+              disabled={htmlUploading}
+              onClick={() => htmlInputRef.current?.click()}
+              className="min-h-9 rounded-md border border-admin-border px-2.5 text-[12px] font-bold text-admin-ink hover:border-admin-accent disabled:opacity-40"
+            >
+              {htmlUploading ? 'Đang tải ảnh…' : 'Tải ảnh lên'}
+            </button>
+            <input
+              ref={htmlInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="sr-only"
+              onChange={(event) => void uploadIntoHtml(event.target.files?.[0])}
+            />
+          </div>
+          <textarea
+            ref={htmlTextareaRef}
+            id="editor-content-html"
+            aria-label="Nội dung HTML"
+            rows={22}
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            spellCheck={false}
+            className="w-full resize-y bg-admin-surface px-4 py-3 font-mono text-[13px] leading-[1.55] outline-none"
+          />
+        </>
       )}
     </div>
   );
