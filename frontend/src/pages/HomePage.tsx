@@ -20,7 +20,7 @@ export default function HomePage() {
 
       {!isError && (
         <Container className="py-[30px]">
-          <SectionTitle title="Top thức uống được ưa thích" />
+          <SectionTitle title="Sản phẩm nổi bật tuần này" />
           {isLoading ? (
             <div className="grid animate-pulse grid-cols-2 gap-6 md:grid-cols-4">
               {Array.from({ length: 8 }, (_, index) => (
