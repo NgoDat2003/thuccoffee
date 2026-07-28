@@ -7,11 +7,32 @@ Tài liệu này là cẩm nang hướng dẫn đầy đủ từ lý thuyết đ
 
 ## PHẦN 1: TỔNG QUAN VÀ SO SÁNH DOKPLOY VS RAW DOCKER
 
-### 1. Kiến trúc hoạt động của Dokploy
-Dokploy là một **Self-hosted PaaS** (nền tảng dịch vụ tự host) hoạt động trực tiếp trên nền **Docker Swarm**. Nó bao gồm các thành phần:
-*   **Dokploy Panel:** Giao diện quản lý viết bằng Next.js (NodeJS), giao tiếp với Docker qua file socket `/var/run/docker.sock`.
-*   **Traefik (Reverse Proxy):** Tự động định tuyến tên miền, quản lý SSL Let's Encrypt và phân phối traffic đến các container thông qua các nhãn (`labels`) của Docker.
-*   **Docker Swarm:** Quản lý vòng đời container, tự phục hồi khi sập (self-healing), hỗ trợ Rolling Update (cập nhật không gián đoạn).
+### 1. Kiến trúc hoạt động và các Công nghệ Cốt lõi của Dokploy
+
+Dokploy không tự chạy độc lập mà là một lớp quản trị giao diện (Control Panel) được xây dựng trên hai nền tảng công nghệ DevOps cực kỳ mạnh mẽ chạy ngầm: **Docker Swarm** và **Traefik**.
+
+#### a. Docker Swarm - Người quản gia vận hành cụm dịch vụ
+Docker Swarm là công nghệ quản lý cụm container (Orchestrator) được tích hợp sẵn trong Docker. Dokploy sử dụng Swarm để mang lại các tính năng cấp doanh nghiệp:
+*   **Quản lý Service thay vì Container:** Thay vì chạy các container đơn lẻ, Swarm nhóm chúng thành các **Service** (ví dụ: `thucbackend`, `frontend`). Điều này cho phép quản lý log tập trung qua `docker service logs` và nhân bản nhanh chóng qua thanh kéo chỉnh `Replicas` trên UI.
+*   **Tự phục hồi (Self-Healing):** Swarm liên tục giám sát trạng thái của container. Nếu code Backend bị lỗi tràn RAM hoặc crash đột ngột, Swarm sẽ lập tức tắt nó đi và khởi chạy lại một container mới khỏe mạnh trong vòng mili-giây mà người dùng không hề hay biết.
+*   **Cơ chế lưu lịch sử tác vụ (Task History):** 
+    *   Mỗi khi bạn tắt máy chủ đột ngột (như chạy `wsl --shutdown`) hoặc deploy phiên bản mới, Swarm sẽ đánh dấu container cũ là **`Shutdown` (Vòng tròn rỗng ⚪)** và giữ lại xác của nó trong lịch sử (tối đa 5 bản gần nhất). 
+    *   Các container đã tắt này **hoàn toàn không tiêu tốn CPU/RAM**, chúng chỉ được giữ lại để bạn có thể xem lại log cũ khi cần debug.
+*   **Cập nhật stop-first và HOST Port Mode clashing:**
+    *   Do ứng dụng của chúng ta chạy cổng vật lý trên máy host ở chế độ **`HOST` port mode** (để dễ dàng truy cập từ Windows `localhost:8080` hoặc `8081`).
+    *   Mặc định Swarm sẽ cập nhật theo dạng `start-first` (bật bản mới chạy ổn định rồi mới tắt bản cũ). Nhưng do bản mới cố cắm vào cổng `8080`/`8081` khi bản cũ chưa tắt, Docker sẽ báo lỗi `"host-mode port already in use"`.
+    *   Chuyển sang cấu hình **`stop-first` (Tắt trước, Bật sau)** giúp giải phóng cổng mạng vật lý trước khi khởi động container mới, triệt tiêu hoàn toàn lỗi kẹt cổng.
+
+#### b. Traefik - Người điều hướng và Proxy ngược (Reverse Proxy)
+Traefik là một Edge Router/Reverse Proxy thông minh, đứng ở cổng trước tiếp nhận mọi truy cập mạng (cổng 80 và 443) đi vào VPS của bạn:
+*   **Tự động định tuyến tên miền (Domain Routing):** Khi bạn điền domain `thuccoffee.com` cho Frontend và `api.thuccoffee.com` cho Backend, Traefik sẽ tự động đọc nhãn dán (`labels`) của container để điều hướng khách truy cập vào đúng nơi mà không cần bạn phải viết file cấu hình Nginx phức tạp.
+*   **Tự động cấp phát SSL (Automatic HTTPS):** Traefik tự động giao tiếp với Let's Encrypt để xin và gia hạn chứng chỉ HTTPS hoàn toàn miễn phí cho tất cả các tên miền bạn khai báo trên giao diện Dokploy.
+
+#### c. Cơ chế tự động co giãn RAM của Node.js (V8 Engine) trong Dokploy
+Bản thân bảng quản trị Dokploy được viết bằng Next.js (NodeJS) chạy trên trình thông dịch V8 Engine của Google, có cơ chế quản lý bộ nhớ đệm cực kỳ linh hoạt:
+*   **Mức RAM cơ bản thực tế:** Chỉ cần khoảng **150MB - 200MB RAM** để sống và hoạt động.
+*   **Hiện tượng tăng RAM lên 800MB - 900MB trên Local:** Do máy tính local của bạn đang thừa rất nhiều bộ nhớ (ví dụ cấp cho máy ảo WSL2 đến 9.7GB RAM). V8 Engine sẽ tự động giữ lại toàn bộ cache trang giao diện, logs và các query database trong bộ nhớ RAM để tăng tốc độ phản hồi tối đa cho UI mà không cần kích hoạt bộ dọn rác (Garbage Collector).
+*   **Khả năng tự co cụm trên VPS yếu (2GB RAM):** Khi đưa lên VPS thực tế có tài nguyên giới hạn, dưới áp lực bộ nhớ (Memory Pressure) của hệ điều hành, bộ dọn rác V8 sẽ hoạt động cực kỳ quyết liệt. Dokploy sẽ **tự động co RAM lại chỉ còn khoảng 250MB - 400MB** để nhường RAM cho ứng dụng của bạn, giúp hệ thống hoạt động ổn định trên cả các dòng VPS cấu hình thấp.
 
 ---
 
