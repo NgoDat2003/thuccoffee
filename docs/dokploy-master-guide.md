@@ -187,7 +187,7 @@ docker run --rm --net dokploy-network \
   -v /app/server/node_modules \
   -w /app/server \
   -e DATABASE_URL=postgresql://postgres:thuccoffee@thuccoffee-thucpostgres-uffucx:5432/thuccoffee \
-  -e MINIO_ENDPOINT=thuccoffee-minio-sui5ds \
+  -e MINIO_ENDPOINT=thuccoffee-minio-dp26ab \
   -e MINIO_PORT=9000 \
   -e MINIO_ACCESS_KEY=minioadmin \
   -e MINIO_SECRET_KEY=minioadmin \
@@ -203,7 +203,7 @@ docker run --rm --net dokploy-network \
 
 3.  **Cấu hình quyền đọc ảnh công khai cho MinIO:** Chạy lệnh sau để người dùng có thể truy cập xem ảnh sản phẩm trực tiếp từ trình duyệt mà không bị chặn quyền:
 ```bash
-docker run --rm --net dokploy-network --entrypoint sh minio/mc -c "mc alias set local-minio http://thuccoffee-minio-sui5ds:9000 minioadmin minioadmin && mc anonymous set download local-minio/thuccoffee"
+docker run --rm --net dokploy-network --entrypoint sh minio/mc -c "mc alias set local-minio http://thuccoffee-minio-dp26ab:9000 minioadmin minioadmin && mc anonymous set download local-minio/thuccoffee"
 ```
 
 ---
