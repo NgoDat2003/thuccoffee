@@ -210,6 +210,14 @@ docker run --rm --net dokploy-network --entrypoint sh minio/mc -c "mc alias set 
 
 ---
 
+### KẾT QUẢ ĐẠT ĐƯỢC
+
+Sau khi hoàn tất toàn bộ 7 bước trên, bạn có thể truy cập `http://localhost:8081` (hoặc IP máy chủ) trên trình duyệt để chiêm ngưỡng thành quả: Frontend giao tiếp mượt mà với Backend và Load được toàn bộ ảnh động từ MinIO.
+
+![Giao diện ThucCoffee chạy thành công trên Dokploy](file:///C:/Users/ACER/.gemini/antigravity/brain/75367a7f-590f-4251-b775-ddc52a736ca1/.user_uploaded/media__1785289230023.png)
+
+---
+
 ## PHẦN 3: VẬN HÀNH HÀNG NGÀY & KHẮC PHỤC SỰ CỐ
 
 ### 1. Bật tính năng dọn dẹp dung lượng tự động
