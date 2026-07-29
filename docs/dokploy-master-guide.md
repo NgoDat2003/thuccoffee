@@ -72,15 +72,18 @@ Do Docker Swarm yêu cầu Registry để quản lý cấu hình cập nhật `s
     *   **Password:** Dán mã Access Token vừa tạo ở trên.
     *   Bấm **Create**.
 
+![Giao diện cấu hình Registry trong Dokploy](file:///C:/Users/ACER/.gemini/antigravity/brain/75367a7f-590f-4251-b775-ddc52a736ca1/.user_uploaded/media__1785229265603.png)
+
 ---
 
 ### BƯỚC 3: Tạo Project và Khởi tạo Dịch vụ Cơ sở dữ liệu (Database)
 1.  Tại màn hình trang chủ Dokploy, bấm **`Create Project`** đặt tên là `ThucCoffee`.
 2.  Bấm vào Project `ThucCoffee` -> Chọn **`Create Service`** -> Chọn **`Database`** -> Chọn **`PostgreSQL`**:
     *   **Name:** `thuc-postgres`
-    *   **Docker Image:** `postgres:18` (hoặc bản bạn chọn)
     *   **Database Name / User / Password:** Nhập thông tin của bạn (Ví dụ: `mydb`, `postgres`, `thuccoffee`).
     *   Bấm **Create**. Sau khi tạo xong, database sẽ chạy ngầm bên trong mạng `dokploy-network`.
+
+![Giao diện khởi tạo PostgreSQL trong Dokploy](file:///C:/Users/ACER/.gemini/antigravity/brain/75367a7f-590f-4251-b775-ddc52a736ca1/.user_uploaded/media__1785229538280.png)
 
 ---
 
@@ -96,10 +99,22 @@ Do MinIO cần một số cấu hình Dockerfile tùy chỉnh để chạy ổn 
 3.  Tại tab **Advanced** -> Vào mục **Cluster Settings**:
     *   Chọn **Registry** là `DockerHub` đã tạo ở Bước 2.
     *   Bấm **Save**.
-4.  Tại mục **Ports** ở phía dưới:
+4.  Tại tab **Environment** -> Thêm các biến môi trường sau (bắt buộc để MinIO khởi động được):
+    ```
+    MINIO_ROOT_USER=minioadmin
+    MINIO_ROOT_PASSWORD=minioadmin
+    ```
+    *   Bấm **Save**.
+5.  Tại mục **Ports** ở phía dưới:
     *   Thêm cổng: **Published Port: `9000`** -> **Target Port: `9000`** -> **Mode: `HOST`**.
     *   Thêm cổng: **Published Port: `9001`** -> **Target Port: `9001`** -> **Mode: `HOST`**.
-5.  Quay lại tab **General** -> Bấm **`Deploy`**.
+6.  Quay lại tab **General** -> Bấm **`Deploy`**.
+
+````carousel
+![Cấu hình Build Type cho MinIO](file:///C:/Users/ACER/.gemini/antigravity/brain/75367a7f-590f-4251-b775-ddc52a736ca1/.user_uploaded/media__1785229866773.png)
+<!-- slide -->
+![Cấu hình GitHub Provider cho MinIO](file:///C:/Users/ACER/.gemini/antigravity/brain/75367a7f-590f-4251-b775-ddc52a736ca1/.user_uploaded/media__1785229880092.png)
+````
 
 ---
 
@@ -111,10 +126,12 @@ Do MinIO cần một số cấu hình Dockerfile tùy chỉnh để chạy ổn 
     *   **Docker File Path:** `server/Dockerfile`.
     *   **Docker Context Path:** `server`.
     *   **Watch Paths:** Điền **`server/**`** (chỉ tự động deploy khi sửa code server).
+
+![Cấu hình General và Watch Paths cho Backend](file:///C:/Users/ACER/.gemini/antigravity/brain/75367a7f-590f-4251-b775-ddc52a736ca1/.user_uploaded/media__1785230310384.png)
 3.  Tại tab **Environment** (Điền các biến môi trường kết nối):
     ```ini
-    DATABASE_URL=postgresql://postgres:thuccoffee@thuccoffee-thucpostgres-uffucx:5432/thuccoffee
-    MINIO_ENDPOINT=thuccoffee-minio-sui5ds
+    DATABASE_URL=postgresql://postgres:thuccoffee@thuccoffee-thucpostgres-musjvc:5432/thuccoffee
+    MINIO_ENDPOINT=thuccoffee-minio-dp26ab
     MINIO_PORT=9000
     MINIO_ACCESS_KEY=minioadmin
     MINIO_SECRET_KEY=minioadmin
@@ -122,6 +139,8 @@ Do MinIO cần một số cấu hình Dockerfile tùy chỉnh để chạy ổn 
     MINIO_USE_SSL=false
     JWT_SECRET=your_jwt_secret
     ```
+
+![Cấu hình Environment Variables cho Backend](file:///C:/Users/ACER/.gemini/antigravity/brain/75367a7f-590f-4251-b775-ddc52a736ca1/.user_uploaded/media__1785230460316.png)
     *(Lưu ý: Thay thế tên Host `thuccoffee-thucpostgres-uffucx` và `thuccoffee-minio-sui5ds` bằng đúng tên Service Swarm hiển thị trên giao diện Dokploy của bạn).*
 4.  Tại tab **Advanced** -> **Cluster Settings**:
     *   Chọn **Registry** là `DockerHub`.
@@ -143,6 +162,8 @@ Do MinIO cần một số cấu hình Dockerfile tùy chỉnh để chạy ổn 
     *   **Docker File Path:** `frontend/Dockerfile`.
     *   **Docker Context Path:** `.` (Dấu chấm - bắt buộc để Nginx đọc được file config gốc).
     *   **Watch Paths:** Điền **`frontend/**`** (chỉ deploy khi sửa code frontend).
+
+![Cấu hình General và Provider cho Frontend](file:///C:/Users/ACER/.gemini/antigravity/brain/75367a7f-590f-4251-b775-ddc52a736ca1/.user_uploaded/media__1785230827241.png)
 3.  Tại tab **Advanced** -> **Cluster Settings**:
     *   Chọn **Registry** là `DockerHub`.
     *   Bấm **Save**.
