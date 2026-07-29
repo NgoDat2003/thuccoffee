@@ -206,6 +206,8 @@ docker run --rm --net dokploy-network \
 docker run --rm --net dokploy-network --entrypoint sh minio/mc -c "mc alias set local-minio http://thuccoffee-minio-dp26ab:9000 minioadmin minioadmin && mc anonymous set download local-minio/thuccoffee"
 ```
 
+![Kết quả chạy lệnh cấu hình quyền đọc MinIO](file:///C:/Users/ACER/.gemini/antigravity/brain/75367a7f-590f-4251-b775-ddc52a736ca1/.user_uploaded/media__1785289138581.png)
+
 ---
 
 ## PHẦN 3: VẬN HÀNH HÀNG NGÀY & KHẮC PHỤC SỰ CỐ
