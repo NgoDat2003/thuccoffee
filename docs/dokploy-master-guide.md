@@ -199,6 +199,8 @@ docker run --rm --net dokploy-network \
 ```
 *(Lưu ý: Thay thế các biến `DATABASE_URL` và `MINIO_ENDPOINT` cho đúng với tên service thực tế trên Dokploy của bạn).*
 
+![Kết quả chạy lệnh Bootstrap thành công](file:///C:/Users/ACER/.gemini/antigravity/brain/75367a7f-590f-4251-b775-ddc52a736ca1/.user_uploaded/media__1785288959804.png)
+
 3.  **Cấu hình quyền đọc ảnh công khai cho MinIO:** Chạy lệnh sau để người dùng có thể truy cập xem ảnh sản phẩm trực tiếp từ trình duyệt mà không bị chặn quyền:
 ```bash
 docker run --rm --net dokploy-network --entrypoint sh minio/mc -c "mc alias set local-minio http://thuccoffee-minio-sui5ds:9000 minioadmin minioadmin && mc anonymous set download local-minio/thuccoffee"
