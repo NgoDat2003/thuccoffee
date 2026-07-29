@@ -7,45 +7,53 @@ Tài liệu này là cẩm nang hướng dẫn đầy đủ từ lý thuyết đ
 
 ## PHẦN 1: TỔNG QUAN VÀ SO SÁNH DOKPLOY VS RAW DOCKER
 
-### 1. Kiến trúc hoạt động và các Công nghệ Cốt lõi của Dokploy
+### 1. Dokploy là gì và tại sao lại chọn nó?
 
-Dokploy không tự chạy độc lập mà là một lớp quản trị giao diện (Control Panel) được xây dựng trên hai nền tảng công nghệ DevOps cực kỳ mạnh mẽ chạy ngầm: **Docker Swarm** và **Traefik**.
+**Dokploy** là một nền tảng quản lý hạ tầng (PaaS - Platform as a Service) mã nguồn mở, cho phép bạn tự host một hệ thống tương tự Vercel, Heroku hay Netlify trên chính máy chủ (VPS) của mình. 
+
+Thay vì phải gõ hàng tá lệnh Docker, quản lý file `docker-compose.yml` thủ công, hay viết script CI/CD dài dòng, Dokploy cung cấp một giao diện Web (Control Panel) cực kỳ trực quan giúp tự động hóa toàn bộ quy trình DevOps.
+
+**Tại sao Thức Coffee lại sử dụng Dokploy thay vì Raw Docker?**
+*   **Zero Vendor Lock-in:** Bạn sở hữu dữ liệu và máy chủ của mình (100% Data Sovereignty), không bị trói buộc bởi mức giá "cắt cổ" khi scale-up như của Vercel hay Heroku.
+*   **Giao diện trực quan (UI/UX):** Mọi thao tác deploy, cấu hình Environment Variables (Biến môi trường), xem Logs thời gian thực đều được thực hiện qua click-chuột, phù hợp cho cả lập trình viên Frontend ít kinh nghiệm DevOps.
+*   **Linh hoạt Build System:** Dokploy hỗ trợ build ứng dụng trực tiếp từ mã nguồn qua **Nixpacks** (tự động nhận diện Node.js, Python, Go...), **Heroku Buildpacks**, hoặc **Dockerfile** truyền thống.
+*   **Bảo mật & Phân quyền (RBAC):** Có sẵn hệ thống quản lý User, phân quyền theo Role, giúp làm việc nhóm an toàn.
+
+### 2. Kiến trúc hoạt động và các Công nghệ Cốt lõi của Dokploy
+
+Về bản chất, Dokploy không tự phát minh ra công nghệ chạy ứng dụng mới, mà nó là một lớp "nhạc trưởng" điều phối các công nghệ DevOps tốt nhất hiện nay: **Next.js (Giao diện), Docker Swarm (Chạy ứng dụng), và Traefik (Định tuyến mạng)**.
 
 #### a. Docker Swarm - Người quản gia vận hành cụm dịch vụ
 Docker Swarm là công nghệ quản lý cụm container (Orchestrator) được tích hợp sẵn trong Docker. Dokploy sử dụng Swarm để mang lại các tính năng cấp doanh nghiệp:
-*   **Quản lý Service thay vì Container:** Thay vì chạy các container đơn lẻ, Swarm nhóm chúng thành các **Service** (ví dụ: `thucbackend`, `frontend`). Điều này cho phép quản lý log tập trung qua `docker service logs` và nhân bản nhanh chóng qua thanh kéo chỉnh `Replicas` trên UI.
-*   **Tự phục hồi (Self-Healing):** Swarm liên tục giám sát trạng thái của container. Nếu code Backend bị lỗi tràn RAM hoặc crash đột ngột, Swarm sẽ lập tức tắt nó đi và khởi chạy lại một container mới khỏe mạnh trong vòng mili-giây mà người dùng không hề hay biết.
-*   **Cơ chế lưu lịch sử tác vụ (Task History):** 
-    *   Mỗi khi bạn tắt máy chủ đột ngột (như chạy `wsl --shutdown`) hoặc deploy phiên bản mới, Swarm sẽ đánh dấu container cũ là **`Shutdown` (Vòng tròn rỗng ⚪)** và giữ lại xác của nó trong lịch sử (tối đa 5 bản gần nhất). 
-    *   Các container đã tắt này **hoàn toàn không tiêu tốn CPU/RAM**, chúng chỉ được giữ lại để bạn có thể xem lại log cũ khi cần debug.
-*   **Cập nhật stop-first và HOST Port Mode clashing:**
-    *   Do ứng dụng của chúng ta chạy cổng vật lý trên máy host ở chế độ **`HOST` port mode** (để dễ dàng truy cập từ Windows `localhost:8080` hoặc `8081`).
-    *   Mặc định Swarm sẽ cập nhật theo dạng `start-first` (bật bản mới chạy ổn định rồi mới tắt bản cũ). Nhưng do bản mới cố cắm vào cổng `8080`/`8081` khi bản cũ chưa tắt, Docker sẽ báo lỗi `"host-mode port already in use"`.
-    *   Chuyển sang cấu hình **`stop-first` (Tắt trước, Bật sau)** giúp giải phóng cổng mạng vật lý trước khi khởi động container mới, triệt tiêu hoàn toàn lỗi kẹt cổng.
+*   **Quản lý Service thay vì Container:** Thay vì chạy các container đơn lẻ, Swarm nhóm chúng thành các **Service** (ví dụ: `thucbackend`, `frontend`). Điều này cho phép quản lý log tập trung và khả năng nhân bản (Scale) nhanh chóng qua thanh kéo chỉnh `Replicas` trên UI.
+*   **Tự phục hồi (Self-Healing) & Zero-Downtime:** Swarm liên tục giám sát trạng thái (Health-check). Nếu app bị crash, Swarm sẽ lập tức tắt nó đi và khởi chạy lại container mới trong mili-giây. Khi Deploy bản mới, nó cũng áp dụng cơ chế Rolling Update để đảm bảo ứng dụng không bao giờ bị gián đoạn (Zero-Downtime).
+*   **Cơ chế lưu lịch sử tác vụ (Task History):** Mỗi khi deploy bản mới hoặc tắt máy chủ đột ngột, Swarm sẽ đánh dấu container cũ là **`Shutdown` (Vòng tròn rỗng ⚪)**. Các xác container này **không tốn CPU/RAM**, chỉ được giữ lại để xem logs cũ khi debug.
+*   **Cập nhật stop-first và Lỗi kẹt cổng (Host Mode):** 
+    *   Do dự án chạy cổng vật lý ở chế độ **`HOST` mode**, mặc định Swarm sẽ tạo container mới trước khi tắt container cũ (`start-first`), dẫn đến lỗi xung đột `"host-mode port already in use"`. 
+    *   Giải pháp là vào tab Cluster Settings, chuyển sang **`stop-first`** (Tắt container cũ trước, giải phóng cổng, rồi mới bật container mới lên).
 
 #### b. Traefik - Người điều hướng và Proxy ngược (Reverse Proxy)
-Traefik là một Edge Router/Reverse Proxy thông minh, đứng ở cổng trước tiếp nhận mọi truy cập mạng (cổng 80 và 443) đi vào VPS của bạn:
-*   **Tự động định tuyến tên miền (Domain Routing):** Khi bạn điền domain `thuccoffee.com` cho Frontend và `api.thuccoffee.com` cho Backend, Traefik sẽ tự động đọc nhãn dán (`labels`) của container để điều hướng khách truy cập vào đúng nơi mà không cần bạn phải viết file cấu hình Nginx phức tạp.
-*   **Tự động cấp phát SSL (Automatic HTTPS):** Traefik tự động giao tiếp với Let's Encrypt để xin và gia hạn chứng chỉ HTTPS hoàn toàn miễn phí cho tất cả các tên miền bạn khai báo trên giao diện Dokploy.
+Traefik là một Edge Router/Reverse Proxy thông minh, đóng vai trò như "bảo vệ cổng" tiếp nhận mọi truy cập mạng (cổng 80 và 443) đi vào VPS:
+*   **Tự động định tuyến (Dynamic Routing):** Khác với Nginx phải viết file `conf` rườm rà, khi bạn điền tên miền `thuccoffee.com` trên Dokploy, Traefik sẽ tự động đọc nhãn dán (`labels`) của Docker container và điều hướng traffic vào đúng ứng dụng ngay lập tức.
+*   **Tự động cấp phát SSL (Automatic HTTPS):** Traefik giao tiếp ngầm với Let's Encrypt để xin cấp và tự động gia hạn chứng chỉ HTTPS miễn phí cho mọi tên miền, đảm bảo kết nối bảo mật chuẩn SSL.
 
-#### c. Cơ chế tự động co giãn RAM của Node.js (V8 Engine) trong Dokploy
-Bản thân bảng quản trị Dokploy được viết bằng Next.js (NodeJS) chạy trên trình thông dịch V8 Engine của Google, có cơ chế quản lý bộ nhớ đệm cực kỳ linh hoạt:
-*   **Mức RAM cơ bản thực tế:** Chỉ cần khoảng **150MB - 200MB RAM** để sống và hoạt động.
-*   **Hiện tượng tăng RAM lên 800MB - 900MB trên Local:** Do máy tính local của bạn đang thừa rất nhiều bộ nhớ (ví dụ cấp cho máy ảo WSL2 đến 9.7GB RAM). V8 Engine sẽ tự động giữ lại toàn bộ cache trang giao diện, logs và các query database trong bộ nhớ RAM để tăng tốc độ phản hồi tối đa cho UI mà không cần kích hoạt bộ dọn rác (Garbage Collector).
-*   **Khả năng tự co cụm trên VPS yếu (2GB RAM):** Khi đưa lên VPS thực tế có tài nguyên giới hạn, dưới áp lực bộ nhớ (Memory Pressure) của hệ điều hành, bộ dọn rác V8 sẽ hoạt động cực kỳ quyết liệt. Dokploy sẽ **tự động co RAM lại chỉ còn khoảng 250MB - 400MB** để nhường RAM cho ứng dụng của bạn, giúp hệ thống hoạt động ổn định trên cả các dòng VPS cấu hình thấp.
+#### c. Cơ chế tự động co giãn RAM của Node.js (V8 Engine)
+Bản thân bảng quản trị Dokploy được viết bằng Next.js (NodeJS) chạy trên trình thông dịch V8 Engine của Google, có cơ chế quản lý bộ nhớ đệm (Garbage Collector) cực kỳ linh hoạt:
+*   **Mức RAM cơ bản thực tế:** Hệ thống chỉ cần khoảng **150MB - 200MB RAM** để sống và hoạt động.
+*   **Hiện tượng ăn RAM "ảo" trên Local (800MB - 1GB):** Khi chạy ở máy tính local thừa RAM (ví dụ máy WSL2 có 9.7GB RAM), V8 Engine sẽ cố tình giữ lại toàn bộ cache trang giao diện, logs và các query database trong bộ nhớ RAM để tăng tốc độ phản hồi UI tối đa, vì lúc này chưa có áp lực tài nguyên.
+*   **Khả năng tự co cụm trên VPS yếu (2GB RAM):** Khi đưa lên VPS thực tế có tài nguyên giới hạn (Memory Pressure), bộ dọn rác V8 sẽ hoạt động cực kỳ quyết liệt. Dokploy sẽ **tự động ép RAM lại chỉ còn 250MB - 400MB** để nhường chỗ cho ứng dụng thật của bạn.
 
----
+### 3. So sánh chi tiết: Dokploy vs Raw Docker (Cấu hình thô)
 
-### 2. So sánh thông số kỹ thuật thực tế (Đo đạc tại Local)
-
-| Tiêu chí | Cấu hình thô (Raw Docker) | Cấu hình qua Dokploy (PaaS) |
-| :--- | :--- | :--- |
-| **RAM chạy nền (Idle)** | ~50MB - 100MB | ~250MB - 350MB (Trên VPS thực tế) / ~800MB (Trên Local thừa RAM) |
-| **RAM dự án Thức Coffee** | ~200 MB | ~190 MB (Front: 5MB, Back: 75MB, MinIO: 93MB, DB: 17MB) |
-| **Dung lượng ổ đĩa (Disk)** | Rất nhẹ (~100MB) | Khoảng 4.26 GB (Giải nén chứa sẵn các compiler Nixpacks để build code) |
-| **CI/CD tự động** | Phải tự cấu hình tay (GitHub Actions, SSH) | Tự động hoàn toàn qua Webhook (mất 5 phút cấu hình) |
-| **Gia hạn SSL & HTTPS** | Phải cài Certbot và tự cấu hình Nginx | Tự động cấp và gia hạn 100% bằng giao diện |
-| **Backup dữ liệu** | Phải tự viết script bash | Có sẵn tính năng backup tự động lên S3/Google Drive |
+| Tiêu chí | Cấu hình thô (Raw Docker) | Cấu hình qua Dokploy (PaaS) | Nhận xét |
+| :--- | :--- | :--- | :--- |
+| **Giao diện quản lý** | Chỉ có Terminal dòng lệnh (CLI). | Giao diện Web trực quan, thống kê CPU/RAM/Network thời gian thực. | Dokploy tiện lợi hơn, phù hợp cho team nhiều Roles. |
+| **RAM chạy nền (Idle)** | ~50MB - 100MB (Rất nhẹ). | ~250MB - 350MB (Trên VPS) / ~800MB (Trên Local thừa RAM). | Đánh đổi vài trăm MB RAM để lấy sự nhàn hạ khi quản lý là cực kỳ xứng đáng. |
+| **Dung lượng Ổ đĩa** | Rất nhẹ (~100MB). | Khoảng 4.26 GB. | Dokploy nặng hơn do tải sẵn các bộ compiler (Node, Go, Python...) của Nixpacks để build code. |
+| **Triển khai tự động (CI/CD)** | Phải tự viết file GitHub Actions YAML, cài SSH keys trên VPS. | Tích hợp sẵn, chỉ cần dán Webhook URL vào GitHub, push code là tự động build. | Tốc độ thiết lập CI/CD của Dokploy chưa tới 5 phút. |
+| **Cấu hình Domain & SSL** | Phải tự viết cấu hình Nginx, cài Certbot/Cronjob để xin SSL. | Chỉ cần gõ tên miền vào ô input và bật nút, Traefik sẽ làm 100% tự động. | Dokploy ăn đứt về mặt tiện lợi. |
+| **Quản lý Database** | Phải nhớ lệnh docker run, tự ánh xạ volume phức tạp. | 1 Click tạo được PostgreSQL, Redis, MySQL... | Có tích hợp sẵn trình xem log và backup định kỳ. |
+| **Sao lưu dữ liệu (Backup)** | Phải tự viết script bash crontab đẩy lên cloud. | Có sẵn tính năng Volume Backups tự động đẩy lên S3 (AWS, R2, MinIO). | An toàn dữ liệu tối đa trên Dokploy. |
 
 ---
 
